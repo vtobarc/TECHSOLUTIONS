@@ -96,8 +96,12 @@ WSGI_APPLICATION = 'dynamics.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',  # El motor de base de datos
+        'NAME': os.getenv('MYSQL_DATABASE'),  # Nombre de la base de datos
+        'USER': os.getenv('MYSQLUSER'),       # Usuario de la base de datos
+        'PASSWORD': os.getenv('MYSQL_ROOT_PASSWORD'),  # Contraseña de la base de datos
+        'HOST': os.getenv('MYSQLHOST'),       # Dominio de la base de datos
+        'PORT': os.getenv('MYSQLPORT'),       # Puerto de la base de datos (por defecto 3306)
     }
 }
 
