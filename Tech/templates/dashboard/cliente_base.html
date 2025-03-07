@@ -1,475 +1,1120 @@
-<!DOCTYPE html>
 <html lang="es">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detalle de Producto</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-      /* Estilos generales */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-body {
-    background-color: #f5f5f5;
-    color: #333;
-    line-height: 1.6;
-}
-
-a {
-    color: #0056b3;
-    text-decoration: none;
-}
-
-a:hover {
-    text-decoration: underline;
-}
-
-/* Contenedor principal */
-.product-detail-container {
-    max-width: 1200px;
-    margin: 20px auto;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-}
-
-/* Encabezado del producto */
-.product-detail-header {
-    padding: 20px;
-    border-bottom: 1px solid #eee;
-}
-
-.product-detail-header h1 {
-    font-size: 24px;
-    color: #333;
-    margin-bottom: 8px;
-}
-
-.category-name {
-    font-size: 14px;
-    color: #666;
-}
-
-/* Cuerpo del detalle del producto */
-.product-detail-body {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 30px;
-    padding: 20px;
-}
-
-@media (max-width: 768px) {
-    .product-detail-body {
-        grid-template-columns: 1fr;
-    }
-}
-
-/* Galería de imágenes */
-.product-image-gallery {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.main-image-container {
-    position: relative;
-    border: 1px solid #eee;
-    border-radius: 8px;
-    overflow: hidden;
-    aspect-ratio: 1/1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-#main-product-image {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
-}
-
-.thumbnail-container {
-    display: flex;
-    gap: 10px;
-    overflow-x: auto;
-    padding-bottom: 10px;
-}
-
-.thumbnail {
-    width: 70px;
-    height: 70px;
-    object-fit: cover;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.thumbnail:hover {
-    border-color: #0056b3;
-}
-
-.thumbnail.active {
-    border: 2px solid #0056b3;
-}
-
-/* Botones de navegación de imágenes */
-.image-nav-button {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background-color: rgba(255, 255, 255, 0.7);
-    border: none;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    font-size: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    z-index: 2;
-}
-
-.image-nav-button:hover {
-    background-color: rgba(255, 255, 255, 0.9);
-}
-
-.prev-button {
-    left: 10px;
-}
-
-.next-button {
-    right: 10px;
-}
-
-/* Botones de favorito y zoom */
-.favorite-button, .zoom-button {
-    position: absolute;
-    background-color: rgba(255, 255, 255, 0.7);
-    border: none;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    z-index: 2;
-}
-
-.favorite-button:hover, .zoom-button:hover {
-    background-color: rgba(255, 255, 255, 0.9);
-}
-
-.favorite-button {
-    top: 10px;
-    right: 10px;
-}
-
-.zoom-button {
-    bottom: 10px;
-    right: 10px;
-}
-
-/* Información del producto */
-.product-info {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.description {
-    max-height: 100px;
-    overflow: hidden;
-    transition: max-height 0.3s ease;
-}
-
-.description.expanded {
-    max-height: 1000px;
-}
-
-.show-more-link {
-    color: #0056b3;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 500;
-}
-
-.price {
-    font-size: 24px;
-    font-weight: bold;
-    color: #0056b3;
-}
-
-.availability {
-    font-size: 16px;
-}
-
-.available {
-    color: #28a745;
-    font-weight: 500;
-}
-
-.not-available {
-    color: #dc3545;
-    font-weight: 500;
-}
-
-/* Características del producto */
-.product-features {
-    background-color: #f9f9f9;
-    padding: 15px;
-    border-radius: 8px;
-}
-
-.product-features ul {
-    list-style-type: none;
-    margin-top: 10px;
-    columns: 2;
-}
-
-.product-features li {
-    margin-bottom: 5px;
-    font-size: 14px;
-}
-
-@media (max-width: 576px) {
-    .product-features ul {
-        columns: 1;
-    }
-}
-
-/* Color del producto */
-.product-color {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.color-circle {
-    display: inline-block;
-    width: 25px;
-    height: 25px;
-    border-radius: 50%;
-    border: 1px solid #ddd;
-}
-
-/* Botón de añadir al carrito */
-.add-to-cart-btn {
-    background-color: #0056b3;
-    color: white;
-    border: none;
-    padding: 12px 20px;
-    border-radius: 4px;
-    font-size: 16px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 10px;
-}
-
-.add-to-cart-btn:hover {
-    background-color: #003d82;
-}
-
-/* Códigos de producto */
-.product-codes {
-    display: flex;
-    gap: 20px;
-    margin-top: 20px;
-}
-
-.code-image {
-    max-height: 60px;
-}
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deprati Tienda Online | Compra Ropa de Moda, Tecnología y más</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* Base Styles */
+    :root {
+     --primary: #04507a;
+     --primary-light: #4169a7;
+     --primary-dark: #1b2834;
+     --secondary: #91d6c7;
+     --secondary-light: #00d7e4;
+     --secondary-dark: #336550;
+     --accent: #f0606c;
+     --accent-purple: #bfa2d0;
+     --neutral-50: #d7e4ea;
+     --neutral-100: #cbdee2;
+     --neutral-200: #badce7;
+     --neutral-300: #b3e3f1;
+     --neutral-400: #8aaabb;
+     --neutral-500: #4e6672;
+     --neutral-600: #555b62;
+     --neutral-700: #2c4059;
+     --neutral-800: #1d3448;
+     --neutral-900: #1b2834;
+     --white: #ffffff;
+     --black: #000000;
+     --radius: 0.5rem;
+   }
+   
+   * {
+     margin: 0;
+     padding: 0;
+     box-sizing: border-box;
+   }
+   
+   body {
+     font-family: "Inter", sans-serif;
+     color: var(--neutral-800);
+     line-height: 1.5;
+   }
+   
+   .container {
+     width: 100%;
+     max-width: 1200px;
+     margin: 0 auto;
+     padding: 0 1rem;
+   }
+   
+   a {
+     text-decoration: none;
+     color: inherit;
+   }
+   
+   ul {
+     list-style: none;
+   }
+   
+   img {
+     max-width: 100%;
+     height: auto;
+   }
+   
+   /* Top Navigation */
+   .top-nav {
+     background-color: var(--primary-dark);
+     color: var(--white);
+     font-size: 0.875rem;
+   }
+   
+   .top-nav-links {
+     display: flex;
+     justify-content: flex-end;
+     height: 2rem;
+     align-items: center;
+   }
+   
+   .top-nav-link {
+     margin-left: 1rem;
+     transition: color 0.2s;
+   }
+   
+   .top-nav-link:hover {
+     color: var(--secondary-light);
+   }
+   
+   /* Main Navigation */
+   .main-nav {
+     background-color: var(--white);
+     border-bottom: 1px solid var(--neutral-200);
+   }
+   
+   .main-nav-content {
+     display: flex;
+     align-items: center;
+     justify-content: space-between;
+     padding: 0.75rem 0;
+   }
+   
+   .logo h1 {
+     color: var(--primary);
+     font-size: 1.5rem;
+     font-weight: 700;
+   }
+   
+   .search-container {
+     flex: 1;
+     max-width: 36rem;
+     margin: 0 1rem;
+   }
+   
+   .search-box {
+     position: relative;
+   }
+   
+   .search-box input {
+     width: 100%;
+     padding: 0.5rem 1rem 0.5rem 2.5rem;
+     border: 1px solid var(--neutral-200);
+     border-radius: var(--radius);
+     font-size: 0.875rem;
+   }
+   
+   .search-icon {
+     position: absolute;
+     left: 0.75rem;
+     top: 50%;
+     transform: translateY(-50%);
+     color: var(--neutral-500);
+     width: 1rem;
+     height: 1rem;
+   }
+   
+   .nav-actions {
+     display: flex;
+     align-items: center;
+     gap: 1rem;
+   }
+   
+   .nav-action {
+     display: flex;
+     align-items: center;
+     color: var(--primary);
+     transition: color 0.2s;
+   }
+   
+   .nav-action:hover {
+     color: var(--primary-light);
+   }
+   
+   .nav-action svg {
+     width: 1.25rem;
+     height: 1.25rem;
+     margin-right: 0.25rem;
+   }
+   
+   .nav-action-text {
+     font-size: 0.875rem;
+     display: none;
+   }
+   
+   .cart-count {
+     background-color: var(--accent);
+     color: var(--white);
+     border-radius: 50%;
+     width: 1.25rem;
+     height: 1.25rem;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     font-size: 0.75rem;
+     margin-left: 0.25rem;
+   }
+   /* Categories Menu */
+ .categories-menu {
+     background-color: var(--primary);
+     color: var(--white);
+   }
+   
+   .categories-list {
+     display: flex;
+     padding: 0.5rem 0;
+     font-size: 0.875rem;
+     font-weight: 500;
+   }
+   
+   .category-dropdown {
+     position: relative;
+   }
+   
+   .category-link {
+     white-space: nowrap;
+     padding: 0.25rem 0.75rem;
+     border-radius: var(--radius);
+     transition: background-color 0.2s;
+     text-decoration: none;
+     color: var(--white);
+     display: block;
+   }
+   
+   .category-link:hover {
+     background-color: var(--primary-light);
+   }
+   
+   /* Dropdown */
+   .dropdown-content {
+     display: none;
+     position: absolute;
+     background-color: var(--white);
+     min-width: 150px;
+     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+     z-index: 100;
+     border-radius: var(--radius);
+     overflow: hidden;
+   }
+   
+   .dropdown-content a {
+     color: var(--primary);
+     padding: 10px;
+     text-decoration: none;
+     display: block;
+     transition: background-color 0.2s;
+   }
+   
+   .dropdown-content a:hover {
+     background-color: var(--primary-light);
+     color: var(--white);
+   }
+   
+   .category-dropdown:hover .dropdown-content {
+     display: block;
+   }
+   
+   
+   
+   /* Main Banner */
+   .main-banner {
+     position: relative;
+     overflow: hidden;
+     border-radius: var(--radius);
+     margin-bottom: 30px;
+     height: 300px; /* Set a fixed height for the banner */
+   }
+   
+   .banner-content {
+     position: absolute;
+     top: 0;
+     left: 0;
+     width: 100%;
+     height: 100%;
+     display: flex;
+     align-items: center;
+     justify-content: flex-start; /* Align content to the left */
+     padding: 30px;
+     gap: 30px;
+     background: rgba(255, 255, 255, 0.7); /* Semi-transparent white background */
+     z-index: 1; /* Ensure content is above the image */
+     transition: background 0.3s var(--animation-bezier);
+   }
+   
+   .main-banner:hover .banner-content {
+     background: rgba(255, 255, 255, 0.9); /* Slightly less transparent on hover */
+   }
+   
+   .banner-text {
+     flex: 1;
+     text-align: left; /* Align text to the left */
+     z-index: 1; /* Ensure image is behind the content */
+   
+   }
+   
+   .banner-text h2 {
+     color: var(--primary-dark);
+     font-size: 3rem; /* Slightly larger font size */
+     margin-bottom: 20px;
+     line-height: 1.2; /* Improve readability */
+   }
+   
+   .banner-text p {
+     font-size: 1.3rem;
+     color: var(--neutral-600);
+     margin-bottom: 30px;
+   }
+   
+   .btn-accent {
+     background-color: var(--accent);
+     color: var(--white);
+     border: none;
+     padding: 14px 28px;
+     border-radius: var(--radius);
+     cursor: pointer;
+     font-size: 1.1rem;
+     font-weight: 600;
+     transition: background-color 0.3s ease;
+     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+   }
+   
+   .btn-accent:hover {
+     background-color: var(--accent-purple);
+     transform: translateY(-2px); /* Slight lift on hover */
+     box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+   }
+   
+   .banner-image {
+     /*position: absolute;*/
+     top: 0;
+     left: 0;
+     width: 100%;
+     height: 100%;
+     z-index: 0; /* Ensure image is behind the content */
+   }
+   
+   .banner-image img {
+     width: 100%;
+     height: 100%;
+     object-fit: cover;
+     border-radius: var(--radius);
+     display: block;
+     transition: transform 0.5s var(--animation-bezier); /* Smooth zoom effect */
+   }
+   /*
+   .main-banner:hover .banner-image img {
+     transform: scale(1.1); 
+   }*/
+   
+   
+   /* Category Section Styles */
+   .category-section {
+     margin-bottom: 40px;
+   }
+   
+   .category-carousel {
+     overflow: hidden;
+   }
+   
+   .category-grid {
+     display: flex; 
+     gap: 25px; 
+     width: max-content; 
+     animation: scroll 30s linear infinite; 
+   }
+   
+   .category-grid:hover {
+     animation-play-state: paused; 
+   }
+   
+   .category-card {
+     background-color: var(--white);
+     border-radius: var(--radius);
+     overflow: hidden;
+     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08); 
+     transition: transform 0.3s ease, box-shadow 0.3s ease;
+     width: 280px; 
+     flex-shrink: 0; 
+   }
+   
+   .category-card:hover {
+     transform: translateY(-8px); 
+     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12); 
+   }
+   
+   .category-image {
+     height: 220px; 
+     overflow: hidden;
+   }
+   
+   .category-image img {
+     width: 100%;
+     height: 100%;
+     object-fit: cover;
+     display: block;
+     transition: transform 0.4s var(--animation-bezier); 
+   }
+   
+   .category-card:hover .category-image img {
+     transform: scale(1.1); 
+   }
+   
+   .category-info {
+     padding: 25px;
+   }
+   
+   .category-info h3 {
+     color: var(--primary-dark);
+     margin-bottom: 12px;
+     font-size: 1.3rem;
+     font-weight: 600;
+   }
+   
+   .category-info p {
+     color: var(--neutral-500);
+     font-size: 1rem;
+     line-height: 1.5; 
+   }
+   
+   /* Keyframes for Carousel Animation */
+   @keyframes scroll {
+     0% {
+       transform: translateX(0);
+     }
+     100% {
+       transform: translateX(calc(-280px * 4)); 
+     }
+   }
+   
+   /* Product Section */
+   .product-section {
+     padding: 3rem 0;
+     background-color: var(--white);
+   }
+   
+   .section-title {
+     font-size: 1.5rem;
+     font-weight: 700;
+     color: var(--primary);
+     margin-bottom: 2rem;
+   }
+   
+   .product-grid {
+     display: grid;
+     grid-template-columns: repeat(2, 1fr);
+     gap: 1.5rem;
+   }
+   
+   .product-card {
+     background-color: var(--white);
+     border-radius: var(--radius);
+     overflow: hidden;
+     transition: box-shadow 0.3s;
+   }
+   
+   .product-card:hover {
+     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+   }
+   
+   .product-image {
+     height: 12rem;
+     background-color: var(--neutral-50);
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     padding: 1rem;
+   }
+   
+   .product-image img {
+     max-height: 100%;
+     object-fit: contain;
+   }
+   
+   .product-info {
+     padding: 1rem;
+   }
+   
+   .product-info h3 {
+     font-size: 0.875rem;
+     font-weight: 500;
+     color: var(--neutral-800);
+     margin-bottom: 0.5rem;
+     display: -webkit-box;
+     -webkit-line-clamp: 3;
+     -webkit-box-orient: vertical;
+     overflow: hidden;
+   }
+   
+   .product-price {
+     font-size: 1.125rem;
+     font-weight: 700;
+     color: var(--primary);
+   }
+   
+   /* Appliance Section */
+   .appliance-section {
+     padding: 3rem 0;
+     background-color: var(--neutral-50);
+   }
+   
+   /* Store Info */
+   .store-info {
+     padding: 3rem 0;
+     background-color: var(--white);
+   }
+   
+   .info-title {
+     font-size: 1.25rem;
+     font-weight: 700;
+     color: var(--primary-dark);
+     margin-bottom: 1.5rem;
+   }
+   
+   .info-text {
+     font-size: 0.875rem;
+     color: var(--neutral-600);
+     margin-bottom: 2.5rem;
+   }
+   
+   .info-text p {
+     margin-bottom: 1rem;
+   }
+   
+   .features-grid {
+     display: grid;
+     grid-template-columns: repeat(2, 1fr);
+     gap: 1.5rem;
+   }
+   
+   .feature {
+     text-align: center;
+   }
+   
+   .feature-icon {
+     background-color: var(--primary-light);
+     color: var(--white);
+     width: 4rem;
+     height: 4rem;
+     border-radius: 50%;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     font-size: 1.5rem;
+     margin: 0 auto 0.75rem;
+   }
+   
+   .feature h3 {
+     font-size: 0.875rem;
+     font-weight: 700;
+     color: var(--primary-dark);
+   }
+   
+   /* Footer */
+   .footer {
+     background-color: var(--primary-dark);
+     color: var(--white);
+     padding: 3rem 0 1.5rem;
+   }
+   
+   .footer-grid {
+     display: grid;
+     grid-template-columns: repeat(1, 1fr);
+     gap: 2rem;
+     margin-bottom: 3rem;
+   }
+   
+   .footer-column h3 {
+     font-size: 1rem;
+     font-weight: 700;
+     margin-bottom: 1rem;
+   }
+   
+   .footer-column ul {
+     font-size: 0.875rem;
+   }
+   
+   .footer-column li {
+     margin-bottom: 0.5rem;
+   }
+   
+   .footer-column a {
+     transition: color 0.2s;
+   }
+   
+   .footer-column a:hover {
+     color: var(--secondary-light);
+   }
+   
+   .footer-column p {
+     font-size: 0.875rem;
+     margin-bottom: 1rem;
+   }
+   
+   .newsletter-form {
+     display: flex;
+     gap: 0.5rem;
+   }
+   
+   .newsletter-form input {
+     flex: 1;
+     padding: 0.5rem;
+     background-color: rgba(255, 255, 255, 0.1);
+     border: 1px solid rgba(255, 255, 255, 0.2);
+     color: var(--white);
+     border-radius: var(--radius);
+     font-size: 0.875rem;
+   }
+   
+   .newsletter-form button {
+     background-color: var(--accent);
+     color: var(--white);
+     border: none;
+     padding: 0.5rem 1rem;
+     border-radius: var(--radius);
+     font-size: 0.875rem;
+     cursor: pointer;
+     transition: background-color 0.2s;
+   }
+   
+   
+   .newsletter-form button:hover {
+     background-color: var(--accent);
+     opacity: 0.9;
+   }
+   
+   .footer-bottom {
+     border-top: 1px solid rgba(255, 255, 255, 0.1);
+     padding-top: 1.5rem;
+     display: flex;
+     flex-direction: column;
+     gap: 1rem;
+     font-size: 0.75rem;
+     color: rgba(255, 255, 255, 0.7);
+   }
+   
+   .footer-contact {
+     text-align: left;
+   }
+   
+   .social-icons {
+     display: flex;
+     gap: 20px;
+ }
+ 
+ .social-icons a {
+     color: #555;
+     font-size: 24px;
+     text-decoration: none;
+     transition: color 0.3s ease;
+ }
+ 
+ .social-icons a[href*="facebook.com"] {
+     color: #1877F2; /* Facebook */
+ }
+ 
+ .social-icons a[href*="twitter.com"] {
+     color: #1DA1F2; /* Twitter */
+ }
+ 
+ .social-icons a[href*="instagram.com"] {
+     color: #E4405F; /* Instagram */
+ }
+ 
+ .social-icons a[href*="linkedin.com"] {
+     color: #0077B5; /* LinkedIn */
+ }
+ 
+ .social-icons a:hover {
+     opacity: 0.8; /* Reduce opacity on hover instead of changing color */
+ }
+   
+   /* Responsive Styles */
+   @media (min-width: 640px) {
+     .nav-action-text {
+       display: inline;
+     }
+   
+     .product-grid {
+       grid-template-columns: repeat(2, 1fr);
+     }
+   
+     .features-grid {
+       grid-template-columns: repeat(2, 1fr);
+     }
+   
+     .footer-grid {
+       grid-template-columns: repeat(2, 1fr);
+     }
+   }
+   
+   @media (min-width: 768px) {
+     .banner-content {
+       grid-template-columns: 1fr 1fr;
+     }
+   
+     .category-grid {
+       grid-template-columns: repeat(2, 1fr);
+     }
+   
+     .features-grid {
+       grid-template-columns: repeat(4, 1fr);
+     }
+   }
+   
+   @media (min-width: 1024px) {
+     .category-grid {
+       grid-template-columns: repeat(4, 1fr);
+     }
+   
+     .product-grid {
+       grid-template-columns: repeat(4, 1fr);
+     }
+   
+     .footer-grid {
+       grid-template-columns: repeat(4, 1fr);
+     }
+   
+     .footer-bottom {
+       flex-direction: row;
+       justify-content: space-between;
+     }
+   }
+   
+   
+  </style>
 </head>
+
 <body>
-    <div class="product-detail-container">
-        <div class="product-detail-header">
-            <h1>Tablet ENV Quad Core 10.1" HD (4+128Gb) Android WIFI</h1>
-            <p class="category-name">Categoría: <a href="#">Tablets</a></p>
+ 
+
+  <!-- Main Navigation -->
+    <div class="container">
+      <div class="main-nav-content">
+        <a href="/" class="logo">
+          <h1>DEPRATI</h1>
+        </a>
+
+        <div class="search-container">
+          <div class="search-box">
+            <input type="search" placeholder="Busca tu producto">
+            <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </div>
         </div>
 
-        <div class="product-detail-body">
-            <div class="product-image-gallery">
-                <div class="thumbnail-container">
-                    <img src="https://via.placeholder.com/100x100" alt="Tablet ENV - Imagen 1" class="thumbnail active" onclick="changeImage(0)">
-                    <img src="https://via.placeholder.com/100x100" alt="Tablet ENV - Imagen 2" class="thumbnail" onclick="changeImage(1)">
-                    <img src="https://via.placeholder.com/100x100" alt="Tablet ENV - Imagen 3" class="thumbnail" onclick="changeImage(2)">
-                    <img src="https://via.placeholder.com/100x100" alt="Tablet ENV - Imagen 4" class="thumbnail" onclick="changeImage(3)">
-                </div>
-        
-                <div class="main-image-container">
-                    <img id="main-product-image" src="https://via.placeholder.com/500x500" alt="Tablet ENV Quad Core 10.1">
-                    <button class="image-nav-button prev-button" onclick="prevImage()">❮</button>
-                    <button class="image-nav-button next-button" onclick="nextImage()">❯</button>
-                    <button class="favorite-button"><i class="far fa-heart"></i></button>
-                    <button class="zoom-button" onclick="zoomImage()"><i class="fas fa-search-plus"></i></button>
-                </div>
-            </div>
-
-            <div class="product-info">
-                <div class="description" id="product-description">
-                    <p>La Tablet ENV Quad Core 10.1" es la combinación perfecta de rendimiento y portabilidad. Con su procesador Quad Core T310 y 4GB de RAM, esta tablet ofrece un rendimiento fluido para todas tus aplicaciones y juegos favoritos.</p>
-                    <p>Su pantalla de 10.1 pulgadas con resolución de 800x1280 píxeles te brinda una experiencia visual nítida y colorida, ideal para ver videos, navegar por internet o leer tus libros favoritos.</p>
-                </div>
-                <span class="show-more-link" id="show-more" onclick="toggleDescription()">Ver más</span>
-
-                <p class="price">Precio: $114.00 + iva</p>
-                <p class="availability">
-                    <span class="available">✓ Disponible</span>
-                </p>
-
-                <div class="product-features">
-                    <strong>Características:</strong>
-                    <ul>
-                        <li>• Pantalla 10.1 pulgadas</li>
-                        <li>• Procesador Quad core</li>
-                        <li>• T310 cuatro núcleos</li>
-                        <li>• 4GB RAM</li>
-                        <li>• 128GB ALMACENAMIENTO</li>
-                        <li>• Resolución 800*1280 píxeles</li>
-                        <li>• Cámara frontal 2.0</li>
-                        <li>• Cámara trasera 5.0</li>
-                        <li>• TP negro</li>
-                        <li>• Batería 5000mAh</li>
-                        <li>• caja de metal wifi</li>
-                        <li>• BT4.0 adaptador de 5V/2A</li>
-                        <li>• Incluye: cable/manual USB/OTG</li>
-                        <li>• banda 4G: B2/B4</li>
-                        <li>• SIM CARD</li>
-                        <li>• WIFI</li>
-                    </ul>
-                </div>
-
-                <div class="product-color">
-                    <strong>Color:</strong>
-                    <span class="color-circle" style="background-color: blue;"></span>
-                    <span>blue</span>
-                </div>
-
-                <form action="#" method="POST">
-                    <button type="submit" class="add-to-cart-btn">
-                        <i class="fas fa-shopping-cart"></i>
-                        Añadir al Carrito
-                    </button>
-                </form>
-
-                <div class="product-codes">
-                    <img src="https://via.placeholder.com/150x50" alt="Código de barras" class="code-image">
-                    <img src="https://via.placeholder.com/100x100" alt="Código QR" class="code-image">
-                </div>
-            </div>
+        <div class="nav-actions">
+          <a href="#" class="nav-action">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            <span class="nav-action-text">Mi Cuenta</span>
+          </a>
+          <a href="#" class="nav-action">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <path d="M16 10a4 4 0 0 1-8 0"></path>
+            </svg>
+            <span class="nav-action-text">Mis compras</span>
+            <span class="cart-count">0</span>
+          </a>
         </div>
+      </div>
     </div>
 
-    <script>
-        let currentImageIndex = 0;
-        const images = [
-            "https://via.placeholder.com/500x500",
-            "https://via.placeholder.com/500x500/0000FF",
-            "https://via.placeholder.com/500x500/FF0000",
-            "https://via.placeholder.com/500x500/00FF00"
-        ];
-        
-        function changeImage(index) {
-            if (images.length === 0) return;
-            
-            currentImageIndex = index;
-            document.getElementById('main-product-image').src = images[index];
-            
-            // Update active thumbnail
-            const thumbnails = document.querySelectorAll('.thumbnail');
-            thumbnails.forEach((thumb, i) => {
-                if (i === index) {
-                    thumb.classList.add('active');
-                } else {
-                    thumb.classList.remove('active');
-                }
-            });
-        }
-        
-        function nextImage() {
-            if (images.length === 0) return;
-            currentImageIndex = (currentImageIndex + 1) % images.length;
-            changeImage(currentImageIndex);
-        }
-        
-        function prevImage() {
-            if (images.length === 0) return;
-            currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
-            changeImage(currentImageIndex);
-        }
-        
-        function toggleDescription() {
-            const description = document.getElementById('product-description');
-            const showMoreLink = document.getElementById('show-more');
-            
-            if (description.classList.contains('expanded')) {
-                description.classList.remove('expanded');
-                showMoreLink.textContent = 'Ver más';
-            } else {
-                description.classList.add('expanded');
-                showMoreLink.textContent = 'Ver menos';
-            }
-        }
+  <!-- Categories Menu -->
+  <div class="categories-menu">
+    <div class="container">
+      <div class="categories-list">
+           <!-- Otros enlaces fijos -->
+           <div class="category-dropdown">
+            <a href="#" class="category-link">NOSOTROS <i class="fas fa-chevron-down"></i></a>
+            <div class="dropdown-content">
+                <a href="">Quiénes somos</a>
+                <a href="">Nuestra historia</a>
+                <a href="">Contacto</a>
+            </div>
+          </div>
+          
+    
+        <!-- Categoría Principal Fija: Productos -->
+        <div class="category-dropdown">
+          <a href="" class="category-link">PRODUCTOS</a>
+          <div class="dropdown-content">
+         
+          </div>
+        </div>
 
-        // Función para hacer zoom en la imagen
-        function zoomImage() {
-            const image = document.getElementById('main-product-image');
-            
-            // Crear un modal de zoom
-            const zoomModal = document.createElement('div');
-            zoomModal.style.position = 'fixed';
-            zoomModal.style.top = '0';
-            zoomModal.style.left = '0';
-            zoomModal.style.width = '100vw';
-            zoomModal.style.height = '100vh';
-            zoomModal.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
-            zoomModal.style.display = 'flex';
-            zoomModal.style.justifyContent = 'center';
-            zoomModal.style.alignItems = 'center';
-            zoomModal.style.zIndex = '1000';
-    
-            const zoomImage = document.createElement('img');
-            zoomImage.src = image.src;
-            zoomImage.style.maxWidth = '90%';
-            zoomImage.style.maxHeight = '90%';
-            zoomModal.appendChild(zoomImage);
-    
-            // Añadir el modal al cuerpo
-            document.body.appendChild(zoomModal);
-    
-            // Cerrar el modal al hacer clic
-            zoomModal.addEventListener('click', function() {
-                document.body.removeChild(zoomModal);
-            });
-        }
+        <!-- Continuar con más categorías y subcategorías según necesidad -->
+  
+        <div class="category-dropdown">
+          <a href="#" class="category-link">REBAJAS <i class="fas fa-chevron-down"></i></a>
+          <div class="dropdown-content">
+              <a href="">Descuentos del día</a> 
+              <a href="">Ofertas especiales</a>
+              <a href="">Liquidaciones</a>
+          </div>
+        </div>
+        
 
-        // Función para hacer el movimiento automático
-        function autoSlideImages() {
-            setInterval(() => {
-                nextImage();
-            }, 5000); // Cambia la imagen cada 5 segundos
-        }
     
-        // Inicia el movimiento automático al cargar la página
-        window.onload = autoSlideImages;
-    </script>
+      </div>
+    </div>
+  </div>
+
+  
+  <!-- Main Content -->
+  <main>
+    <!-- Main Banner -->
+    <section class="main-banner">
+        <div class="container">
+            <div class="banner-content">
+                <div class="banner-text">
+                    <h2>SEMANA DE <br>DESCUENTOS</h2>
+                    <p>Descubre nuevas<br>marcas para ti</p>
+                    <a href="#" class="btn-accent">DESCUBRE LO NUEVO</a>
+                </div>
+                <div class="banner-image">
+                    <!-- Aquí usamos data-* para almacenar las imágenes que cambiarán -->
+                    <img class="banner-img"src="https://placehold.co/200x200" alt="Semana de la belleza">
+                </div>
+            </div>
+        </div>
+    </section>
+    
+
+  <!-- Category Section -->
+  <section class="category-section">
+    <div class="container">
+      <div class="category-carousel">
+        <div class="category-grid">
+          <a href="#" class="category-card">
+            <div class="category-image">
+              <img src="https://placehold.co/200x200" alt="Vestidos">
+            </div>
+            <div class="category-info">
+              <h3>TERMOS</h3>
+              <p>Piezas versátiles para cualquier ocasión</p>
+            </div>
+          </a>
+          <a href="#" class="category-card">
+            <div class="category-image">
+              <img src="https://placehold.co/200x200" alt="Women's Secret">
+            </div>
+            <div class="category-info">
+              <h3>TAZAS</h3>
+              <p>Segura y femenina en cada uso</p>
+            </div>
+          </a>
+          <a href="#" class="category-card">
+            <div class="category-image">
+              <img src="https://placehold.co/200x200" alt="Sneakers">
+            </div>
+            <div class="category-info">
+              <h3>SNEAKERS</h3>
+              <p>Luce un estilo cómodo y único</p>
+            </div>
+          </a>
+          <a href="#" class="category-card">
+            <div class="category-image">
+              <img src="https://placehold.co/200x200" alt="Chaquetas">
+            </div>
+            <div class="category-info">
+              <h3>CHAQUETAS</h3>
+              <p>Eleva tu estilo, una prenda ideal para complementar tus looks</p>
+            </div>
+          </a>
+          <a href="#" class="category-card">
+            <div class="category-image">
+              <img src="https://placehold.co/200x200" alt="Accesorios">
+            </div>
+            <div class="category-info">
+              <h3>ACCESORIOS</h3>
+              <p>Complementa tu estilo</p>
+            </div>
+          </a>
+          <a href="#" class="category-card">
+            <div class="category-image">
+              <img src="https://placehold.co/200x200" alt="Zapatos">
+            </div>
+            <div class="category-info">
+              <h3>ZAPATOS</h3>
+              <p>El complemento perfecto</p>
+            </div>
+          </a>
+          <a href="#" class="category-card">
+            <div class="category-image">
+              <img src="https://placehold.co/200x200" alt="Belleza">
+            </div>
+            <div class="category-info">
+              <h3>BELLEZA</h3>
+              <p>Resalta tu belleza natural</p>
+            </div>
+          </a>
+          <a href="#" class="category-card">
+            <div class="category-image">
+              <img src="https://placehold.co/200x200" alt="Hogar">
+            </div>
+            <div class="category-info">
+              <h3>HOGAR</h3>
+              <p>Dale un toque especial a tu hogar</p>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+    <!-- Product Section -->
+    <section class="product-section">
+      <div class="container">
+        <h2 class="section-title">DESCUBRE LO NUEVO</h2>
+        
+        <div class="product-grid">
+          <a href="#" class="product-card">
+            <div class="">
+              <img src="https://placehold.co/200x200" alt="iPhone 13 Apple Midnight 128GB">
+            </div>
+            <div class="product-info">
+              <h3>iPhone 13 Apple Midnight 128GB</h3>
+              <p class="product-price">$754,00</p>
+              <button type="submit" class="btn-accent">Personalizar Producto</button>
+
+            </div>
+          </a>
+          <a href="#" class="product-card">
+            <div class="">
+              <img src="https://placehold.co/200x200" alt="iPhone 15 Apple Negro 128 GB">
+            </div>
+            <div class="product-info">
+              <h3>iPhone 15 Apple Negro 128 GB</h3>
+              <p class="product-price">$1.144,00</p>
+              <button type="submit" class="btn-accent">Personalizar Producto</button>
+
+            </div>
+          </a>
+          <a href="#" class="product-card">
+            <div class="">
+              <img src="https://placehold.co/200x200" alt="iPhone 16 Pro Apple Black Titanium 128 GB">
+            </div>
+            <div class="product-info">
+              <h3>iPhone 16 Pro Apple Black Titanium </h3>
+              <p class="product-price">$1.619,00</p>
+              <button type="submit" class="btn-accent">Personalizar Producto</button>
+
+            </div>
+          </a>
+          <a href="#" class="product-card">
+            <div class="">
+              <img src="https://placehold.co/200x200" alt="iPhone 16 Plus Apple Ultramarino 256 GB">
+            </div>
+            <div class="product-info">
+              <h3>iPhone 16 Plus Apple Ultramarino </h3>
+              <p class="product-price">$1.549,00</p>
+              <button type="submit" class="btn-accent">Personalizar Producto</button>
+
+            </div>
+          </a>
+        
+          
+        </div>
+      </div>
+    </section>
+
+   <!-- Sección de Productos Personalizados -->
+<section class="appliance-section">
+    <div class="container">
+      <h2 class="section-title">Tazas y Tomatodos Personalizados</h2>
+      <p class="section-description">
+        Descubre nuestra colección de tazas y tomatodos personalizados, ideales para regalar o disfrutar tu bebida favorita con un estilo único. Elige entre una variedad de diseños y colores.
+      </p>
+      <div class="product-grid">
+        <a href="#" class="product-card">
+          <div class="product-image">
+            <img src="https://placehold.co/200x200" alt="Taza personalizada con diseño exclusivo">
+            <img src="https://placehold.co/200x200" alt="Taza blanca personalizada">
+          </div>
+          <div class="product-info">
+            <h3>Taza Personalizada con Diseño Exclusivo</h3>
+          </div>
+        </a>
+        <a href="#" class="product-card">
+          <div class="product-image">
+            <img src="https://placehold.co/200x200" alt="Tomatodo térmico de acero inoxidable">
+            <img src="https://placehold.co/200x200" alt="Tomatodo personalizado con nombre">
+          </div>
+          <div class="product-info">
+            <h3>Tomatodo Térmico de Acero Inoxidable</h3>
+          </div>
+        </a>
+        <a href="#" class="product-card">
+          <div class="product-image">
+            <img src="https://placehold.co/200x200" alt="Taza con mensaje inspirador">
+            <img src="https://placehold.co/200x200" alt="Taza personalizada con fotos">
+          </div>
+          <div class="product-info">
+            <h3>Taza con Mensaje Inspirador</h3>
+          </div>
+        </a>
+        <a href="#" class="product-card">
+          <div class="product-image">
+            <img src="https://placehold.co/200x200' %}" alt="Tomatodo deportivo de gran capacidad">
+            <img src="https://placehold.co/200x200" alt="Tomatodo ecológico reutilizable">
+          </div>
+          <div class="product-info">
+            <h3>Tomatodo Deportivo de Gran Capacidad</h3>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+  
+
+    <!-- Store Info -->
+    <section class="store-info">
+      <div class="container">
+        <h2 class="info-title">¿QUÉ ENCONTRARÁS EN VISACU.COM?</h2>
+        <div class="info-text">
+            <p>
+              Visacu.com es una tienda online donde podrás encontrar productos únicos y personalizados en diversas categorías, como tecnología, moda, belleza, accesorios y mucho más. Descubre nuestra selección de artículos personalizables para adaptarlos a tu estilo y necesidades, desde gadgets innovadores hasta prendas de vestir exclusivas.
+            </p>
+            <p>
+              Nuestra tienda ofrece productos personalizables para todos los gustos. Desde ropa con opciones de personalización en colores y logos hasta dispositivos tecnológicos que puedes adaptar a tu preferencia. Ya sea que busques algo único para ti o para regalar, en Visacu.com encontrarás lo que necesitas con la posibilidad de darle un toque personal a cada compra.
+            </p>
+            <p>
+              Además de moda y tecnología, en nuestra sección de belleza encontrarás productos de alta calidad para el cuidado facial, corporal y capilar. Trabajamos con marcas reconocidas como Dior, La Roche-Posay, Maybelline, L'Oréal, Babyliss y muchas más. Haz que tu estilo sea aún más especial con productos que puedes personalizar, haciendo cada compra única y perfecta para ti.
+            </p>
+          </div>
+
+        <div class="features-grid">
+          <div class="feature">
+            <div class="feature-icon">✓</div>
+            <h3>GARANTÍA INCONDICIONAL</h3>
+          </div>
+          <div class="feature">
+            <div class="feature-icon">🚚</div>
+            <h3>ENVÍOS A TODO ECUADOR</h3>
+          </div>
+          <div class="feature">
+            <div class="feature-icon">🏬</div>
+            <h3>RETIRO EN TIENDAS</h3>
+          </div>
+          <div class="feature">
+            <div class="feature-icon">📞</div>
+            <h3>COMPRA POR TELÉFONO</h3>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+
+
+  <!-- Footer -->
+  !-- Footer -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-column">
+        <h3>NUESTRAS TIENDAS</h3>
+        <ul>
+          <li><a href="#">Tiendas</a></li>
+          <li><a href="#">Horarios</a></li>
+          <li><a href="#">Ubicaciones</a></li>
+        </ul>
+      </div>
+      
+    <!-- <div class="footer-column">
+        <h3>SERVICIO AL CLIENTE</h3>
+        <ul>
+          <li><a href="#">Preguntas frecuentes</a></li>
+          <li><a href="#">Políticas de Privacidad</a></li>
+          <li><a href="#">Garantía Incondicional</a></li>
+          <li><a href="#">Garantía del Fabricante</a></li>
+          <li><a href="#">Términos de uso</a></li>
+          <li><a href="#">Promociones</a></li>
+        </ul>
+      </div>
+      -->
+      
+      <div class="footer-column">
+        <h3>ACERCA DE NOSOTROS</h3>
+        <ul>
+          <li><a href="#">Nuestra empresa</a></li>
+          <li><a href="#">Responsabilidad Social</a></li>
+          <li><a href="#">Trabaja con nosotros</a></li>
+        </ul>
+      </div>
+      
+      <div class="footer-column">
+        <h3>SUSCRÍBETE A NUESTRO NEWSLETTER</h3>
+        <p>¡Entérate de nuestras promociones aquí!</p>
+        <div class="newsletter-form">
+          <input type="email" placeholder="Tu email">
+          <button class="btn-accent">SUSCRÍBETE</button>
+        </div>
+      </div>
+      
+
+      <div class="footer-column">
+        <div class="footer-contact">
+        <h3>ATENCIÓN AL CLIENTE</h3>
+          <p>GYE (04)3731800 | UIO (02)3950400</p>
+        </div>
+      </div>
+
+      <div class="footer-column">
+        <h3>SIGUENOS</h3>
+        <div class="social-icons">
+          <a href="https://facebook.com" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+          <a href="https://twitter.com" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+          <a href="https://instagram.com" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="https://linkedin.com" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+        </div>
+
+      </div>
+      
+     
+    </div>
+    
+
+  </div>
+  
+  <div class="footer-bottom">
+    <p>© 2025 VISACU S.A. | Todos los derechos reservados.</p>
+    
+    <p>Desarrollado por <a href="https://taskforgedynamics.com">TechVanguard Technological</a></p>
+  </div>
+ 
+</footer>
 </body>
+
 </html>
