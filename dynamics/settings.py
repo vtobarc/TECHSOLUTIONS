@@ -15,7 +15,10 @@ from pathlib import Path
 import pymysql
 import dj_database_url
 from dotenv import load_dotenv
+
+# Cargar las variables de entorno
 load_dotenv()
+
 pymysql.install_as_MySQLdb()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
