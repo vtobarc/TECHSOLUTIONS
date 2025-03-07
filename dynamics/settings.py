@@ -184,6 +184,15 @@ USE_I18N = True
 
 USE_TZ = True  # Debe estar habilitado para usar zonas horarias
 
+
+
+LOGIN_URL = 'user_login'  # Nombre de la URL para el login
+LOGIN_REDIRECT_URL = 'cliente_home'  # Redirige a la página de cliente después del login
+SOCIAL_AUTH_LOGIN_REDIRECT_URL = 'home_view'  # Change to your home view
+LOGOUT_REDIRECT_URL = 'user_login'  # Redirect to login page after logout
+SOCIAL_AUTH_LOGIN_ERROR_URL = 'user_login'
+
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 # Configuración para los archivos estáticos
