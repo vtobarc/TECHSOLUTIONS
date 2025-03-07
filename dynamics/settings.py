@@ -13,6 +13,9 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import os
 from pathlib import Path
 import pymysql
+import dj_database_url
+from dotenv import load_dotenv
+load_dotenv()
 pymysql.install_as_MySQLdb()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -97,7 +100,6 @@ WSGI_APPLICATION = 'dynamics.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-import dj_database_url
 
 DATABASES = {
     'default': dj_database_url.config(default=os.getenv('DATABASE_URL'))
