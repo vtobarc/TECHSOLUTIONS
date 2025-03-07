@@ -97,14 +97,15 @@ WSGI_APPLICATION = 'dynamics.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.environ['MYSQL_DATABASE'],
-        'USER': os.environ['MYSQLUSER'],
-        'PASSWORD': os.environ['MYSQL_ROOT_PASSWORD'],
-        'HOST': os.environ['MYSQLHOST'],
-        'PORT': os.environ['MYSQLPORT'],
+        'NAME': os.getenv('MYSQL_DATABASE'),  # railway
+        'USER': os.getenv('MYSQLUSER'),  # root
+        'PASSWORD': os.getenv('MYSQLPASSWORD'),
+        'HOST': os.getenv('MYSQLHOST'),  # RAILWAY_PRIVATE_DOMAIN
+        'PORT': os.getenv('MYSQLPORT', '3306'),
     }
 }
 
