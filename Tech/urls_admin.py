@@ -36,6 +36,8 @@ urlpatterns = [
     path('admin-dashboard/categories/<int:category_id>/edit/', views.category_form, name='admin_category_edit'),
     
     # Gestión de la empresa
+    path('admin/associate-certification/<int:cert_id>/', views.associate_certification, name='admin_associate_certification'),
+
     path('admin-dashboard/company/', views.company_detail, name='admin_company_detail'),
     path('admin-dashboard/company/certifications/<int:certification_id>/delete/', views.delete_certification, name='admin_delete_certification'),
     path('admin-dashboard/company/add_employee/', views.add_employee, name='add_employee'),
