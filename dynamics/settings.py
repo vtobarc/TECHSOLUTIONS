@@ -101,13 +101,14 @@ WSGI_APPLICATION = 'dynamics.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.getenv('MYSQL_DATABASE'),  # railway
-        'USER': os.getenv('MYSQLUSER'),  # root
-        'PASSWORD': os.getenv('MYSQLPASSWORD'),
-        'HOST': os.getenv('MYSQLHOST'),  # RAILWAY_PRIVATE_DOMAIN
+        'NAME': os.getenv('MYSQL_DATABASE', 'railway'),
+        'USER': os.getenv('MYSQL_USER', 'root'),
+        'PASSWORD': os.getenv('MYSQL_ROOT_PASSWORD', 'JnixKAaTjIVuyanfltZgrvGdWIPmqeKh'),
+        'HOST': os.getenv('RAILWAY_PRIVATE_DOMAIN', 'containers-us-west-XX.railway.app'),  # Utiliza la variable correcta
         'PORT': os.getenv('MYSQLPORT', '3306'),
     }
 }
+
 
 
 AUTHENTICATION_BACKENDS = [
