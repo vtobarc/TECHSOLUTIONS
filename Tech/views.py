@@ -199,17 +199,14 @@ def user_login(request):
 
             login(request, user)
             messages.success(request, "¡Inicio de sesión exitoso!")
-            
-            # Verifica si el rol es 'Admin' y redirige al dashboard correspondiente
-            if user.rol == 'Admin':
-                return redirect('admin_dashboard')
 
-            # Si no es admin, redirige a la página principal
+            # Redirige a la página principal para todos los usuarios
             return redirect('home_view')
         else:
             messages.error(request, "Credenciales inválidas. Por favor, intenta nuevamente.")
     
     return render(request, 'login_and_signup/login.html')
+
 
 
 from django.contrib.auth import logout
