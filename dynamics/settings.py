@@ -97,6 +97,7 @@ WSGI_APPLICATION = 'dynamics.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+import os
 
 DATABASES = {
     'default': {
@@ -104,7 +105,7 @@ DATABASES = {
         'NAME': os.getenv('MYSQL_DATABASE', 'railway'),
         'USER': os.getenv('MYSQL_USER', 'root'),
         'PASSWORD': os.getenv('MYSQL_ROOT_PASSWORD', 'JnixKAaTjIVuyanfltZgrvGdWIPmqeKh'),
-        'HOST': os.getenv('RAILWAY_PRIVATE_DOMAIN', 'containers-us-west-XX.railway.app'),  # Utiliza la variable correcta
+        'HOST': os.getenv('RAILWAY_PRIVATE_DOMAIN', 'containers-us-west-XX.railway.app'),  # Asegúrate de usar el valor correcto aquí
         'PORT': os.getenv('MYSQLPORT', '3306'),
     }
 }
