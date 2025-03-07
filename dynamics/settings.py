@@ -199,3 +199,7 @@ STORAGES = {
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+CSRF_TRUSTED_ORIGINS = [
+    'https://techsolutions-production.up.railway.app',  # Agregar el protocolo HTTPS
+    'http://techsolutions-production.up.railway.app',   # Si necesitas el protocolo HTTP también
+]
