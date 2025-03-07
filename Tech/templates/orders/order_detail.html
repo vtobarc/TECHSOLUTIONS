@@ -1,0 +1,549 @@
+{% extends 'admin_dashboard/base.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block content %}
+
+<style>
+  :root {
+      --primary-color: #4f46e5;
+      --primary-dark: #4338ca;
+      --primary-light: #eef2ff;
+      --secondary-color: #64748b;
+      --success-color: #10b981;
+      --success-light: #d1fae5;
+      --warning-color: #f59e0b;
+      --warning-light: #fef3c7;
+      --text-color: #1e293b;
+      --text-light: #64748b;
+      --border-color: #e2e8f0;
+      --card-bg: #ffffff;
+      --body-bg: #f8fafc;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+
+  .order-details-container {
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: var(--card-bg);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+  }
+
+  /* Company Header */
+  .company-header {
+      background-color: var(--primary-color);
+      color: white;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+  }
+
+  @media (min-width: 768px) {
+      .company-header {
+          flex-direction: row;
+          justify-content: space-between;
+          align-items: center;
+      }
+  }
+
+  .company-info h1 {
+      font-size: 24px;
+      margin-bottom: 5px;
+  }
+
+  .company-info p {
+      opacity: 0.9;
+      font-size: 14px;
+  }
+
+  .invoice-box {
+      background-color: white;
+      color: var(--primary-color);
+      padding: 15px;
+      border-radius: 6px;
+      text-align: center;
+  }
+
+  .invoice-box h2 {
+      font-size: 20px;
+      margin-bottom: 5px;
+  }
+
+  /* Invoice Details */
+  .invoice-details {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+  }
+
+  @media (min-width: 768px) {
+      .invoice-details {
+          flex-direction: row;
+          justify-content: space-between;
+          align-items: flex-start;
+      }
+  }
+
+  .detail-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+  }
+
+  .detail-item i {
+      color: var(--secondary-color);
+      width: 16px;
+  }
+
+  .order-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-weight: 500;
+  }
+
+  .status-completed {
+      background-color: var(--success-light);
+      color: var(--success-color);
+  }
+
+  .status-pending {
+      background-color: var(--warning-light);
+      color: var(--warning-color);
+  }
+
+  /* Separator */
+  .separator {
+      height: 1px;
+      background-color: var(--border-color);
+      margin: 20px 0;
+  }
+
+  /* Info Grid */
+  .info-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+      padding: 0 20px;
+  }
+
+  @media (min-width: 768px) {
+      .info-grid {
+          grid-template-columns: 1fr 1fr;
+      }
+  }
+
+  .info-card h2 {
+      font-size: 18px;
+      margin-bottom: 15px;
+      color: var(--text-color);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+  }
+
+  .info-card h2 i {
+      color: var(--primary-color);
+  }
+
+  .info-item {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 12px;
+  }
+
+  .info-item i {
+      color: var(--secondary-color);
+      width: 16px;
+      margin-top: 4px;
+  }
+
+  .info-primary {
+      font-weight: 500;
+  }
+
+  .info-secondary {
+      color: var(--text-light);
+      font-size: 14px;
+  }
+
+  /* Payment Summary */
+  .payment-summary {
+      background-color: var(--body-bg);
+      padding: 15px;
+      border-radius: 6px;
+      margin-top: 10px;
+  }
+
+  .summary-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 14px;
+  }
+
+  .summary-row.total {
+      font-weight: 700;
+      font-size: 16px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border-color);
+      margin-top: 8px;
+  }
+
+  /* Order Items */
+  .order-items {
+      padding: 20px;
+  }
+
+  .order-items h2 {
+      font-size: 18px;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+  }
+
+  .order-items h2 i {
+      color: var(--primary-color);
+  }
+
+  .table-responsive {
+      overflow-x: auto;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+  }
+
+  .order-table {
+      width: 100%;
+      border-collapse: collapse;
+  }
+
+  .order-table th {
+      background-color: var(--body-bg);
+      padding: 12px 15px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 14px;
+  }
+
+  .order-table td {
+      padding: 12px 15px;
+      border-top: 1px solid var(--border-color);
+  }
+
+  .order-table .even-row {
+      background-color: var(--body-bg);
+  }
+
+  .order-table .quantity,
+  .order-table .unit-price,
+  .order-table .item-total {
+      text-align: right;
+  }
+
+  /* Total Summary */
+  .total-summary {
+      background-color: var(--primary-color);
+      color: white;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 700;
+      font-size: 18px;
+      margin: 20px;
+      border-radius: 6px;
+  }
+
+  /* Footer */
+  .invoice-footer {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+  }
+
+  @media (min-width: 640px) {
+      .invoice-footer {
+          flex-direction: row;
+          justify-content: space-between;
+      }
+  }
+
+  .back-button,
+  .print-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border-radius: 6px;
+      font-weight: 500;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      font-size: 14px;
+  }
+
+  .back-button {
+      background-color: var(--body-bg);
+      color: var(--text-color);
+      border: 1px solid var(--border-color);
+  }
+
+  .print-button {
+      background-color: var(--primary-color);
+      color: white;
+  }
+
+  .back-button:hover {
+      background-color: var(--border-color);
+  }
+
+  .print-button:hover {
+      background-color: var(--primary-dark);
+  }
+
+  /* Terms and conditions - only visible in print */
+  .terms-conditions {
+      display: none;
+  }
+
+  /* Print styles */
+  @media print {
+      body {
+          background-color: white;
+          padding: 0;
+      }
+
+      .order-details-container {
+          box-shadow: none;
+          max-width: 100%;
+      }
+
+      .invoice-footer {
+          display: none;
+      }
+
+      .terms-conditions {
+          display: block;
+          padding: 20px;
+          border-top: 1px solid var(--border-color);
+          margin-top: 20px;
+          font-size: 12px;
+          color: var(--text-light);
+      }
+  }
+</style>
+<div class="order-details-container">
+  <!-- Company Header -->
+  <div class="company-header">
+      <div class="company-info">
+          <h1>TechVision S.A.</h1>
+          <p>RUC: 0992456789001</p>
+          <p>Av. Francisco de Orellana y Alberto Borges, Guayaquil</p>
+          <p>(04) 500-9800 • ventas@techvision.com.ec</p>
+      </div>
+      <div class="invoice-box">
+          <h2>FACTURA</h2>
+          <p>FACT-001-002-000012345# {{ order.id }}</p>
+      </div>
+  </div>
+
+  <!-- Invoice Details -->
+  <div class="invoice-details">
+      <div>
+          <div class="detail-item">
+              <i class="fas fa-calendar"></i>
+              <div>
+                  <span class="detail-label">Fecha de Emisión:</span>
+                  <span>{{ order.date }}</span>
+              </div>
+          </div>
+          <div class="detail-item">
+              <i class="fas fa-truck"></i>
+              <div>
+                  <span class="detail-label">Fecha de Entrega:</span>
+                  <span>07 de Marzo, 2025</span>
+              </div>
+          </div>
+          <div class="detail-item">
+              <i class="fas fa-user"></i>
+              <div>
+                  <span class="detail-label">Entregado por:</span>
+                  <span>Carlos Mendoza</span>
+              </div>
+          </div>
+      </div>
+      
+      <div class="order-status status-completed">
+          <i class="fas fa-check-circle"></i>
+          <div>
+              <div class="status-label">Estado del Pedido:</div>
+              <div class="status-value">{{ order.get_status_display }}</div>
+          </div>
+      </div>
+  </div>
+
+  <div class="separator"></div>
+
+  <!-- Info Grid -->
+  <div class="info-grid">
+      <!-- Customer Info -->
+      <div class="info-card">
+          <h2><i class="fas fa-user-circle"></i> Información del Cliente</h2>
+          
+          <div class="info-item">
+              <i class="fas fa-user"></i>
+              <div>
+                  <div class="info-primary">{{ order.fullname }}</div>
+                  <div class="info-secondary">{{ order.email }}</div>
+              </div>
+          </div>
+          
+          <div class="info-item">
+              <i class="fas fa-phone"></i>
+              <div class="info-primary">{{ order.phone }}</div>
+          </div>
+          
+          <div class="info-item">
+              <i class="fas fa-map-marker-alt"></i>
+              <div>
+                  <div class="info-primary">{{ order.address }}</div>
+                  <div class="info-secondary">{{ order.city }}, {{ order.state }} {{ order.postal_code }}</div>
+              </div>
+          </div>
+      </div>
+
+      <!-- Payment Info -->
+      <div class="info-card">
+          <h2><i class="fas fa-credit-card"></i> Información de Pago</h2>
+          
+          <div class="info-item">
+              <i class="fas fa-money-bill-wave"></i>
+              <div>
+                  <div class="info-primary">Método de Pago</div>
+                  <div class="info-secondary">{{ order.payment_method }}</div>
+              </div>
+          </div>
+          
+          <div class="info-item">
+              <i class="fas fa-file-invoice-dollar"></i>
+              <div>
+                  <div class="info-primary">Resumen</div>
+                  <div class="payment-summary">
+                      <div class="summary-row">
+                          <span>Subtotal:</span>
+                          <span>${{ total_price|floatformat:2 }} USD</span>
+                      </div>
+                      
+                      <div class="summary-row">
+                          <span>IVA (15%):</span>
+                          <span>${{ iva_amount|floatformat:2 }} USD</span>
+                      </div>
+                      
+                      <div class="summary-row total">
+                          <span>Total:</span>
+                          <span>${{ total_with_iva|floatformat:2 }} USD</span>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+
+  <div class="separator"></div>
+
+  <!-- Order Items -->
+  <div class="order-items">
+      <h2><i class="fas fa-shopping-cart"></i> Productos del Pedido</h2>
+      
+      <div class="table-responsive">
+          <table class="order-table">
+              <thead>
+                  <tr>
+                      <th>Producto</th>
+                      <th>Cantidad</th>
+                      <th>Precio Unitario</th>
+                      <th>Total</th>
+                  </tr>
+              </thead>
+              <tbody>
+                {% for item in order_items %}
+                <tr {% if forloop.counter|divisibleby:2 %}class="even-row"{% endif %}>
+                    <td class="product-name">{{ item.product.name }}</td>
+                    <td class="quantity">{{ item.quantity }}</td>
+                    <td class="unit-price">${{ item.price|floatformat:2 }} USD</td>
+                    <td class="item-total">${{ item.price|multiply:item.quantity|floatformat:2 }} USD</td>
+                </tr>
+                {% endfor %}
+              
+              </tbody>
+          </table>
+      </div>
+  </div>
+
+  <!-- Total Summary -->
+  <div class="total-summary">
+      <div class="total-label">Total a Pagar</div>
+      <div class="total-amount">${{ total_with_iva|floatformat:2 }} USD</div>
+  </div>
+
+  <!-- Footer with buttons -->
+  <div class="invoice-footer">
+      <a href="{% url 'view_orders' %}" class="back-button">
+          <i class="fas fa-arrow-left"></i>
+          Volver a la lista de pedidos
+      </a>
+      
+      <button class="print-button" onclick="window.print()">
+          <i class="fas fa-print"></i>
+          Imprimir Factura
+      </button>
+  </div>
+
+  <!-- Terms and conditions - only visible in print -->
+  <div class="terms-conditions">
+      <p><strong>Términos y Condiciones:</strong></p>
+      <p>1. La garantía de los productos es de 1 año a partir de la fecha de compra.</p>
+      <p>2. Para reclamos o devoluciones, presentar esta factura dentro de los 15 días posteriores a la compra.</p>
+      <p>3. Los precios incluyen IVA.</p>
+      <p>4. Este documento es una representación impresa de una factura electrónica.</p>
+  </div>
+</div>
+
+<script>
+  // Simple print functionality
+  function printInvoice() {
+      window.print();
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% endblock %}

@@ -1,0 +1,228 @@
+
+{% extends 'products/base_productos.html' %}
+{% load static %}
+{% load custom_filters %}
+{% block title %}TechVanguard_Detalles{% endblock %}
+
+{% block extra_css %}
+<link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
+<link rel="stylesheet" href="{% static 'css/product-detail.css' %}">
+<link rel="stylesheet" href="{% static 'css/productos.css' %}">
+{% endblock %}
+
+{% block main_content %}
+<style>
+  
+</style>
+
+<div class="product-detail-container">
+    <div class="product-detail-header">
+        <h1>{{ product.name }}</h1>
+        <p class="category-name">Categoría: <a href="{% url 'category_detail' category_id=category.id %}">{{ category.name }}</a></p>
+    </div>
+
+    <div class="product-detail-body">
+        <div class="product-image-gallery">
+            <div class="thumbnail-container">
+                {% for image in gallery_images %}
+                    <img src="{{ image.image.url }}" 
+                        alt="{{ product.name }} - Imagen {{ forloop.counter }}" 
+                        class="thumbnail {% if image.is_main %}active{% endif %}" 
+                        onclick="changeImage({{ forloop.counter0 }})">
+                {% empty %}
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" 
+                            alt="{{ product.name }}" 
+                            class="thumbnail active" 
+                            onclick="changeImage(0)">
+                    {% endif %}
+                {% endfor %}
+            </div>
+    
+            <div class="main-image-container">
+                <img id="main-product-image" 
+                    src="{% if main_image %}{{ main_image.url }}{% elif product.image %}{{ product.image.url }}{% endif %}" 
+                    alt="{{ product.name }}">
+                {% if gallery_images|length > 1 or product.image %}
+                    <button class="image-nav-button prev-button" onclick="prevImage()">❮</button>
+                    <button class="image-nav-button next-button" onclick="nextImage()">❯</button>
+                {% endif %}
+                <button class="favorite-button"><i class="far fa-heart"></i></button>
+                <button class="zoom-button" onclick="zoomImage()"><i class="fas fa-search-plus"></i></button>
+            </div>
+          
+            
+        </div>
+
+      
+        <div class="product-info">
+            <div class="description" id="product-description">                
+                {% autoescape off %}
+                    {{ product.description }}
+                {% endautoescape %}
+            </div>
+            <span class="show-more-link" id="show-more" onclick="toggleDescription()">Ver más</span>
+
+            <p class="price">Precio: ${{ product.price }} + iva</p>
+                <!--
+                 <p class="availability">
+                    {% if product.is_available %}
+                        <span class="available">✓ Disponible</span>
+                    {% else %}
+                        <span class="not-available">✗ No disponible</span>
+                    {% endif %}
+                </p>
+                -->
+                <p class="availability">
+                    {% if product.stock%}
+                        <span class="available">✓ En stock</span>
+                    {% else %}
+                        <span class="not-available">✗ Agotado</span>
+                    {% endif %}
+                </p>
+           
+
+            <!-- Características del Producto -->
+            {% if product.features %}
+            <div class="product-features">
+                <strong>Características:</strong>
+                <ul>
+                    {% for feature in product.features|default:''|split:',' %}
+                        <li>• {{ feature|trim }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+         <!-- Color del Producto -->
+            {% if product.color %}
+                <div class="product-color">
+                    <strong>Color:</strong>
+                    <span id="hgdfh" class="color-circle" style="background-color: {{ product.color|default:'white' }};"></span>
+
+                    <span>{{ product.color }}</span>
+                </div>
+            {% endif %}
+
+
+
+            <form action="{% url 'add_to_cart' product_id=product.id %}" method="POST">
+                {% csrf_token %}
+                <button type="submit" class="add-to-cart-btn">
+                    <i class="fas fa-shopping-cart"></i>
+                    Añadir al Carrito
+                </button>
+            </form>
+
+            <div class="product-codes">
+                {% if product.barcode_image %}
+                    <img src="{{ product.barcode_image.url }}" alt="Código de barras" class="code-image">
+                {% endif %}
+                {% if product.qr_code %}
+                    <img src="{{ product.qr_code.url }}" alt="Código QR" class="code-image">
+                {% endif %}
+            </div>
+        </div>
+
+
+        
+            <div class="product-details">
+                <!-- Additional product details can go here -->
+            </div>
+    </div>
+</div>
+
+<script src="{% static 'js/product-color.js' %}"></script>
+<script>
+    let currentImageIndex = 0;
+    const images = document.querySelectorAll('.thumbnail');
+    const mainImage = document.getElementById('main-product-image');
+    
+    // Función para cambiar la imagen principal
+    function changeImage(index) {
+        currentImageIndex = index;
+        mainImage.src = images[index].src;
+        updateActiveThumbnail(index);
+    }
+    
+    // Función para actualizar la miniatura activa
+    function updateActiveThumbnail(index) {
+        images.forEach((img, i) => {
+            img.classList.remove('active');
+            if (i === index) {
+                img.classList.add('active');
+            }
+        });
+    }
+    
+    // Función para ir a la imagen siguiente
+    function nextImage() {
+        currentImageIndex = (currentImageIndex + 1) % images.length;
+        changeImage(currentImageIndex);
+    }
+    
+    // Función para ir a la imagen anterior
+    function prevImage() {
+        currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
+        changeImage(currentImageIndex);
+    }
+
+    // Función para hacer el movimiento automático
+    function autoSlideImages() {
+        setInterval(() => {
+            nextImage();
+        }, 2000); // Cambia la imagen cada 3 segundos
+    }
+
+    // Inicia el movimiento automático al cargar la página
+    window.onload = autoSlideImages;
+</script>
+
+
+<script>
+    function toggleDescription() {
+        const description = document.getElementById('product-description');
+        const showMoreLink = document.getElementById('show-more');
+        
+        if (description.classList.contains('expanded')) {
+            description.classList.remove('expanded');
+            showMoreLink.textContent = 'Ver más';
+        } else {
+            description.classList.add('expanded');
+            showMoreLink.textContent = 'Ver menos';
+        }
+    }
+    // Función para hacer zoom en la imagen
+    function zoomImage() {
+        const image = document.getElementById('main-product-image');
+        
+        // Crear un modal de zoom
+        const zoomModal = document.createElement('div');
+        zoomModal.style.position = 'fixed';
+        zoomModal.style.top = '0';
+        zoomModal.style.left = '0';
+        zoomModal.style.width = '100vw';
+        zoomModal.style.height = '100vh';
+        zoomModal.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+        zoomModal.style.display = 'flex';
+        zoomModal.style.justifyContent = 'center';
+        zoomModal.style.alignItems = 'center';
+        zoomModal.style.zIndex = '1000';
+
+        const zoomImage = document.createElement('img');
+        zoomImage.src = image.src;
+        zoomImage.style.maxWidth = '90%';
+        zoomImage.style.maxHeight = '90%';
+        zoomModal.appendChild(zoomImage);
+
+        // Añadir el modal al cuerpo
+        document.body.appendChild(zoomModal);
+
+        // Cerrar el modal al hacer clic
+        zoomModal.addEventListener('click', function() {
+            document.body.removeChild(zoomModal);
+        });
+    }
+</script>
+
+{% endblock %}

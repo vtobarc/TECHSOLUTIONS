@@ -1,0 +1,71 @@
+<!-- templates/inventory/category_confirm_delete.html -->
+{% extends 'dashboard/servicios.html' %}
+{% load static %}
+
+{% block title %}TechVanguard_Cliente{% endblock %}
+
+{% block extra_css %}
+<link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
+<link rel="stylesheet" href="{% static 'css/servicios.css' %}">
+<link rel="stylesheet" href="{% static 'css/inventory.css' %}">
+{% endblock %}
+
+{% block main_content %}
+<div class="delete-confirmation">
+    <div class="card">
+        <div class="card-content">
+            <h2>Confirmar Eliminación</h2>
+            <p>¿Está seguro de que desea eliminar la categoría "{{ category.name }}"?</p>
+            
+            <div class="category-info">
+                <div class="info">
+                    <p><strong>Nombre:</strong> {{ category.name }}</p>
+                    <p><strong>Descripción:</strong> {{ category.description }}</p>
+                    <p><strong>Productos asociados:</strong> {{ category.product_set.count }}</p>
+                </div>
+            </div>
+
+            {% if category.product_set.exists %}
+            <div class="warning">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p>¡Advertencia! Esta categoría tiene productos asociados. 
+                   Deberá reasignar o eliminar los productos antes de eliminar la categoría.</p>
+            </div>
+            {% else %}
+            <div class="warning">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p>Esta acción no se puede deshacer.</p>
+            </div>
+            {% endif %}
+
+            <form method="POST">
+                {% csrf_token %}
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline" onclick="history.back()">
+                        <i class="fas fa-times"></i>
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-danger" 
+                            {% if category.product_set.exists %}disabled{% endif %}>
+                        <i class="fas fa-trash"></i>
+                        Eliminar Categoría
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+{% extends "base.html" %}
+{% block content %}
+  <h2>¿Estás seguro de que deseas eliminar la categoría "{{ category.name }}"?</h2>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Eliminar</button>
+    <a href="{% url 'category_list' %}" class="btn btn-secondary">Cancelar</a>
+  </form>
+{% endblock %}
+
+{% endblock %}

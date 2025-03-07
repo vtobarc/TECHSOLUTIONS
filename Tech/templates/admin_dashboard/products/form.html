@@ -1,0 +1,547 @@
+{% extends 'admin_dashboard/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - Panel de Administración{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+{% endblock %}
+
+{% block content %}
+<style>
+    .img_code {
+        max-width: 150px;
+        height: auto;
+    }
+    .product-features ul {
+        list-style-type: none; /* Eliminar los puntos predeterminados */
+        padding-left: 0;
+    }
+    
+    .product-features li {
+        margin-bottom: 5px;
+        font-size: 14px;
+    }
+    /* Estilos para la galería de imágenes */
+    .card {
+      border-radius: 0.5rem;
+      box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+      transition: all 0.3s ease;
+    }
+    
+    .card:hover {
+      box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+    
+    .card-header {
+      background-color: #f8f9fa;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+    }
+    
+    .card-img-top {
+      border-top-left-radius: calc(0.5rem - 1px);
+      border-top-right-radius: calc(0.5rem - 1px);
+      object-fit: cover;
+    }
+    
+    /* Estilos para el círculo de color */
+    .color-circle {
+      display: inline-block;
+      width: 25px;
+      height: 25px;
+      border-radius: 50%;
+      border: 1px solid #ddd;
+    }
+    
+    /* Estilos para las imágenes de código */
+    .img_code {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      margin: 0 auto;
+    }
+    
+    /* Estilos para los formularios */
+    .form-control {
+      border-radius: 0.25rem;
+    }
+    
+    .form-control:focus {
+      border-color: #4e73df;
+      box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+    }
+    
+    /* Estilos para los botones */
+    .btn-outline-primary {
+      color: #4e73df;
+      border-color: #4e73df;
+    }
+    
+    .btn-outline-primary:hover {
+      background-color: #4e73df;
+      color: white;
+    }
+    
+    .btn-outline-danger {
+      color: #e74a3b;
+      border-color: #e74a3b;
+    }
+    
+    .btn-outline-danger:hover {
+      background-color: #e74a3b;
+      color: white;
+    }
+    
+    /* Estilos para las badges */
+    .badge {
+      font-weight: 500;
+      padding: 0.35em 0.65em;
+    }
+    
+    .bg-primary {
+      background-color: #4e73df !important;
+    }
+    
+    /* Estilos para la previsualización de imágenes */
+    .preview-container {
+      background-color: #f8f9fa;
+      border-radius: 0.25rem;
+      padding: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    
+
+ 
+</style>
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">{{ title }}</h1>
+    <a href="{% url 'admin_product_list' %}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left me-2"></i> Volver a la lista
+    </a>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">{{ title }}</h6>
+    </div>
+    <div class="card-body">
+        <form method="POST" enctype="multipart/form-data" class="product-form">
+            {% csrf_token %}
+            
+            
+            {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                {% for error in form.non_field_errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="row">
+                <!-- Información básica -->
+                <div class="col-md-8">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h6 class="m-0 font-weight-bold text-primary">Información Básica</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.name.id_for_label }}" class="form-label">Nombre *</label>
+                                    {{ form.name }}
+                                    {% if form.name.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.name.errors|join:", " }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.code.id_for_label }}" class="form-label">Código *</label>
+                                    {{ form.code }}
+                                    {% if form.code.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.code.errors|join:", " }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="{{ form.description.id_for_label }}" class="form-label">Descripción</label>
+                                {{ form.description }}
+                                {% if form.description.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.description.errors|join:", " }}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.category.id_for_label }}" class="form-label">Categoría *</label>
+                                    {{ form.category }}
+                                    {% if form.category.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.category.errors|join:", " }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.brand.id_for_label }}" class="form-label">Marca</label>
+                                    {{ form.brand }}
+                                    {% if form.brand.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.brand.errors|join:", " }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Precios y Stock -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h6 class="m-0 font-weight-bold text-primary">Precios y Stock</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="{{ form.price.id_for_label }}" class="form-label">Precio *</label>
+                                    {{ form.price }}
+                                    {% if form.price.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.price.errors|join:", " }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <!--
+                                <div class="form-group">
+                                    <label for="id_cost" class="form-label">Costo</label>
+                                    {{ form.cost }}
+                                    {% if form.cost.errors %}
+                                        <div class="error-message">{{ form.cost.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                -->
+
+                                <div class="col-md-4 mb-3">
+                                    <label for="{{ form.stock.id_for_label }}" class="form-label">Stock *</label>
+                                    {{ form.stock }}
+                                    {% if form.stock.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.stock.errors|join:", " }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="col-md-4 mb-3">
+                                    <label for="{{ form.minimum_stock.id_for_label }}" class="form-label">Stock Mínimo *</label>
+                                    {{ form.minimum_stock }}
+                                    {% if form.minimum_stock.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.minimum_stock.errors|join:", " }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.tax.id_for_label }}" class="form-label">Impuesto (%)</label>
+                                    {{ form.tax }}
+                                    {% if form.tax.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.tax.errors|join:", " }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.discount.id_for_label }}" class="form-label">Descuento (%)</label>
+                                    {{ form.discount }}
+                                    {% if form.discount.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.discount.errors|join:", " }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Imagen y Estado -->
+                <div class="col-md-4">
+                    <!-- Add this to your product form template, inside the form -->
+                        <div class="card mb-4">
+                                    <div class="card-header">
+                                        <h6 class="m-0 font-weight-bold text-primary">Galería de Imágenes (Máximo 10)</h6>
+                                    </div>
+                            <div class="card-body">
+                                {{ formset.management_form }}
+                                
+                                        <div class="row mb-3">
+                                            {% if product %}
+                                                <div class="col-12 mb-3">
+                                                    <h6>Imágenes actuales:</h6>
+                                                    <div class="row">
+                                                        {% for product_image in product.images.all %}
+                                                            <div class="col-md-3 mb-3">
+                                                                <div class="card">
+                                                                    <img src="{{ product_image.image.url }}" class="card-img-top" alt="Imagen del producto">
+                                                                    <div class="card-body p-2">
+                                                                        <p class="card-text small mb-1">
+                                                                            {% if product_image.is_main %}
+                                                                                <span class="badge bg-primary">Principal</span>
+                                                                            {% endif %}
+                                                                            Orden: {{ product_image.order }}
+                                                                        </p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        {% empty %}
+                                                            <div class="col-12">
+                                                                <p class="text-muted">No hay imágenes adicionales.</p>
+                                                            </div>
+                                                        {% endfor %}
+                                                    </div>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                
+                                        <div class="row">
+                                            {% for form in formset %}
+                                                <div class="col-md-4 mb-4 formset-row">
+                                                    <div class="card">
+                                                        <div class="card-body">
+                                                            {% for hidden in form.hidden_fields %}
+                                                                {{ hidden }}
+                                                            {% endfor %}
+                                                            
+                                                            {% if form.instance.pk and form.instance.image %}
+                                                                <div class="text-center mb-3">
+                                                                    <img src="{{ form.instance.image.url }}" alt="Imagen del producto" class="img-fluid" style="max-height: 150px;">
+                                                                </div>
+                                                            {% endif %}
+                                                            
+                                                            <div class="mb-3">
+                                                                <label for="{{ form.image.id_for_label }}" class="form-label">Imagen</label>
+                                                                {{ form.image }}
+                                                                {% if form.image.errors %}
+                                                                    <div class="invalid-feedback d-block">
+                                                                        {{ form.image.errors|join:", " }}
+                                                                    </div>
+                                                                {% endif %}
+                                                            </div>
+                                                            
+                                                            <div class="row">
+                                                                <div class="col-md-6 mb-3">
+                                                                    <div class="form-check">
+                                                                        {{ form.is_main }}
+                                                                        <label class="form-check-label" for="{{ form.is_main.id_for_label }}">
+                                                                            Imagen Principal
+                                                                        </label>
+                                                                    </div>
+                                                                </div>
+                                                                
+                                                                <div class="col-md-6 mb-3">
+                                                                    <label for="{{ form.order.id_for_label }}" class="form-label">Orden</label>
+                                                                    {{ form.order }}
+                                                                </div>
+                                                            </div>
+                                                            
+                                                            {% if form.instance.pk %}
+                                                                <div class="form-check mb-3">
+                                                                    {{ form.DELETE }}
+                                                                    <label class="form-check-label text-danger" for="{{ form.DELETE.id_for_label }}">
+                                                                        Eliminar esta imagen
+                                                                    </label>
+                                                                </div>
+                                                            {% endif %}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                
+                                            <div class="text-end">
+                                                <button type="button" id="add-more-images" class="btn btn-outline-primary">
+                                                    <i class="fas fa-plus me-2"></i> Añadir más imágenes
+                                                </button>
+                                            </div>
+                            </div>
+                        </div>
+                        
+
+
+
+                    <!-- Especificaciones -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h6 class="m-0 font-weight-bold text-primary">Características</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label for="{{ form.features.id_for_label }}" class="form-label">Características del Producto</label>
+                                {{ form.features }}
+                                {% if form.features.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.features.errors|join:", " }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h6 class="m-0 font-weight-bold text-primary">Color</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <span id="hgdfh" class="color-circle" style="background-color: {{ product.color }};"></span>
+                        
+                                <label for="{{ form.color.id_for_label }}" class="form-label">Color del Producto</label>
+                                <select id="{{ form.color.id_for_label }}" name="color" class="form-control">
+                                    <option value="red" {% if product.color == "red" %}selected{% endif %}>Rojo</option>
+                                    <option value="blue" {% if product.color == "blue" %}selected{% endif %}>Azul</option>
+                                    <option value="green" {% if product.color == "green" %}selected{% endif %}>Verde</option>
+                                    <option value="yellow" {% if product.color == "yellow" %}selected{% endif %}>Amarillo</option>
+                                    <option value="orange" {% if product.color == "orange" %}selected{% endif %}>Naranja</option>
+                                    <option value="purple" {% if product.color == "purple" %}selected{% endif %}>Morado</option>
+                                    <option value="pink" {% if product.color == "pink" %}selected{% endif %}>Rosa</option>
+                                    <option value="black" {% if product.color == "black" %}selected{% endif %}>Negro</option>
+                                    <option value="white" {% if product.color == "white" %}selected{% endif %}>Blanco</option>
+                                    <option value="gray" {% if product.color == "gray" %}selected{% endif %}>Gris</option>
+                                    <option value="brown" {% if product.color == "brown" %}selected{% endif %}>Marrón</option>
+                                    <option value="#ff6347" {% if product.color == "#ff6347" %}selected{% endif %}>Tomato</option>
+                                    <option value="#008080" {% if product.color == "#008080" %}selected{% endif %}>Teal</option>
+                                    <option value="#f0e68c" {% if product.color == "#f0e68c" %}selected{% endif %}>Khaki</option>
+                                    <option value="#800080" {% if product.color == "#800080" %}selected{% endif %}>Púrpura</option>
+                                    <option value="#ffd700" {% if product.color == "#ffd700" %}selected{% endif %}>Oro</option>
+                                </select>
+                        
+                                {% if form.color.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.color.errors|join:", " }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        
+                    </div>
+
+
+                    <div class="card mb-4">
+                     <div class="card-header">
+                            <h6 class="m-0 font-weight-bold text-primary"> Imagen del código de barras</h6>
+                        </div>
+                        <div class="card-body">
+                                {% if product.barcode_image %}
+                                    <div class="form-group">
+                                        <img src="{{ product.barcode_image.url }}" alt="Código de barras" class="img_code">
+                                    </div>
+                                {% endif %}
+                            </div>
+
+    
+                    </div>
+                   
+                    <div class="card mb-4">
+                        <div class="card-header">
+                               <h6 class="m-0 font-weight-bold text-primary">Imagen del código QR</h6>
+                           </div>
+                        <div class="card-body">
+                        {% if product.qr_code %}
+                            <div class="form-group">
+                                <img src="{{ product.qr_code.url }}" alt="Código QR" class="img_code">
+                            </div>
+                        {% endif %}
+       
+                    </div>
+                    
+                    
+
+                    </div>
+                </div>
+
+
+
+                
+            </div>
+
+            <div class="text-end">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i> Guardar Producto
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+<script src="{% static 'js/admin_dashboard/product-images.js' %}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Inicializar Select2 para los campos de selección
+        $('.select2').select2({
+            theme: 'bootstrap-5'
+        });
+
+        // Preview de imagen
+        $('#id_imagen').change(function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    $('.img-preview').attr('src', e.target.result);
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Validación del formulario
+        $('#productForm').submit(function(e) {
+            let isValid = true;
+            
+            // Validar campos requeridos
+            $('.required').each(function() {
+                if (!$(this).val()) {
+                    isValid = false;
+                    $(this).addClass('is-invalid');
+                } else {
+                    $(this).removeClass('is-invalid');
+                }
+            });
+
+            if (!isValid) {
+                e.preventDefault();
+                alert('Por favor, complete todos los campos requeridos.');
+            }
+        });
+    });
+</script>
+<script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+<script>
+    tinymce.init({
+        selector: '#id_description',
+        height: 400,
+        menubar: true,
+        plugins: 'lists advlist autolink link',
+        toolbar: 'undo redo | bold italic | bullist numlist outdent indent',
+        branding: false,
+        forced_root_block: 'p',
+        convert_newlines_to_brs: false,
+        entity_encoding: "raw"
+    });
+    
+</script>
+{{ form.media }}
+{% endblock %}

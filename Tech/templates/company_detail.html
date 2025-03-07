@@ -1,0 +1,239 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}datos-compañia{% endblock %}
+
+{% block extra_css %}
+<link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
+
+
+{% endblock %}
+{% block content %}
+
+    <style>
+      
+/* Contenedor principal */
+main .container {
+    width: 80%;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h1, h2 {
+    color: #333;
+}
+
+/* Estilos para los detalles de la empresa */
+.company-details {
+    margin-bottom: 20px;
+    padding: 20px;
+}
+
+.company-name {
+    font-size: 20px;
+    font-weight: bold;
+    color: #2a2a2a;
+}
+
+.company-name {
+    font-size: 1.75em;
+    color: #333;
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+
+.company-info {
+    font-size: 16px;
+    color: #555;
+    margin-top: 5px;
+}
+
+/* Formulario */
+form {
+    margin-top: 20px;
+}
+
+form input, form textarea {
+    width: 100%;
+    padding: 8px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+}
+
+form button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+form button:hover {
+    background-color: #45a049;
+}
+
+/* Acciones del formulario */
+.form-actions {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.company-image{
+
+}
+
+
+
+/* Logo Styles */
+.company-logos {
+    display: flex;
+    gap: 20px; /* Espacio entre los logos */
+    justify-content: center; /* Alinear al centro */
+    align-items: center;
+    margin-top: 10px;
+}
+
+.company-logo {
+    text-align: center;
+    flex: 1; /* Para que ambos tengan el mismo tamaño */
+}
+
+.logo-img {
+    max-width: 150px;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+
+.company-logo p {
+  font-style: italic;
+  color: #777;
+}
+
+
+
+/* Messages */
+.messages {
+  padding: 15px;
+  background-color: #d4edda;
+  color: #155724;
+  border-bottom: 1px solid #c3e6cb;
+  border-radius: 6px;
+  margin-bottom: 20px;
+}
+
+.messages .alert {
+  margin-bottom: 0;
+}
+
+
+    </style>
+</head>
+
+{% if messages %}
+<div class="messages">
+    {% for message in messages %}
+        <div class="alert alert-success">{{ message }}</div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<main>
+    <div class="container">
+        <!-- Título -->
+        <h1>Detalles de la Empresa</h1>
+
+        <!-- Mostrar datos actuales de la empresa -->
+        <div class="company-details">
+            <div class="company-name">{{ company.name }}</div>
+            <div class="company-info">RUC: {{ company.ruc }}</div>
+            <div class="company-info">{{ company.address }}</div>
+            <div class="company-info">Tel: {{ company.phone }}</div>
+            <div class="company-info">{{ company.email }}</div>
+            <div class="company-info">{{ company.website }}</div>
+
+            <!-- Mostrar logos de la empresa -->
+            <div class="company-logos">
+                {% if company.image %}
+                    <div class="company-logo">
+                        <img src="{{ company.image.url }}" alt="Imagen de {{ company.name }}" class="logo-img">
+                    </div>
+                {% else %}
+                    <div class="company-logo">
+                        <p>No hay imagen disponible</p>
+                    </div>
+                {% endif %}
+
+                {% if company.logo %}
+                    <div class="company-logo">
+                        <img src="{{ company.logo.url }}" alt="Logo de {{ company.name }}" class="logo-img">
+                    </div>
+                {% else %}
+                    <div class="company-logo">
+                        <p>No hay logo disponible</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Certificaciones -->
+            <div class="company-logos">
+                {% for certification in company.certifications_list.all %}
+                    <div class="company-logo">
+                        {% if certification.logos %}
+                            <img src="{{ certification.logos.url }}" alt="Logo de {{ certification.name }}" class="logo-img">
+                        {% else %}
+                            <p>No hay logo de certificación</p>
+                        {% endif %}
+                        <!-- Botones de editar y eliminar certificación -->
+                        <div class="form-actions">
+                            <a href="{% url 'edit_certification' certification.id %}" class="btn btn-primary">Editar</a>
+                            <a href="{% url 'delete_certification' certification.id %}" class="btn btn-danger" onclick="return confirm('¿Estás seguro de eliminar esta certificación?')">Eliminar</a>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p>No hay certificaciones disponibles.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <hr>
+
+        <!-- Formulario de Edición de la Empresa -->
+        <h2>Editar Empresa</h2>
+        <hr>
+
+        <!-- Formulario de edición de empresa -->
+        <h2>Editar Empresa</h2>
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <div class="form-actions">
+                <button type="submit" name="save_company" class="btn btn-primary">Guardar Cambios</button>
+            </div>
+        </form>
+
+        <hr>
+
+        <!-- Formulario de agregar certificación -->
+        <h2>Agregar Certificación</h2>
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ certification_form.as_p }}
+            <div class="form-actions">
+                <button type="submit" name="add_certification" class="btn btn-primary">Agregar Certificación</button>
+            </div>
+        </form>
+
+        
+        
+    </div>
+</main>
+{% endblock %}

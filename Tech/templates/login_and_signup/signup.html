@@ -1,0 +1,93 @@
+<!-- signup.html -->
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Registro - TechVanguard{% endblock %}
+
+{% block content %}
+
+
+{% block extra_css %}   
+    <link rel="stylesheet" href="{% static 'css/login_register.css' %}">
+   {% endblock %}
+
+
+<div class="register-container">
+    <div class="register-box">
+        <div class="register-image-section">
+            <img src="{% static 'img/Landscape.jpg' %}" alt="Register illustration" class="register-image">
+        </div>
+        <div class="register-form-section">
+            <div class="register-header">
+                <h1 class="register-title">Crear cuenta</h1>
+                <p class="register-subtitle">Completa tus datos para registrarte</p>
+            </div>
+            <form class="register-form" method="post">
+                {% csrf_token %}
+                
+                 {% if messages %}
+                    {% for message in messages %}
+                        <p class="error-message">{{ message }}</p>
+                    {% endfor %}
+                {% endif %}
+
+               
+                <div class="register-input-group">
+                    <input type="text" name="cedula" class="register-input" placeholder="Cédula" value="{{ request.POST.cedula }}" required>
+                    {% if form.cedula.errors %}
+                        <p class="error-message">{{ form.cedula.errors }}</p>
+                    {% endif %}
+                </div>
+
+              
+                <div class="register-input-group">
+                    <input type="email" name="email" class="register-input" placeholder="Correo electrónico" value="{{ request.POST.email }}" required>
+                    {% if form.email.errors %}
+                        <p class="error-message">{{ form.email.errors }}</p>
+                    {% endif %}
+                </div>
+
+               
+                <div class="register-input-group">
+                    <input type="password" name="password1" class="register-input" placeholder="Contraseña" required>
+                    {% if form.password1.errors %}
+                        <p class="error-message">{{ form.password1.errors }}</p>
+                    {% endif %}
+                    
+                </div>
+                <div class="register-input-group">
+                    <input type="password" name="password2" class="register-input" placeholder="Confirmar contraseña" required>
+                    {% if form.password2.errors %}
+                        <p class="error-message">{{ form.password2.errors }}</p>
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="register-btn register-btn-primary">REGISTRARSE</button>
+
+                <div class="register-divider">
+                    <span class="register-divider-text">O REGÍSTRATE CON</span>
+                </div>
+
+                <div class="register-social-buttons">
+                    <a href="{% url 'social:begin' 'google-oauth2' %}" class="register-social-btn">
+                        <img src="{% static 'img/google_128.png' %}" alt="Google" class="register-social-icon">
+                    </a>
+                    <a href="{% url 'social:begin' 'facebook' %}" class="register-social-btn">
+                        <img src="{% static 'img/facebook_128.png' %}" alt="Facebook" class="register-social-icon">
+                    </a>
+                    <a href="{% url 'social:begin' 'linkedin-oauth2' %}" class="register-social-btn">
+                        <img src="{% static 'img/linkedin_128.png' %}" alt="LinkedIn" class="register-social-icon">
+                    </a>
+                </div>
+
+                <div class="register-login-link">
+                    <p>¿Ya tienes una cuenta? <a href="{% url 'login' %}" class="register-link">Inicia sesión aquí</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'js/register.js' %}"></script>
+
+
+{% endblock %}

@@ -1,0 +1,101 @@
+{% extends 'admin_dashboard/base.html' %}
+
+{% block title %}Reiniciar Base de Datos - Panel de Administración{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Reiniciar Base de Datos</h1>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Confirmación de Reinicio</h6>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-danger">
+                        <h4 class="alert-heading">¡ADVERTENCIA!</h4>
+                        <p>Está a punto de reiniciar la base de datos. Esta acción:</p>
+                        <ul>
+                            <li>Eliminará TODOS los datos existentes</li>
+                            <li>Eliminará todas las ventas y registros</li>
+                            <li>Eliminará todos los productos y categorías</li>
+                            <li>Eliminará todos los clientes</li>
+                            <li>Mantendrá solo las cuentas de administrador</li>
+                        </ul>
+                        <p>Esta acción NO SE PUEDE DESHACER.</p>
+                    </div>
+
+                    <form method="POST" id="resetForm" onsubmit="return confirmReset()">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="confirmation" class="form-label">
+                                Para confirmar, escriba "RESET" en mayúsculas:
+                            </label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="confirmation" 
+                                   name="confirmation" 
+                                   required 
+                                   autocomplete="off"
+                                   pattern="RESET"
+                                   title="Debe escribir RESET en mayúsculas">
+                        </div>
+
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="confirmCheck" required>
+                            <label class="form-check-label" for="confirmCheck">
+                                Entiendo que esta acción es irreversible y perderé todos los datos
+                            </label>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-exclamation-triangle me-2"></i> Reiniciar Base de Datos
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Backup de Datos</h6>
+                </div>
+                <div class="card-body">
+                    <p>Antes de reiniciar la base de datos, se recomienda realizar un backup:</p>
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'admin_backup_database' %}" class="btn btn-primary">
+                            <i class="fas fa-download me-2"></i> Descargar Backup
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function confirmReset() {
+    if (!document.getElementById('confirmCheck').checked) {
+        alert('Debe confirmar que entiende las consecuencias de esta acción.');
+        return false;
+    }
+
+    const confirmation = document.getElementById('confirmation').value;
+    if (confirmation !== 'RESET') {
+        alert('El código de confirmación debe ser RESET en mayúsculas.');
+        return false;
+    }
+
+    return confirm('¿Está ABSOLUTAMENTE SEGURO de que desea reiniciar la base de datos? Esta acción no se puede deshacer.');
+}
+</script>
+{% endblock %}

@@ -1,0 +1,110 @@
+.icon-container {
+    display: flex;
+    gap: 20px;
+    justify-content: flex-start;
+    align-items: center;
+  }
+  
+ 
+ 
+  /*
+  .badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: red;
+    color: white;
+    border-radius: 50%;
+    padding: 5px 10px;
+    font-size: 0.8rem;
+  }*/
+  /* Estilos generales del dropdown */
+.dropdown {
+  position: absolute;
+  top: 50px; /* Ajustado para que se vea un poco más abajo */
+  right: 20px;
+  background-color: var(--color-blu); /* Azul oscuro más elegante */
+
+  color: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* Sombra más pronunciada */
+  border-radius: 10px;
+  width: 300px; /* Un poco más grande para mayor espacio */
+  display: none;
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease-in-out;
+  z-index: 1000;
+  transform: translateY(-10px); /* Desplazamiento suave hacia abajo */
+}
+
+.nav-link:hover .dropdown {
+  display: block;
+  opacity: 1;
+  transform: translateY(0); /* Aparece desde arriba */
+}
+
+/* Cabecera del dropdown */
+.dropdown-header {
+  background-color: var(--color-blu), #1a1a2e; /* Azul oscuro más elegante */
+  color: white;
+  padding: 12px;
+  text-align: center;
+  border-radius: 10px 10px 0 0;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+/* Lista del dropdown */
+.dropdown-list {
+  list-style: none;
+  padding: 10px;
+  margin: 0;
+  max-height: 300px;
+  overflow-y: auto;
+  background-color: var(--color-blu); /* Azul oscuro más elegante */
+}
+
+.dropdown-list li {
+  padding: 12px;
+  border-bottom: 1px solid #444b69; /* Color gris suave para las divisiones */
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.dropdown-list li:hover {
+  background-color: var(--color-blu); /* Azul oscuro más elegante */
+  border-color: #1e2635; /* Resalta el borde al hacer hover */
+}
+
+/* Último elemento sin borde inferior */
+.dropdown-list li:last-child {
+  border-bottom: none;
+}
+
+/* Footer del dropdown */
+.dropdown-footer {
+  padding: 12px;
+  text-align: center;
+  font-size: 0.9rem;
+  background-color: var(--color-blu); /* Azul oscuro más elegante */
+  border-radius: 0 0 10px 10px;
+}
+
+.dropdown-footer a {
+  color: #ff6f61; /* Color de enlace más cálido */
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.dropdown-footer a:hover {
+  color: #f7a8a1; /* Color al pasar el cursor */
+  text-decoration: underline;
+}
+
+/* Clase "show" para hacerlo visible */
+.dropdown.show {
+  display: block;
+  opacity: 1;
+  transform: translateY(0); /* Desplazamiento suave hacia arriba */
+}

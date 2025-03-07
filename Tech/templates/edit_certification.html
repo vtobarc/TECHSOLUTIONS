@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Editar Certificación{% endblock %}
+
+{% block extra_css %}
+<link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
+{% endblock %}
+
+{% block content %}
+
+    <main>
+        <div class="container">
+            <h1>Editar Certificación</h1>
+
+            <!-- Mostrar el formulario para editar la certificación -->
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ certification_form.as_p }}
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+{% endblock %}

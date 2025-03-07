@@ -1,0 +1,290 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+{% block extra_css %}   
+
+    <link rel="stylesheet" href="{% static 'css/profile.css' %}"> <!-- CSS extra solo para esta página -->
+{% endblock %}
+
+
+
+
+<div class="profile-container">
+    {% if messages %}
+    <div class="alert alert-success">
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    </div>
+{% endif %}
+
+    <div id="toast-container" style="position: fixed; bottom: 20px; left: 20px; z-index: 9999;"></div>
+
+    <div class="cover-image">
+        <form id="cover-photo-form" method="POST" enctype="multipart/form-data" action="{% url 'update_cover_photo' %}">
+            {% csrf_token %}
+            <div class="cover-image">
+                {% if user.cover_photo %}
+                    <img id="cover-photo" src="{{ user.cover_photo.url }}" alt="Imagen de portada">
+                {% else %}
+                    <img id="cover-photo" src="{% static 'images/default-cover.jpg' %}" alt="Imagen de portada">
+                {% endif %}
+                
+                <input type="file" id="cover-photo-input" name="cover_photo" style="display: none;" accept="image/*">
+                
+                <button id="change-cover" type="button" class="btn btn-secondary">Cambiar Portada</button>
+            </div>
+        </form>
+    </div>
+    
+    
+  
+
+    <div class="profile-content">
+        <div class="sidebar">
+          <div class="profile-picture-container">
+            {% if user.foto_perfil %}
+                <img src="{{ user.foto_perfil.url }}" alt="Foto de perfil" class="profile-picture" onclick="document.getElementById('foto_perfil').click();">
+            {% else %}
+                <img src="{% static 'perfil/default_profile_picture.jpg' %}" alt="Foto de perfil" class="profile-picture" onclick="document.getElementById('foto_perfil').click();">
+            {% endif %}
+            
+            <input type="file" name="foto_perfil" id="foto_perfil" style="display: none;" onchange="subirFotoPerfil(this)">
+        
+          </div>
+            <nav>
+                <button class="nav-button active" data-target="basic-info">Datos Personales</button>
+                <button class="nav-button" data-target="professional-info">Perfil Profesional</button>
+                <button class="nav-button" data-target="client-info">Perfil Cliente</button>
+                <button class="nav-button" data-target="security">Seguridad</button>
+                
+            </nav>
+        </div>
+        <div class="main-content">
+            <form method="post" enctype="multipart/form-data" id="profile-form">
+                {% csrf_token %}
+                <div id="basic-info" class="tab-content active">
+                    <h2>Datos Personales</h2>
+                    {% for field in form %}
+                        {% if field.name in 'cedula,first_name,last_name,email,telefono,direccion,ciudad,provincia,pais,fecha_nacimiento,genero,idioma_preferido' %}
+                         
+                        <div class="form-group">
+                                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                {{ field }}
+                                {% if field.help_text %}
+                                    <small class="form-text text-muted">{{ field.help_text }}</small>
+                                {% endif %}
+                                {% for error in field.errors %}
+                                    <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                
+                <div id="professional-info" class="tab-content">
+                    <h2>Perfil Profesional</h2>
+                    {% for field in form %}
+                        {% if field.name in 'titulo_profesional,biografia,linkedin_url,github_url,portfolio_url,habilidades_tecnicas,habilidades_blandas' %}
+                            <div class="form-group">
+                                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                {{ field }}
+                                {% if field.help_text %}
+                                    <small class="form-text text-muted">{{ field.help_text }}</small>
+                                {% endif %}
+                                {% for error in field.errors %}
+                                    <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+
+                    <h3>Educación</h3>
+                    <div id="education-list">
+                        {% for edu in education %}
+                            <div class="education-item">
+                                <p>{{ edu.institucion }} - {{ edu.titulo }}</p>
+                                <p>{{ edu.fecha_inicio }} - {{ edu.fecha_fin|default:"Presente" }}</p>
+                                <!-- Iconos para editar y eliminar -->
+                                <a href="{% url 'edit_education' edu.id %}" class="btn btn-sm btn-warning">
+                                    <i class="fas fa-edit"></i> Editar
+                                </a>
+                                <a href="{% url 'delete_education' edu.id %}" class="btn btn-sm btn-danger">
+                                    <i class="fas fa-trash-alt"></i> Eliminar
+                                </a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <a href="" class="btn btn-primary" id="add-education">
+                        <i class="fas fa-plus"></i> Agregar Educación
+                    </a>
+
+                    <h3>Experiencia</h3>
+                    <div id="experience-list">
+                        {% for exp in experience %}
+                            <div class="experience-item">
+                                <p>{{ exp.empresa }} - {{ exp.cargo }}</p>
+                                <p>{{ exp.fecha_inicio }} - {{ exp.fecha_fin|default:"Presente" }}</p>
+                                <p>{{ exp.descripcion }}</p>
+                                <!-- Botón Editar -->
+                                <a href="{% url 'edit_experience' exp.id %}" class="btn btn-sm btn-warning">
+                                    <i class="fas fa-edit"></i> Editar
+                                </a>
+
+                                <!-- Botón Eliminar -->
+                                <a href="{% url 'delete_experience' exp.id %}" class="btn btn-danger btn-sm" 
+                                onclick="return confirm('¿Estás seguro de que quieres eliminar esta experiencia?');">
+                                    <i class="fas fa-trash"></i> Eliminar
+                                </a>
+                                
+                                
+                            </div>
+                        {% endfor %}
+                    </div>
+
+
+
+                    <a href="" class="btn btn-primary" id="add-experience">
+                        <i class="fas fa-plus"></i> Agregar Experiencia
+                    </a>
+                </div>
+
+                <div id="client-info" class="tab-content">
+                    <h2>Perfil Cliente</h2>
+                    <h3>Métodos de Pago</h3>
+                    <div id="payment-methods-list">
+                        {% for method in payment_methods %}
+                            <div class="payment-method-item">
+                                <p>{{ method.tipo_tarjeta }} - **** **** **** {{ method.numero_tarjeta|slice:"-4:" }}</p> 
+                                <a href="{% url 'delete_payment_method' method.id %}" class="btn btn-sm btn-danger">
+                                    <i class="fa fa-trash"></i> Eliminar
+                                </a>
+                               
+                            </div>
+                            
+                        {% endfor %}
+                        
+                    </div>
+                    <a href="" class="btn btn-primary" id="add-payment-method">Agregar Método de Pago</a>
+                    
+                </div>
+
+                <div id="security" class="tab-content">
+                    <h2>Seguridad</h2>
+                    <a href="" class="btn btn-primary">Cambiar Contraseña</a>
+                    <p>Último acceso: {{ ultimo_acceso }}</p>
+                    <p>IP de registro: {{ ip_registro }}</p>
+                </div>
+
+                <button type="submit" class="btn btn-success mt-3">Guardar Cambios</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<script src="{% static 'js/profile.js' %}"></script>
+
+
+
+{% endblock %}
+
+
+
+{% block js %}
+
+<script>
+  function subirFotoPerfil(input) {
+      const formData = new FormData();
+      formData.append('foto_perfil', input.files[0]);
+
+      fetch("{% url 'subir_foto_perfil' %}", {
+          method: 'POST',
+          headers: {
+              'X-CSRFToken': '{{ csrf_token }}'
+          },
+          body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+          if (data.status === 'success') {
+              location.reload(); // Recarga la página para mostrar la nueva foto
+          } else {
+              alert(data.message);
+          }
+      })
+      .catch(error => {
+          console.error('Error al subir la foto:', error);
+      });
+  }
+  document.addEventListener('DOMContentLoaded', () => { 
+    const changeCoverBtn = document.getElementById('change-cover');
+    const coverPhotoInput = document.getElementById('cover-photo-input');
+    const coverPhotoForm = document.getElementById('cover-photo-form');
+
+    // Cambiar portada
+    changeCoverBtn.addEventListener('click', () => {
+        coverPhotoInput.click();
+    });
+
+    coverPhotoInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const formData = new FormData(coverPhotoForm);
+            // Enviar el formulario con el archivo
+            fetch(coverPhotoForm.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    document.getElementById('cover-photo').src = data.url;
+                    showToast(data.message, 'success');
+                } else {
+                    showToast(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error al actualizar la foto de portada:', error);
+                showToast('Hubo un error al subir la imagen. Inténtalo de nuevo.', 'error');
+            });
+        }
+    });
+
+    // Función para mostrar un toast
+    function showToast(message, type) {
+        const toastContainer = document.getElementById('toast-container');
+        
+        const toast = document.createElement('div');
+        toast.classList.add('toast');
+        toast.style.backgroundColor = type === 'success' ? '#28a745' : '#dc3545';
+        toast.style.color = 'white';
+        toast.style.padding = '10px 20px';
+        toast.style.marginBottom = '10px';
+        toast.style.borderRadius = '5px';
+        toast.style.fontSize = '16px';
+        toast.style.transition = 'opacity 0.5s';
+        toast.textContent = message;
+
+        toastContainer.appendChild(toast);
+
+        // Desaparecer el toast después de 4 segundos
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            setTimeout(() => {
+                toastContainer.removeChild(toast);
+            }, 500);  // Elimina el toast después de que desaparezca
+        }, 4000);
+    }
+});
+
+  
+</script>
+{% endblock %}
+

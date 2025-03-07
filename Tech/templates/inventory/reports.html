@@ -1,0 +1,302 @@
+{% extends 'dashboard/servicios.html' %}
+{% load static %}
+
+{% block title %}Reportes y Estadísticas{% endblock %}
+
+{% block extra_css %}
+<link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
+<link rel="stylesheet" href="{% static 'css/servicios.css' %}">
+<link rel="stylesheet" href="{% static 'css/inventory.css' %}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+   
+    .reports-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    
+    .table-responsive {
+        overflow-x: auto;
+    }
+    
+    @media print {
+        .header-actions {
+            display: none;
+        }
+        
+        .card {
+            break-inside: avoid;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block main_content %}
+<div class="reports">
+    <div class="page-header">
+        <h2>Reportes y Estadísticas</h2>
+        <div class="header-actions">
+            <button class="btn btn-outline" onclick="window.print()">
+                <i class="fas fa-print"></i>
+                Imprimir Reporte
+            </button>
+            <button class="btn btn-outline" onclick="exportToPDF()">
+                <i class="fas fa-file-pdf"></i>
+                Exportar PDF
+            </button>
+        </div>
+    </div>
+
+    <!-- Resumen General -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-shopping-cart"></i>
+            </div>
+            <div class="stat-info">
+                <h3>Ventas Totales</h3>
+                <p class="stat-value">{{ total_sales }}</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-dollar-sign"></i>
+            </div>
+            <div class="stat-info">
+                <h3>Ingresos Totales</h3>
+                <p class="stat-value">${{ total_revenue|floatformat:2 }}</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-box"></i>
+            </div>
+            <div class="stat-info">
+                <h3>Total Productos</h3>
+                <p class="stat-value">{{ total_products }}</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-warehouse"></i>
+            </div>
+            <div class="stat-info">
+                <h3>Valor del Inventario</h3>
+                <p class="stat-value">${{ total_value|floatformat:2 }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="reports-grid">
+        <!-- Ventas Diarias -->
+        <div class="card">
+            <h3>Ventas Diarias</h3>
+            <canvas id="dailySalesChart"></canvas>
+        </div>
+
+        <!-- Métodos de Pago -->
+        <div class="card">
+            <h3>Ventas por Método de Pago</h3>
+            <canvas id="paymentMethodsChart"></canvas>
+        </div>
+
+        <!-- Productos Más Vendidos -->
+        <div class="card">
+            <h3>Top 10 Productos Más Vendidos</h3>
+            <canvas id="topProductsChart"></canvas>
+        </div>
+
+        <!-- Productos por Categoría -->
+        <div class="card">
+            <h3>Productos por Categoría</h3>
+            <canvas id="categoryChart"></canvas>
+        </div>
+
+        <!-- Movimientos de Stock -->
+        <div class="card">
+            <h3>Movimientos de Stock</h3>
+            <canvas id="stockMovementsChart"></canvas>
+        </div>
+
+        <!-- Productos con Stock Bajo -->
+        <div class="card">
+            <h3>Productos con Stock Bajo</h3>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Stock Actual</th>
+                            <th>Stock Mínimo</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in low_stock_products %}
+                        <tr>
+                            <td>{{ product.name }}</td>
+                            <td>{{ product.stock }}</td>
+                            <td>{{ product.minimum_stock }}</td>
+                            <td>
+                                <span class="badge {% if product.stock == 0 %}badge-danger{% else %}badge-warning{% endif %}">
+                                    {% if product.stock == 0 %}
+                                        Sin Stock
+                                    {% else %}
+                                        Stock Bajo
+                                    {% endif %}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Ventas Diarias
+    document.addEventListener('DOMContentLoaded', function() {
+        const dailySalesData = {{ daily_sales|safe }};
+        console.log('Daily Sales Data:', dailySalesData);  // Verifica en la consola
+
+        if (dailySalesData && dailySalesData.length > 0) {
+            new Chart(document.getElementById('dailySalesChart'), {
+                type: 'line',
+                data: {
+                    labels: dailySalesData.map(item => new Date(item.day).toLocaleDateString()),
+                    datasets: [{
+                        label: 'Ventas',
+                        data: dailySalesData.map(item => item.total),
+                        borderColor: '#2196F3',
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        }
+    });
+    
+    // Métodos de Pago
+    const paymentMethodsData = {{ payment_methods|safe }};
+    new Chart(document.getElementById('paymentMethodsChart'), {
+        type: 'pie',
+        data: {
+            labels: paymentMethodsData.map(item => item.payment_method),
+            datasets: [{
+                data: paymentMethodsData.map(item => item.total),
+                backgroundColor: ['#4CAF50', '#2196F3', '#FFC107']
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'right'
+                }
+            }
+        }
+    });
+
+    // Productos Más Vendidos
+    const topProductsData = {{ top_products|safe }};
+    new Chart(document.getElementById('topProductsChart'), {
+        type: 'bar',
+        data: {
+            labels: topProductsData.map(item => item.product__name),
+            datasets: [{
+                label: 'Cantidad Vendida',
+                data: topProductsData.map(item => item.total_quantity),
+                backgroundColor: '#4CAF50'
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // Categorías
+    const categoriesData = {{ categories_data|safe }};
+    new Chart(document.getElementById('categoryChart'), {
+        type: 'doughnut',
+        data: {
+            labels: categoriesData.map(item => item.name),
+            datasets: [{
+                data: categoriesData.map(item => item.count),
+                backgroundColor: [
+                    '#4CAF50', '#2196F3', '#FFC107', '#E91E63',
+                    '#9C27B0', '#00BCD4', '#FF5722', '#795548'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'right'
+                }
+            }
+        }
+    });
+
+    // Movimientos de Stock
+    const stockMovements = {{ stock_movements|safe }};
+    new Chart(document.getElementById('stockMovementsChart'), {
+        type: 'line',
+        data: {
+            labels: stockMovements.map(item => new Date(item.month).toLocaleDateString()),
+            datasets: [
+                {
+                    label: 'Entradas',
+                    data: stockMovements.map(item => item.in_qty || 0),
+                    borderColor: '#4CAF50',
+                    fill: false
+                },
+                {
+                    label: 'Salidas',
+                    data: stockMovements.map(item => item.out_qty || 0),
+                    borderColor: '#F44336',
+                    fill: false
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+});
+
+function exportToPDF() {
+    // Implementar la exportación a PDF
+    alert('Función de exportación a PDF en desarrollo');
+}
+</script>
+{% endblock %}

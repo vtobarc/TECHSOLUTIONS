@@ -1,0 +1,118 @@
+<!-- templates/users/profile.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}   
+
+    <link rel="stylesheet" href="{% static 'css/profile_publico.css' %}"> <!-- CSS extra solo para esta página -->
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <!-- Cover Photo -->
+    <div class="cover-photo" style="background-image: url('{{ user.cover_photo.url }}')">
+        <div class="profile-photo">
+            <img src="{{ user.foto_perfil.url }}" alt="{{ user.username }}">
+        </div>
+    </div>
+
+    <!-- User Info -->
+    <div class="user-info">
+        <h1>{{ user.get_full_name }}</h1>
+        <p class="title">{{ user.titulo_profesional }}</p>
+        <p class="location">
+            <i class="fas fa-map-marker-alt"></i> 
+            {{ user.ciudad }}, {{ user.pais }}
+        </p>
+        
+        {% if user.is_online %}
+            <span class="status online">En línea</span>
+        {% else %}
+            <span class="status offline">{{ user.formatted_last_activity }}</span>
+        {% endif %}
+
+        <!-- Rating -->
+        <div class="rating">
+            <span class="stars">
+                {% for i in "12345" %}
+                    {% if forloop.counter <= user.rating %}
+                        <i class="fas fa-star"></i>
+                    {% else %}
+                        <i class="far fa-star"></i>
+                    {% endif %}
+                {% endfor %}
+            </span>
+            <span class="rating-count">({{ user.num_ratings }} valoraciones)</span>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="profile-tabs">
+        <div class="tab-buttons">
+            <button class="tab-btn active" data-tab="info">Información</button>
+            <button class="tab-btn" data-tab="education">Educación</button>
+            <button class="tab-btn" data-tab="experience">Experiencia</button>
+        </div>
+
+        <!-- Info Tab -->
+        <div class="tab-content active" id="info">
+            <h3>Sobre mí</h3>
+            <p>{{ user.biografia }}</p>
+            
+            <h3>Habilidades Técnicas</h3>
+<div class="skills">
+    {% for skill in habilidades_tecnicas %}
+        <span class="skill-tag">{{ skill }}</span>
+    {% endfor %}
+</div>
+
+<h3>Habilidades Blandas</h3>
+<div class="skills">
+    {% for skill in habilidades_blandas %}
+        <span class="skill-tag soft">{{ skill }}</span>
+    {% endfor %}
+</div>
+
+        </div>
+
+        <!-- Education Tab -->
+        <div class="tab-content" id="education">
+            {% for edu in education %}
+            <div class="education-item">
+                <h4>{{ edu.titulo }}</h4>
+                <p>{{ edu.institucion }}</p>
+                <p class="date">{{ edu.fecha_inicio|date:"Y" }} - 
+                   {% if edu.fecha_fin %}
+                       {{ edu.fecha_fin|date:"Y" }}
+                   {% else %}
+                       Presente
+                   {% endif %}
+                </p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Experience Tab -->
+        <div class="tab-content" id="experience">
+            {% for exp in experience %}
+            <div class="experience-item">
+                <h4>{{ exp.cargo }}</h4>
+                <p>{{ exp.empresa }}</p>
+                <p class="date">{{ exp.fecha_inicio|date:"Y" }} - 
+                   {% if exp.fecha_fin %}
+                       {{ exp.fecha_fin|date:"Y" }}
+                   {% else %}
+                       Presente
+                   {% endif %}
+                </p>
+                <p>{{ exp.descripcion }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+<script src="{% static 'js/profile_publico.js' %}"></script>
+
+{% endblock %}

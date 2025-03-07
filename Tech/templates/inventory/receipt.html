@@ -1,0 +1,268 @@
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Factura #{{ sale.number }}</title>
+  <style>
+    @page {
+        size: 80mm 297mm;
+        margin: 0;
+      }
+  
+      @media print {
+        .no-print {
+          display: none;
+          /* Oculta los botones en la impresión */
+        }
+  
+        body {
+          width: 80mm;
+          margin: 0;
+          padding: 5mm;
+          font-size: 10px;
+          /* Ajusta la fuente para que quepa en el papel */
+        }
+      }
+  
+      body {
+        font-family: 'Arial', sans-serif;
+        font-size: 12px;
+        line-height: 1.4;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background-color: #f4f4f4;
+      }
+  
+      .receipt {
+        max-width: 80mm;
+        margin: 0 auto;
+        padding: 15px;
+        background-color: #fff;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.15);
+        border-radius: 8px;
+      }
+  
+      .header {
+        text-align: center;
+        margin-bottom: 20px;
+        border-bottom: 2px dashed #eee;
+        padding-bottom: 10px;
+      }
+  
+      .company-name {
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 8px;
+        color: #333;
+      }
+  
+      .company-info {
+        font-size: 12px;
+        margin-bottom: 5px;
+        color: #777;
+      }
+  
+      .document-type {
+        font-size: 16px;
+        font-weight: bold;
+        margin: 15px 0;
+        text-align: center;
+        text-transform: uppercase;
+        color: #28a745;
+      }
+  
+      .sale-info {
+        margin-bottom: 20px;
+        border-bottom: 2px dashed #eee;
+        padding-bottom: 10px;
+      }
+  
+      .sale-info div {
+        margin-bottom: 8px;
+        color: #555;
+      }
+  
+      .items {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+        font-size: 12px;
+      }
+  
+      .items th {
+        background-color: #f8f9fa;
+        border-bottom: 1px dashed #ddd;
+        padding: 8px;
+        text-align: left;
+        color: #333;
+      }
+  
+      .items td {
+        padding: 8px;
+        border-bottom: 1px dashed #eee;
+        color: #555;
+      }
+  
+      .totals {
+        text-align: right;
+        margin-bottom: 20px;
+        border-top: 2px dashed #eee;
+        padding-top: 10px;
+      }
+  
+      .totals div {
+        margin-bottom: 8px;
+        font-size: 13px;
+        color: #333;
+      }
+  
+      .footer {
+        text-align: center;
+        font-size: 12px;
+        margin-top: 20px;
+        border-top: 2px dashed #eee;
+        padding-top: 10px;
+        color: #777;
+      }
+  
+      .actions {
+        text-align: center;
+        margin-top: 20px;
+        padding: 10px;
+      }
+  
+      .btn {
+        padding: 8px 16px;
+        margin: 0 5px;
+        cursor: pointer;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        transition: background-color 0.3s ease;
+        font-size: 12px;
+      }
+  
+      .btn:hover {
+        background-color: #0056b3;
+      }
+  
+      /* Animate borders */
+      .header,
+      .sale-info,
+      .totals,
+      .footer {
+        position: relative;
+      }
+  
+      .header::after,
+      .sale-info::after,
+      .totals::after,
+      .footer::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background: linear-gradient(to right, #007bff, #28a745);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+  
+      .header:hover::after,
+      .sale-info:hover::after,
+      .totals:hover::after,
+      .footer:hover::after {
+        opacity: 1;
+      }
+  </style>
+</head>
+
+<body>
+  <div class="receipt">
+    <div class="header">
+        <div class="company-name">{{ company.name }}</div>
+        <div class="company-info">RUC: {{ company.ruc }}</div>
+        <div class="company-info">{{ company.address }}</div>
+        <div class="company-info">Tel: {{ company.phone }}</div>
+        <div class="company-info">{{ company.email }}</div>
+        <div class="company-info">{{ company.website }}</div>
+        
+    </div>
+
+    <div class="document-type">
+      {% if sale.customer_id != "9999999999" %}
+      FACTURA
+      {% else %}
+      NOTA DE VENTA
+      {% endif %}
+    </div>
+
+    <div class="sale-info">
+      <div><strong>Documento #:</strong> {{ sale.number }}</div>
+      <div><strong>Fecha:</strong> {{ sale.date|date:"d/m/Y H:i" }}</div>
+      <div><strong>Cliente:</strong> {{ sale.customer_name }}</div>
+      <div><strong>RUC/CI:</strong> {{ sale.customer_id }}</div>
+      <div><strong>Forma de Pago:</strong> {{ sale.get_payment_method_display }}</div>
+      {% if sale.notes %}
+      <div><strong>Notas:</strong> {{ sale.notes }}</div>
+      {% endif %}
+    </div>
+
+    <table class="items">
+      <thead>
+        <tr>
+          <th>Cant</th>
+          <th>Descripción</th>
+          <th>P.U.</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in items %}
+        <tr>
+          <td>{{ item.quantity }}</td>
+          <td>{{ item.product.name }}</td>
+          <td>${{ item.price }}</td>
+          <td>${{ item.subtotal }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="totals">
+      <div><strong>Subtotal:</strong> ${{ sale.subtotal }}</div>
+      <div><strong>IVA (12%):</strong> ${{ sale.tax }}</div>
+      <div style="font-size: 14px; font-weight: bold;">
+        <strong>TOTAL:</strong> ${{ sale.total }}
+      </div>
+    </div>
+
+    <div class="footer">
+      <p>¡Gracias por su compra!</p>
+      <p>Este documento es un comprobante válido de su pago</p>
+      {% if sale.customer_id != "9999999999" %}
+      <p>FACTURA AUTORIZADA POR EL SRI</p>
+      <p>Régimen General - Obligado a llevar contabilidad</p>
+      {% endif %}
+    </div>
+
+    <div class="actions no-print">
+      <button class="btn" onclick="window.print()">Imprimir</button>
+      <button class="btn" onclick="window.close()">Cerrar</button>
+    </div>
+  </div>
+<!--
+  <script>
+    // Imprimir automáticamente al cargar
+    window.onload = function () {
+      window.print();
+    }
+  </script>
+  -->
+</body>
+
+</html>

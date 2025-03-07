@@ -1,0 +1,599 @@
+
+<!-- index.html -->
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block title %}TechVanguard_Nosotros{% endblock %}
+
+{% block extra_css %}
+<link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
+crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+        integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="{% static '' %}">
+{% endblock %}
+
+{% block content %}
+
+    <style>
+        .different-section .mvv-item {
+            padding: 1.5em;
+            background-color: #f0f8ff;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: transform 0.2s ease-in-out;
+        }
+        
+        .mvv-item:hover {
+            transform: translateY(-5px);
+        }
+        
+        .mvv-item h3 {
+            color: #343a40;
+            margin-bottom: 0.75em;
+            font-size: 1.5em;
+        }
+        
+        .different-section .mvv-item h3 {
+            color: #343a40;
+            margin-bottom: 1em;
+            font-size: 1.3em;
+        }
+        
+        .different-section .mvv-item ul {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .different-section .mvv-item ul li {
+            margin: 0.5em;
+            padding: 0.75em 1em;
+            background-color: #e9ecef;
+            border-radius: 20px;
+            color: #555;
+            display: inline-flex;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .different-section .mvv-item ul li i {
+            margin-right: 0.5em;
+            color: #28a745;
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            width: 80%;
+            margin: auto;
+            padding: 0 20px;
+        }
+        
+        .heder_main {
+            background: #333;
+            color: #fff;
+            padding: 20px 0;
+            text-align: center;
+        }
+        
+        .heder_main h1 {
+            margin-bottom: 10px;
+        }
+        
+        section {
+            padding: 30px 0;
+            background: #fff;
+            border-bottom: 1px solid #eee;
+        }
+        
+        section h2,
+        section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+            text-align: center;
+                }
+        
+        section p {
+            margin-bottom: 10px;
+        }
+        
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        ul li {
+            margin-bottom: 8px;
+        }
+        
+        /* Misión, Visión, Valores Section */
+        .mission-vision-values .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .mvv-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            width: 100%;
+            padding: 20px;
+        }
+        
+        .mvv-item {
+            background: #f9f9f9;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            text-align: center;        
+        }
+        
+        .mvv-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .mvv-item h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        
+        .mvv-item ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .mvv-item ul li {
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .mvv-item ul li i {
+            color: #28a745;
+            margin-right: 12px;
+            font-size: 1.2em;
+        }
+        
+        /* Testimonials Section */
+        .testimonials {
+            background-color: #f8f9fa;
+            padding: 60px 0;
+        }
+        
+        .testimonials .container {
+            text-align: center;
+        }
+        
+        .testimonials h2 {
+            margin-bottom: 40px;
+            color: #333;
+            font-size: 2em;
+        }
+        
+        .testimonials-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            padding: 20px;
+        }
+        
+        .testimonial {
+            background-color: #fff;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            width: 350px;
+            text-align: left;
+            transition: all 0.3s ease;
+        }
+        
+        .testimonial:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+        
+        .testimonial p {
+            font-style: italic;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            line-height: 1.7;
+        }
+        
+        .testimonial strong {
+            color: #007bff;
+            display: block;
+            margin-top: 10px;
+        }
+        
+        /* FAQ Section */
+        .faq-section {
+            background-color: #fff;
+            padding: 60px 0;
+        }
+        
+        .faq-section .container {
+            text-align: left;
+            padding: 20px;
+        }
+        
+        .faq-section h2 {
+            margin-bottom: 40px;
+            color: #333;
+            font-size: 2em;
+        }
+        
+        .faq-section p {
+            margin-bottom: 25px;
+            font-size: 1.1em;
+        }
+        
+        /* Contact Section */
+        .contact-section {
+            background-color: #f8f9fa;
+            padding: 60px 0;
+        }
+        
+        .contact-section .container {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .contact-section h2 {
+            margin-bottom: 40px;
+            color: #333;
+            font-size: 2em;
+        }
+        
+        .contact-section p {
+            margin-bottom: 25px;
+            font-size: 1.1em;
+        }
+        
+        .contact-section a {
+            color: #007bff;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .contact-section a:hover {
+            text-decoration: underline;
+            color: #0056b3;
+        }
+        
+        /* Team Section */
+        .team-section {
+            background-color: #fff;
+            padding: 60px 0;
+        }
+        
+        .team-section .container {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .team-section h2 {
+            margin-bottom: 40px;
+            color: #333;
+            font-size: 2em;
+        }
+        
+        .team-container {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+            padding: 20px;
+        }
+        
+        .team-member {
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .team-member:hover {
+            transform: translateY(-5px);
+        }
+        
+        .team-member img {
+            width: 170px;
+            height: 170px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+
+        }
+        .team-member img:hover {
+            transform: scale(1.1); /* Efecto de aumento al pasar el mouse */
+        
+        }
+        
+        .team-member h3 {
+            margin-bottom: 8px;
+            color: #333;
+            font-size: 1.3em;
+        }
+        
+        .team-member p {
+            color: #666;
+            font-size: 1.1em;
+        }
+        
+        /* Certifications Section */
+        .certifications-section {
+            background-color: #f8f9fa;
+            padding: 60px 0;
+        }
+        
+        .certifications-section .container {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .certifications-section h2 {
+            margin-bottom: 40px;
+            color: #333;
+            font-size: 2em;
+        }
+        
+        .certifications-container {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+            padding: 20px;
+        }
+        
+        .certification {
+            width: 180px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .certification:hover {
+            transform: scale(1.05);
+        }
+        
+        .certification img {
+            max-width: 80%;
+            max-height: 80%;
+            object-fit: contain;
+        }
+        
+        /* General Styles */
+        a {
+            color: #007bff;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        a:hover {
+            text-decoration: underline;
+            color: #0056b3;
+        }
+    </style>
+
+    <div class="heder_main">
+        <div class="container">
+            <h1>Quiénes Somos</h1>
+            <p style="font-size: 1.2em;">
+                Conoce más sobre <strong>{{ company.name }}</strong>, nuestra misión y nuestro equipo.
+            </p>
+        </div>
+    </div>
+    
+
+<section class="company-values">
+    <div class="container">
+        <h2>Nuestra Tienda</h2>
+        <p>
+            {% if company.history %}
+                {{ company.history }}
+            {% else %}
+                Somos una tienda en línea dedicada a ofrecer productos de alta calidad a precios accesibles. Nuestro objetivo es brindarte una experiencia de compra fácil, rápida y segura.
+            {% endif %}
+        </p>
+        <p>Nuestra misión es hacer que cada compra en línea sea confiable y satisfactoria. Nos esforzamos por ofrecer productos de calidad con envíos rápidos y atención personalizada.</p>
+    </div>
+</section>
+
+<section class="mission-vision-values">
+    <div class="container">
+        <h2>Misión, Visión y Valores</h2>
+        <div class="mvv-grid">
+            <div class="mvv-item">
+                <h3>Misión</h3>
+                <p>
+                    {% if company.mission %}
+                        {{ company.mission }}
+                    {% else %}
+                        Ofrecemos productos de alta calidad y soluciones innovadoras para simplificar la vida digital de nuestros clientes, garantizando una experiencia de compra confiable y satisfactoria.
+                    {% endif %}
+                </p>
+            </div>
+            <div class="mvv-item">
+                <h3>Visión</h3>
+                <p>
+                    {% if company.vision %}
+                        {{ company.vision }}
+                    {% else %}
+                        Ser líderes en el mercado de productos tecnológicos, reconocidos por nuestra calidad, innovación y excelente servicio al cliente, expandiendo nuestra presencia a nivel global.
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<section class="different-section">
+   <!-- <div class="container">
+        <h2>Qué Nos Hace Diferentes</h2>
+        <p>
+            {% if company.values %}
+                {{ company.values }}
+            {% else %}
+                Nos aseguramos de que cada pedido llegue en perfectas condiciones, con envíos rápidos y soporte 24/7. Manejamos precios competitivos y ofrecemos garantía y devoluciones en todos nuestros productos. Nuestra atención al cliente es personalizada y estamos siempre disponibles para resolver tus dudas.
+            {% endif %}
+        </p>
+    </div>-->
+    <div class="mvv-item">
+        <h3>Valores</h3>
+        <ul>
+            {% if company.values %}
+                {% for value in values_list %}
+                    <li><i class="fas fa-check-circle"></i> <strong>{{ value|title }}</strong> </li>
+                {% endfor %}
+            {% else %}
+                <li><i class="fas fa-check-circle"></i> <strong>Transparencia:</strong> Comunicación clara y honesta en todas nuestras interacciones.</li>
+                <li><i class="fas fa-check-circle"></i> <strong>Compromiso:</strong> Dedicación total para satisfacer las necesidades de nuestros clientes.</li>
+                <li><i class="fas fa-check-circle"></i> <strong>Calidad:</strong> Ofrecer productos y servicios que superen las expectativas.</li>
+                <li><i class="fas fa-check-circle"></i> <strong>Innovación:</strong> Búsqueda constante de nuevas soluciones y tecnologías para mejorar nuestra oferta.</li>
+            {% endif %}
+        </ul>
+    </div>
+</section>
+
+  <!-- Testimonios -->
+
+<section class="testimonials">
+    <div class="container">
+        <h2>Lo que dicen nuestros usuarios</h2>
+        <div class="testimonials-container">
+            <div class="testimonial">
+                <p>"TechVanguard ha simplificado mi vida digital. ¡Ahora puedo encontrar todo lo que necesito en
+                    segundos!"</p>
+                <p><strong>Juan Pérez, Emprendedor</strong></p>
+            </div>
+            <div class="testimonial">
+                <p>"La seguridad que ofrece TechVanguard es incomparable. Duermo tranquilo sabiendo que mis archivos
+                    están protegidos."</p>
+                <p><strong>María García, Diseñadora Gráfica</strong></p>
+            </div>
+            <div class="testimonial">
+                <p>"La categorización es super útil, me ahorra mucho tiempo en la organización de mis documentos."
+                </p>
+                <p><strong>Carlos López, Gerente de Proyectos</strong></p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="faq-section">
+    <div class="container">
+        <h2>Preguntas Frecuentes</h2>
+        <p><strong>¿Cuáles son los tiempos de entrega?</strong></p>
+        <p>Los tiempos de entrega varían según la ubicación. Puedes consultar los tiempos de entrega estimados al
+            realizar tu pedido.</p>
+    </div>
+</section>
+<section class="contact-section">
+    <div class="container">
+        <h2>Ubicación y Contacto</h2>
+        <p>Operamos en todo el país. Si tienes dudas, escríbenos a 
+            {% if company.email %}
+                <a href="mailto:{{ company.email }}">{{ company.email }}</a>
+            {% else %}
+                <span>[email no disponible]</span>
+            {% endif %}
+            o por WhatsApp al 
+            {% if company.phone %}
+                <a href="https://wa.me/{{ company.phone }}">{{ company.phone }}</a>
+            {% else %}
+                <span>[número no disponible]</span>
+            {% endif %}.
+        </p>
+    </div>
+</section>
+
+
+<!-- Equipo -->
+<section class="team-section">
+    <div class="container">
+    <h2>Nuestro Equipo</h2>
+    <div class="team-container">      
+        {% for employee in employees %}
+        <div class="team-member">
+                        {% if employee.profile_picture %}
+              <img src="{{ employee.profile_picture.url }}" alt="{{ employee.name }}">
+            {% else %}
+              <img src="https://placehold.co/200x200" alt="{{ employee.name }}">
+            {% endif %}
+            <h3>{{ employee.name }}</h3>
+            <p>{{ employee.position }}</p>
+        </div>
+      {% empty %}
+        <p>No hay empleados registrados.</p>
+      {% endfor %}
+</div>
+</div>
+</section>
+  
+  
+ 
+  
+  
+  <!-- Certificaciones y Alianzas -->
+  <section class="certifications-section">
+    <div class="container">
+          <h2>Marcas y Certificaciones</h2>
+      <p>Nuestra empresa cuenta con certificaciones internacionales que garantizan calidad y confianza.</p>
+      <div class="certifications-container">
+            {% for certification in certifications %}
+            <div class="certification">
+                {% if certification.logos %}
+                          <img src="{{ certification.logos.url }}" alt="Logo de {{ certification.name_certification }}"  loading="lazy">
+                          <!--<h3>{{ certification.name_certification }}</h3>-->
+  
+                          {% else %}
+                          <img src="{% static 'img/default-logo.png' %}" alt="Logo predeterminado" loading="lazy">
+                          {{ certification.name_certification }}
+  
+                      {% endif %}
+                  </div>
+              {% empty %}
+                  <p>No hay certificaciones disponibles.</p>
+              {% endfor %}
+          </div>
+      </div>
+    </div>
+  </section>
+  
+  
+
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+{% endblock %}

@@ -1,0 +1,1 @@
+web: gunicorn dynamics.wsgi:application

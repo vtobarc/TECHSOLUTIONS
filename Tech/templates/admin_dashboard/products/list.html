@@ -1,0 +1,137 @@
+{% extends 'admin_dashboard/base.html' %}
+
+{% block title %}Productos - Panel de Administración{% endblock %}
+
+{% block content %}
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Gestión de Productos</h1>
+    <a href="{% url 'admin_product_new' %}" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i> Nuevo Producto
+    </a>
+    <a href="{% url 'admin_print_product_labels' %}" class="btn btn-success me-2" target="_blank">
+        <i class="fas fa-print me-2"></i> Imprimir Etiquetas
+    </a>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Lista de Productos</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="productsTable" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Código</th>
+                        <th>Categoría</th>
+                        <th>Precio</th>
+                        <th>Stock</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in products %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                {% if product.imagen %}
+                                    <img src="{{ product.imagen.url }}" alt="{{ product.name }}" class="me-2" style="width: 50px; height: 50px; object-fit: cover;">
+                                {% else %}
+                                    <div class="bg-light me-2" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-box text-muted"></i>
+                                    </div>
+                                {% endif %}
+                                <div>
+                                    <div class="font-weight-bold">{{ product.name }}</div>
+                                 <!--   <small class="text-muted">
+                                        {% autoescape off %}
+
+                                        {{ product.description|truncatechars:50 }}
+                                        {% endautoescape %}
+                                    </small>-->
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ product.code }}</td>
+                        <td>{{ product.category.name }}</td>
+                        <td>${{ product.price|floatformat:2 }}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <span class="badge {% if product.stock <= product.minimum_stock %}bg-danger{% elif product.stock <= product.minimum_stock|add:5 %}bg-warning{% else %}bg-success{% endif %} me-2">
+                                    {{ product.stock }}
+                                </span>
+                                {% if product.stock <= product.minimum_stock %}
+                                    <i class="fas fa-exclamation-triangle text-danger" title="Stock bajo"></i>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge {% if product.is_available %}bg-success{% else %}bg-danger{% endif %}">
+                                {{ product.is_available|yesno:"Disponible,No disponible" }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a href="{% url 'admin_product_edit' product.id %}" class="btn btn-sm btn-info" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'admin_toggle_product_availability' product.id %}" 
+                                   class="btn btn-sm {% if product.is_available %}btn-danger{% else %}btn-success{% endif %}"
+                                   title="{% if product.is_available %}Deshabilitar{% else %}Habilitar{% endif %}">
+                                    <i class="fas {% if product.is_available %}fa-times{% else %}fa-check{% endif %}"></i>
+                                </a>
+                                <button type="button" class="btn btn-sm btn-danger" title="Eliminar"
+                                        data-bs-toggle="modal" data-bs-target="#deleteModal{{ product.id }}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+
+                            <!-- Modal de confirmación de eliminación -->
+                            <div class="modal fade" id="deleteModal{{ product.id }}" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Confirmar Eliminación</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            ¿Está seguro que desea eliminar el producto <strong>{{ product.name }}</strong>?
+                                            Esta acción no se puede deshacer.
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                            <form action="{% url 'admin_product_delete' product.id %}" method="POST" class="d-inline">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-danger">Eliminar</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        $('#productsTable').DataTable({
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.10.25/i18n/Spanish.json'
+            },
+            order: [[0, 'asc']],
+            columnDefs: [
+                { orderable: false, targets: -1 }
+            ]
+        });
+    });
+</script>
+{% endblock %}

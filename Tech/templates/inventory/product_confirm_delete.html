@@ -1,0 +1,51 @@
+{% extends 'dashboard/servicios.html' %}
+{% load static %}
+
+{% block title %}TechVanguard_Cliente{% endblock %}
+
+{% block extra_css %}
+<link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
+<link rel="stylesheet" href="{% static 'css/servicios.css' %}">
+<link rel="stylesheet" href="{% static 'css/inventory.css' %}">
+{% endblock %}
+
+{% block main_content %}
+<div class="delete-confirmation">
+    <div class="card">
+        <div class="card-content">
+            <h2>Confirmar Eliminación</h2>
+            <p>¿Está seguro de que desea eliminar el producto "{{ product.name }}"?</p>
+            <div class="product-info">
+                {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-thumbnail">
+                {% else %}
+                    <img src="{% static 'img/no-image.png' %}" alt="No image available" class="product-thumbnail">
+                {% endif %}
+
+                <div class="info">
+                    <p><strong>Código:</strong> {{ product.code }}</p>
+                    <p><strong>Stock actual:</strong> {{ product.stock }}</p>
+                    <p><strong>Precio:</strong> ${{ product.price|floatformat:2 }}</p>
+                </div>
+            </div>
+            <div class="warning">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p>Esta acción no se puede deshacer.</p>
+            </div>
+            <form method="POST">
+                {% csrf_token %}
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline" onclick="history.back()">
+                        <i class="fas fa-times"></i>
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash"></i>
+                        Eliminar Producto
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

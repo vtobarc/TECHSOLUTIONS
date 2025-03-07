@@ -1,0 +1,519 @@
+{% extends 'admin_dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Reporte de Ventas - Panel de Administración{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.css">
+{% endblock %}
+
+{% block content %}
+<style>
+    #salesTable tbody {
+        display: block;
+        max-height: 300px; /* Establece la altura máxima */
+        overflow-y: auto; /* Muestra el scroll vertical */
+        height: 300px; /* Define la altura del contenedor */
+        width: 100%; /* Asegura que el cuerpo de la tabla ocupe el ancho completo */
+        overflow-x: hidden; /* Evita el scroll horizontal */
+    }
+    
+    #salesTable thead, #salesTable tbody tr {
+        display: table;
+        width: 100%;
+        table-layout: fixed;
+    }
+    
+    
+</style>
+
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Reporte de Ventas</h1>
+    <div class="btn-group">
+        
+        <button class="btn btn-primary" onclick="window.print()">
+            <i class="fas fa-print me-2"></i> Imprimir
+        </button>
+        <button class="btn btn-success" id="exportExcel">
+            <i class="fas fa-file-excel me-2"></i> Exportar Excel
+        </button>
+        <button class="btn btn-danger" id="exportPDF">
+            <i class="fas fa-file-pdf me-2"></i> Exportar PDF
+        </button>
+
+    </div>
+</div>
+
+<!-- Filtros -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Filtros de Reporte</h6>
+    </div>
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">Fecha Inicio</label>
+                <input type="date" name="start_date" class="form-control" value="{{ start_date|date:'Y-m-d' }}">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Fecha Fin</label>
+                <input type="date" name="end_date" class="form-control" value="{{ end_date|date:'Y-m-d' }}">
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary me-2">
+                    <i class="fas fa-filter me-2"></i> Filtrar
+                </button>
+                <a href="{% url 'admin_sales_report' %}" class="btn btn-secondary">
+                    <i class="fas fa-undo me-2"></i> Reiniciar
+                </a>
+                
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Resumen de Ventas -->
+<div class="row">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                            Total de Ventas
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            {{ total_sales }}
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-shopping-cart fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            Ingresos Totales
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            ${{ total_revenue|floatformat:2 }}
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            Promedio por Venta
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            {% if total_sales != 0 %}
+                                ${{ total_revenue|default:0|divisibleby:total_sales|default:0|floatformat:2 }}
+                            {% else %}
+                                $0.00
+                            {% endif %}
+                        </div>
+                        
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-chart-line fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            Período
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            {{ start_date|date:"d/m/Y" }} - {{ end_date|date:"d/m/Y" }}
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Gráficos -->
+<div class="row">
+    <!-- Métodos de Pago -->
+    <div class="col-xl-6 col-lg-6">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Ventas por Método de Pago</h6>
+            </div>
+            <div class="card-body">
+                <div class="chart-pie pt-4">
+                    <canvas id="paymentMethodsChart"></canvas>
+                </div>
+                <div class="mt-4">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Método</th>
+                                <th class="text-center">Cantidad</th>
+                                <th class="text-end">Total</th>
+                            </tr>
+                        </thead>
+                            {% for method in payment_methods|slice:"-5:" %}  <!-- Muestra solo los últimos 5 -->
+                            <tr>
+                                <td>{{ method.payment_method }}</td>
+                                <td class="text-center">{{ method.count }}</td>
+                                <td class="text-end">${{ method.total|floatformat:2 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Productos más vendidos -->
+    <div class="col-xl-6 col-lg-6">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Top 10 Productos más Vendidos</h6>
+            </div>
+            <div class="card-body">
+                <div class="chart-bar pt-4">
+                    <canvas id="topProductsChart"></canvas>
+                </div>
+                <div class="mt-4">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th class="text-center">Cantidad</th>
+                                <th class="text-end">Ingresos</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for product in top_products %}
+                            <tr>
+                                <td>{{ product.product__name }}</td>
+                                <td class="text-center">{{ product.total_quantity }}</td>
+                                <td class="text-end">${{ product.total_revenue|floatformat:2 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Opciones de eliminación -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+        <h6 class="m-0 font-weight-bold text-primary">Detalle de Ventas</h6>
+        <div>
+            <button id="deleteSelected" class="btn btn-outline-danger me-2" disabled>
+                <i class="fas fa-trash me-1"></i> Eliminar Seleccionados (<span id="selectedCount">0</span>)
+            </button>
+            <button id="deleteAll" class="btn btn-danger">
+                <i class="fas fa-trash-alt me-1"></i> Eliminar Todo
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            
+            <table class="table table-bordered" id="salesTable" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th width="60">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="selectAll">
+                            </div>
+                        </th>
+                        <th>ID Venta</th>
+                        <th>Fecha</th>
+                        <th>Cliente</th>
+                        <th>Total</th>
+                        <th>Método de Pago</th>
+                    </tr>
+                </thead>
+                
+                <tbody>
+                    {% for sale in sales %}
+                    <tr data-id="{{ sale.id }}">
+                        <td width="60">
+                            <div  class="form-check">
+                                <input class="form-check-input sale-checkbox" type="checkbox" value="{{ sale.id }}">
+                            </div>
+                        </td>
+                        <td>{{ sale.number }}</td>
+                        <td>{{ sale.date|date:"d/m/Y H:i" }}</td>
+                        <td>{{ sale.customer_name|default:"Cliente general" }}</td>
+                        <td>${{ sale.total|floatformat:2 }}</td>
+                        <td>{{ sale.get_payment_method_display }}</td>
+                        
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center">No hay ventas en el período seleccionado</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para confirmar eliminación individual -->
+<div class="modal fade" id="deleteSingleModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmar eliminación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Estás seguro de que deseas eliminar esta venta? Esta acción no se puede deshacer.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form id="deleteSingleForm" method="POST" action="">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Eliminar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para confirmar eliminación múltiple -->
+<div class="modal fade" id="deleteSelectedModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmar eliminación múltiple</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <span>¿Estás seguro de que deseas eliminar <span id="selectedCountModal">0</span> ventas seleccionadas? Esta acción no se puede deshacer.</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form id="deleteSelectedForm" method="POST" action="{% url 'admin_delete_selected_sales' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="selected_ids" id="selectedIds" value="">
+                    <button type="submit" class="btn btn-danger">Eliminar seleccionados</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para confirmar eliminación de todo -->
+<div class="modal fade" id="deleteAllModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmar eliminación masiva</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <span>¡ADVERTENCIA! Estás a punto de eliminar TODAS las ventas del período seleccionado. Esta acción no se puede deshacer.</span>
+                </div>
+                <p>Período: <strong>{{ start_date|date:"d/m/Y" }} - {{ end_date|date:"d/m/Y" }}</strong></p>
+                <p>Total de ventas: <strong>{{ total_sales }}</strong></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form id="deleteAllForm" method="POST" action="{% url 'admin_delete_all_sales' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="start_date" value="{{ start_date|date:'Y-m-d' }}">
+                    <input type="hidden" name="end_date" value="{{ end_date|date:'Y-m-d' }}">
+                    <button type="submit" class="btn btn-danger">Eliminar todo</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Configuración de colores
+    const colors = [
+        '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b',
+        '#858796', '#f8f9fc', '#5a5c69', '#2e59d9', '#17a673'
+    ];
+
+    // Gráfico de Métodos de Pago
+    const paymentMethodsCtx = document.getElementById('paymentMethodsChart').getContext('2d');
+    new Chart(paymentMethodsCtx, {
+        type: 'doughnut',
+        data: {
+            labels: [{% for method in payment_methods %}'{{ method.get_payment_method_display }}',{% endfor %}],
+            datasets: [{
+                data: [{% for method in payment_methods %}{{ method.total }},{% endfor %}],
+                backgroundColor: colors,
+                hoverBackgroundColor: colors,
+                hoverBorderColor: "rgba(234, 236, 244, 1)",
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'bottom'
+                }
+            },
+            cutout: '70%'
+        }
+    });
+
+    // Gráfico de Productos más Vendidos
+    const topProductsCtx = document.getElementById('topProductsChart').getContext('2d');
+    new Chart(topProductsCtx, {
+        type: 'bar',
+        data: {
+            labels: [{% for product in top_products %}'{{ product.product__name }}',{% endfor %}],
+            datasets: [{
+                label: 'Cantidad Vendida',
+                data: [{% for product in top_products %}{{ product.total_quantity }},{% endfor %}],
+                backgroundColor: colors[0],
+                borderColor: colors[0],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+
+    // Exportar a Excel
+    document.getElementById('exportExcel').addEventListener('click', function() {
+        window.location.href = '{% url "admin_sales_report_excel" %}' + window.location.search;
+    });
+
+    // Exportar a PDF
+    document.getElementById('exportPDF').addEventListener('click', function() {
+        window.location.href = '{% url "admin_sales_report_pdf" %}' + window.location.search;
+    });
+});
+</script>
+<script>
+    // Gestión de eliminación de ventas
+$(document).ready(function() {
+    // Inicializar tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    });
+    
+    // Seleccionar/deseleccionar todo
+    $("#selectAll").change(function() {
+        $(".sale-checkbox").prop('checked', $(this).prop('checked'));
+        updateSelectedCount();
+    });
+    
+    // Actualizar contador cuando se selecciona individualmente
+    $(".sale-checkbox").change(function() {
+        updateSelectedCount();
+        
+        // Si deseleccionamos alguno, el "seleccionar todo" se desmarca
+        if (!$(this).prop('checked')) {
+            $("#selectAll").prop('checked', false);
+        }
+        
+        // Si todos están seleccionados, marcar "seleccionar todo"
+        if ($(".sale-checkbox:checked").length === $(".sale-checkbox").length) {
+            $("#selectAll").prop('checked', true);
+        }
+    });
+    
+    // Actualizar contador de seleccionados
+    function updateSelectedCount() {
+        var count = $(".sale-checkbox:checked").length;
+        $("#selectedCount, #selectedCountModal").text(count);
+        
+        // Habilitar/deshabilitar botón según si hay seleccionados
+        if (count > 0) {
+            $("#deleteSelected").prop('disabled', false);
+        } else {
+            $("#deleteSelected").prop('disabled', true);
+        }
+    }
+    
+    // Eliminar individual
+    $(".delete-single").click(function() {
+        var saleId = $(this).data('id');
+        $("#deleteSingleForm").attr('action', '/admin/sales/' + saleId + '/delete/');
+        $("#deleteSingleModal").modal('show');
+    });
+    
+    // Eliminar seleccionados
+    $("#deleteSelected").click(function() {
+        if ($(".sale-checkbox:checked").length === 0) return;
+        
+        var selectedIds = [];
+        $(".sale-checkbox:checked").each(function() {
+            selectedIds.push($(this).val());
+        });
+        
+        $("#selectedIds").val(selectedIds.join(','));
+        $("#deleteSelectedModal").modal('show');
+    });
+    
+    // Eliminar todo
+    $("#deleteAll").click(function() {
+        $("#deleteAllModal").modal('show');
+    });
+    
+    // Mostrar notificación después de eliminar (si existe)
+    if ($("#deleteNotification").length) {
+        setTimeout(function() {
+            $("#deleteNotification").fadeOut();
+        }, 5000);
+    }
+});
+</script>
+{% endblock %}

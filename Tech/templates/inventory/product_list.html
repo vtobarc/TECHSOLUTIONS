@@ -1,0 +1,97 @@
+{% extends 'dashboard/servicios.html' %}
+{% load static %}
+
+{% block title %}TechVanguard_Cliente{% endblock %}
+
+{% block extra_css %}
+<link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
+<link rel="stylesheet" href="{% static 'css/servicios.css' %}">
+<link rel="stylesheet" href="{% static 'css/inventory.css' %}">
+{% endblock %}
+
+{% block main_content %}
+<div class="product-list">
+    <div class="page-header">
+        <h2>Productos</h2>
+        <div class="header-actions">
+            <button class="btn btn-outline" onclick="location.href='{% url 'export_products' %}'">
+                <i class="fas fa-file-export"></i>
+                Exportar
+            </button>
+            <button class="btn btn-outline" onclick="location.href='{% url 'print_labels' %}'">
+                <i class="fas fa-print"></i>
+                Imprimir Etiquetas
+            </button>
+            <button class="btn btn-primary" onclick="location.href='{% url 'add_product' %}'">
+                <i class="fas fa-plus"></i>
+                Nuevo Producto
+            </button>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Imagen</th>
+                        <th>Código</th>
+                        <th>Nombre</th>
+                        <th>Categoría</th>
+                        <th>Stock</th>
+                        <th>Precio</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in products %}
+                    <tr>
+                        <td>
+                            {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-thumbnail">
+            {% else %}
+                <img src="{% static 'img/no-image.png' %}" alt="No image available" class="product-thumbnail">
+            {% endif %}
+
+                            
+                        </td>
+                        <td>{{ product.code }}</td>
+                        <td>{{ product.name }}</td>
+                        <td>{{ product.category.name|default:'-' }}</td>
+                        <td class="{% if product.stock <= product.minimum_stock %}text-warning{% endif %}">
+                            {{ product.stock }}
+                        </td>
+                        <td>${{ product.price|floatformat:2 }}</td>
+                        <td>
+                            <div class="actions">
+                                <button class="btn btn-icon" onclick="location.href='{% url 'edit_product' product.pk %}'">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-icon text-danger" onclick="confirmDelete({{ product.pk }})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                                <button class="btn btn-icon" onclick="showBarcode('{{ product.barcode_image.url }}')">
+                                    <i class="fas fa-barcode"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para mostrar código de barras -->
+<div id="barcodeModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <img id="barcodeImage" src="/placeholder.svg" alt="Código de barras">
+        <button class="btn btn-primary" onclick="printBarcode()">
+            <i class="fas fa-print"></i>
+            Imprimir
+        </button>
+    </div>
+</div>
+{% endblock %}

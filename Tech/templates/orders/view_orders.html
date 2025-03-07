@@ -1,0 +1,158 @@
+{% extends 'admin_dashboard/base.html' %}
+{% load static %}
+
+
+{% block content %}
+<style>
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: #f4f4f4;
+        color: #333;
+        margin: 0;
+        padding: 0;
+    }
+
+    .container {
+        width: 90%;
+        margin: auto;
+        overflow: hidden;
+        padding: 20px;
+    }
+
+    h2 {
+        color: #333;
+        text-align: center;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #eee;
+    }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        background-color: #fff;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .table th,
+    .table td {
+        padding: 12px 15px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .table th {
+        background-color: #007bff;
+        color: white;
+        font-weight: bold;
+    }
+
+    .table tbody tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+
+    .table tbody tr:hover {
+        background-color: #ddd;
+    }
+
+
+    .btn-info {
+        background-color: #17a2b8;
+    }
+
+    .btn-info:hover {
+        background-color: #138496;
+    }
+
+    .btn-primary {
+        background-color: #28a745;
+    }
+
+    .btn-primary:hover {
+        background-color: #218838;
+    }
+
+    .btn-danger {
+        background-color: #dc3545;
+    }
+
+    .btn-danger:hover {
+        background-color: #c82333;
+    }
+
+    .form-control {
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+        margin: 5px 0;
+    }
+
+    select.form-control {
+        width: auto;
+        display: inline-block;
+    }
+
+    /* Responsive Design */
+    @media screen and (max-width: 768px) {
+        .table {
+            overflow-x: auto;
+            display: block;
+        }
+
+        .table th,
+        .table td {
+            white-space: nowrap;
+        }
+    }
+</style>
+<h2>Pedidos para Procesar</h2>
+
+<h2>Pedidos para Procesar</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Fecha</th>
+            <th>Total</th>
+            <th>Estado</th>
+            <th>Acciones</th> <!-- Columna para las acciones -->
+        </tr>
+    </thead>
+    <tbody>
+        {% for order in orders %}
+        <tr>
+            <td>{{ order.id }}</td>
+            <td>{{ order.date|date:"d/m/Y H:i" }}</td> <!-- Formato de fecha mejorado -->
+            <td>{{ order.total }}</td>
+            <td>{{ order.get_status_display }}</td> <!-- Muestra la opción legible del estado -->
+            <td>
+                <!-- Botón para ver los detalles del pedido -->
+                <a href="{% url 'order_detail' order.id %}" class="btn btn-info">Ver Detalles</a>
+                
+                <!-- Formulario para cambiar el estado del pedido -->
+                <form action="{% url 'update_order_status' order.id %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <select name="status" class="form-control" style="width:auto; display:inline;">
+                            <option value="pending" {% if order.status == 'pending' %}selected{% endif %}>Pendiente</option>
+                            <option value="completed" {% if order.status == 'completed' %}selected{% endif %}>Completado</option>
+                            <option value="canceled" {% if order.status == 'canceled' %}selected{% endif %}>Cancelado</option>
+                        </select>
+                        <button type="submit" class="btn btn-primary">Actualizar Estado</button>
+                    </div>
+                </form>
+                
+                <!-- Formulario para eliminar el pedido -->
+                <form action="{% url 'delete_order' order.id %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger" onclick="return confirm('¿Estás seguro de eliminar este pedido?')">Eliminar</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

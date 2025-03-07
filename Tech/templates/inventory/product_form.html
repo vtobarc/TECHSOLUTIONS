@@ -1,0 +1,335 @@
+{% extends 'dashboard/servicios.html' %}
+{% load static %}
+
+{% block title %}TechVanguard_Cliente{% endblock %}
+
+{% block extra_css %}
+<link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
+<link rel="stylesheet" href="{% static 'css/servicios.css' %}">
+<link rel="stylesheet" href="{% static 'css/inventory.css' %}">
+{% endblock %}
+
+{% block main_content %}
+<div class="form-container">
+    <div class="page-header">
+        <h2>{% if product %}Editar Producto{% else %}Nuevo Producto{% endif %}</h2>
+    </div>
+
+    <div class="card">
+        <form method="POST" enctype="multipart/form-data" class="product-form">
+            {% csrf_token %}
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="id_name" class="form-label">Nombre del Producto</label>
+                    {{ form.name }}
+                    {% if form.name.errors %}
+                        <div class="error-message">{{ form.name.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_code" class="form-label">Código</label>
+                    {{ form.code }}
+                    {% if form.code.errors %}
+                        <div class="error-message">{{ form.code.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_category" class="form-label">Categoría</label>
+                    {{ form.category }}
+                    {% if form.category.errors %}
+                        <div class="error-message">{{ form.category.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_price" class="form-label">Precio de Venta</label>
+                    {{ form.price }}
+                    {% if form.price.errors %}
+                        <div class="error-message">{{ form.price.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_cost" class="form-label">Costo</label>
+                    {{ form.cost }}
+                    {% if form.cost.errors %}
+                        <div class="error-message">{{ form.cost.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_stock" class="form-label">Stock Inicial</label>
+                    {{ form.stock }}
+                    {% if form.stock.errors %}
+                        <div class="error-message">{{ form.stock.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_minimum_stock" class="form-label">Stock Mínimo</label>
+                    {{ form.minimum_stock }}
+                    {% if form.minimum_stock.errors %}
+                        <div class="error-message">{{ form.minimum_stock.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="form-group full-width">
+                <label for="id_description" class="form-label">Descripción</label>
+                {{ form.description }}
+                {% if form.description.errors %}
+                    <div class="error-message">{{ form.description.errors }}</div>
+                {% endif %}
+            </div>
+
+           <!-- Add this to your product form template, inside the form -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h6 class="m-0 font-weight-bold text-primary">Galería de Imágenes (Máximo 10)</h6>
+    </div>
+    <div class="card-body">
+        {{ formset.management_form }}
+        
+        <div class="row mb-3">
+            {% if product %}
+                <div class="col-12 mb-3">
+                    <h6>Imágenes actuales:</h6>
+                    <div class="row">
+                        {% for product_image in product.images.all %}
+                            <div class="col-md-3 mb-3">
+                                <div class="card">
+                                    <img src="{{ product_image.image.url }}" class="card-img-top" alt="Imagen del producto">
+                                    <div class="card-body p-2">
+                                        <p class="card-text small mb-1">
+                                            {% if product_image.is_main %}
+                                                <span class="badge bg-primary">Principal</span>
+                                            {% endif %}
+                                            Orden: {{ product_image.order }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        {% empty %}
+                            <div class="col-12">
+                                <p class="text-muted">No hay imágenes adicionales.</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="row">
+            {% for form in formset %}
+                <div class="col-md-4 mb-4 formset-row">
+                    <div class="card">
+                        <div class="card-body">
+                            {% for hidden in form.hidden_fields %}
+                                {{ hidden }}
+                            {% endfor %}
+                            
+                            {% if form.instance.pk and form.instance.image %}
+                                <div class="text-center mb-3">
+                                    <img src="{{ form.instance.image.url }}" alt="Imagen del producto" class="img-fluid" style="max-height: 150px;">
+                                </div>
+                            {% endif %}
+                            
+                            <div class="mb-3">
+                                <label for="{{ form.image.id_for_label }}" class="form-label">Imagen</label>
+                                {{ form.image }}
+                                {% if form.image.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.image.errors|join:", " }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <div class="form-check">
+                                        {{ form.is_main }}
+                                        <label class="form-check-label" for="{{ form.is_main.id_for_label }}">
+                                            Imagen Principal
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.order.id_for_label }}" class="form-label">Orden</label>
+                                    {{ form.order }}
+                                </div>
+                            </div>
+                            
+                            {% if form.instance.pk %}
+                                <div class="form-check mb-3">
+                                    {{ form.DELETE }}
+                                    <label class="form-check-label text-danger" for="{{ form.DELETE.id_for_label }}">
+                                        Eliminar esta imagen
+                                    </label>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        
+        <div class="text-end">
+            <button type="button" id="add-more-images" class="btn btn-outline-primary">
+                <i class="fas fa-plus me-2"></i> Añadir más imágenes
+            </button>
+        </div>
+    </div>
+</div>
+<!-- Your existing JS -->
+
+<script>
+    $(document).ready(function() {
+        // Your existing JS code
+        
+        // Handle adding more image fields
+        $('#add-more-images').click(function() {
+            const totalForms = parseInt($('#id_images-TOTAL_FORMS').val());
+            const maxForms = parseInt($('#id_images-MAX_NUM_FORMS').val());
+            
+            if (totalForms < maxForms) {
+                // Clone the last form
+                const lastForm = $('.formset-row:last').clone(true);
+                
+                // Update form index
+                const newIndex = totalForms;
+                lastForm.find(':input').each(function() {
+                    const name = $(this).attr('name');
+                    if (name) {
+                        const newName = name.replace(/-(\d+)-/, '-' + newIndex + '-');
+                        $(this).attr('name', newName);
+                        $(this).attr('id', 'id_' + newName);
+                    }
+                });
+                
+                // Clear values
+                lastForm.find('input:not([type=hidden]):not([type=checkbox])').val('');
+                lastForm.find('input[type=checkbox]').prop('checked', false);
+                lastForm.find('img').remove();
+                
+                // Insert the new form
+                $('.formset-row:last').after(lastForm);
+                
+                // Update total forms count
+                $('#id_images-TOTAL_FORMS').val(totalForms + 1);
+            } else {
+                alert('No puedes añadir más de ' + maxForms + ' imágenes.');
+            }
+        });
+    });
+</script>
+
+            <div class="form-actions">
+                <button type="button" class="btn btn-outline" onclick="history.back()">
+                    <i class="fas fa-times"></i>
+                    Cancelar
+                </button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i>
+                    Guardar Producto
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+<script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+<script>
+    tinymce.init({
+        selector: '#id_description',
+        height: 400,
+        menubar: true,
+        plugins: 'lists advlist autolink link',
+        toolbar: 'undo redo | bold italic | bullist numlist outdent indent',
+        branding: false,
+        forced_root_block: 'p',
+        convert_newlines_to_brs: false,
+        entity_encoding: "raw"
+    });
+    
+</script>
+<script>
+    // Función para eliminar una imagen
+    function deleteProductImage(imageId) {
+        if (confirm('¿Estás seguro de que deseas eliminar esta imagen?')) {
+            fetch(`/product/image/${imageId}/delete/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Eliminar el elemento del DOM
+                    document.querySelector(`#image-${imageId}`).remove();
+                    // Actualizar la interfaz si es necesario
+                } else {
+                    alert('Error al eliminar la imagen: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al eliminar la imagen');
+            });
+        }
+    }
+
+    // Función para establecer una imagen como principal
+    function setMainImage(imageId) {
+        fetch(`/product/image/${imageId}/set-main/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // Actualizar la interfaz
+                document.querySelectorAll('.main-image-badge').forEach(badge => {
+                    badge.style.display = 'none';
+                });
+                document.querySelector(`#main-badge-${imageId}`).style.display = 'block';
+            } else {
+                alert('Error al establecer la imagen principal: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al establecer la imagen principal');
+        });
+    }
+
+    // Función auxiliar para obtener el token CSRF
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
+
+{% block extra_js %}
+    {{ form.media }}
+{% endblock %}
+
+
+{% endblock %}

@@ -1,0 +1,185 @@
+{% load custom_filters %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Quote #{{ quote.quote_number }}</title>
+    <style>
+        @page {
+            size: letter;
+            margin: 1cm;  /* Reducir márgenes para aprovechar mejor el espacio */
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 10px;  /* Reducir el tamaño de fuente */
+            line-height: 1.2;  /* Reducir el espaciado entre líneas */
+            margin: 0;
+            padding: 0;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .company-name {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .quote-info {
+            margin-bottom: 30px;
+        }
+        
+        .quote-info table {
+            width: 100%;
+        }
+        
+        .quote-info td {
+            padding: 5px;
+        }
+        
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+        
+        .items-table th,
+        .items-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        
+        .items-table th {
+            background-color: #f5f5f5;
+        }
+        
+        .totals {
+            text-align: right;
+            margin-bottom: 30px;
+        }
+        
+        .totals table {
+            width: 300px;
+            margin-left: auto;
+        }
+        
+        .totals td {
+            padding: 5px;
+        }
+        
+        .notes {
+            margin-bottom: 30px;
+        }
+        
+        .validity {
+            margin-bottom: 30px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            background-color: #f9f9f9;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="header">
+        <div class="company-name">{{ company.name }}</div>
+        <div class="company-info">RUC: {{ company.ruc }}</div>
+
+        <div>{{ company.address }}</div>
+        <div>Phone: {{ company.phone }}</div>
+        <div>Email: {{ company.email }}</div>
+    </div>
+
+    <div class="quote-info">
+        <table>
+            <tr>
+                <td><strong>Quote #: {{ quote.quote_number }}</strong></td>
+                <td><strong>Date: {{ quote.created_at|date:"Y-m-d" }}</strong></td>
+
+            </tr>
+            <tr>
+                <td><strong>Customer: {{ quote.customer_name }}</strong></td>
+                <td><strong>Valid Until: {{ quote.created_at|date:"Y-m-d"|add_days:quote.validity_days }}</strong></td>
+            </tr>
+            <tr>
+                <td><strong>ID/RUC: {{ quote.customer_id }}</strong></td>
+                <td><strong>Phone: {{ quote.phone }}</strong></td>
+            </tr>
+            <tr>
+                <td><strong>Email:</strong></td>
+                <td colspan="3">{{ quote.email }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <table class="items-table">
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Quantity</th>
+                <th>Unit Price</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in quote.items.all %}
+            <tr>
+                <td>{{ item.product.name }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>${{ item.price }}</td>
+                <td>${{ item.subtotal }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="totals">
+        <table>
+            <tr>
+                <td><strong>Subtotal:</strong></td>
+                <td>${{ quote.subtotal }}</td>
+            </tr>
+            <tr>
+                <td><strong>Tax (15%):</strong></td>
+                <td>${{ quote.tax }}</td>
+            </tr>
+            <tr>
+                <td><strong>Total:</strong></td>
+                <td>${{ quote.total }}</td>
+            </tr>
+        </table>
+    </div>
+
+    {% if quote.notes %}
+    <div class="notes">
+        <strong>Notes:</strong>
+        <p>{{ quote.notes }}</p>
+    </div>
+    {% endif %}
+
+    <div class="validity">
+        <strong>Quote Validity:</strong>
+        <p>This quote is valid for {{ quote.validity_days }} days from the date of issue.</p>
+    </div>
+
+    <div class="footer">
+        <p>Thank you for your interest in our products!</p>
+        <p>For any questions, please contact us at {{ company.phone }}or {{ company.email }}</p>
+        <div class="company-info">{{ company.website }}</div>
+
+    </div>
+</body>
+</html>

@@ -1,0 +1,272 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+{% block extra_css %}   
+
+    <link rel="stylesheet" href="{% static 'css/profile.css' %}"> <!-- CSS extra solo para esta página -->
+    <link rel="stylesheet" href="{% static 'css/perfil.css' %}"> <!-- CSS extra solo para esta página -->
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+{% endblock %}
+
+<div class="profile-container">
+
+    {% if messages %}
+        <div class="alert alert-success">
+            {% for message in messages %}
+                <p>{{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+    <div class="container">
+        <div class="cover-photo">
+            {% if user.cover_photo %}
+                <img src="{{ user.cover_photo.url }}" alt="Foto de Portada" id="coverPhoto">
+            {% else %}
+                <img src="{% static 'images/default_cover.jpg' %}" alt="Foto de Portada" id="coverPhoto">
+            {% endif %}
+            <button id="changeCover" class="btn btn-secondary">
+                <i class="fas fa-camera"></i> Cambiar Portada
+            </button>
+        </div>
+    
+        <div class="profile-content">
+            <aside class="sidebar">
+                <div class="profile-picture">
+                    {% if user.foto_perfil %}
+                        <img src="{{ user.foto_perfil.url }}" alt="Foto de Perfil" id="profilePicture">
+                    {% else %}
+                        <img src="{% static 'images/default_profile.jpg' %}" alt="Foto de Perfil" id="profilePicture">
+                    {% endif %}
+                    <button id="changeProfilePic" class="btn btn-circle">
+                        <i class="fas fa-pencil-alt"></i>
+                    </button>
+                </div>
+                <h2 id="userName">{{ user.get_full_name }}</h2>
+                <p id="userTitle">{{ user.titulo_profesional }}</p>
+                <p class="location">
+                    <i class="fas fa-map-marker-alt"></i> 
+                    {{ user.ciudad }}, {{ user.pais }}
+                </p>
+                <div class="user-info">
+               
+                    {% if user.is_online %}
+                        <span class="status online">En línea</span>
+                    {% else %}
+                        <span class="status offline">{{ user.formatted_last_activity }}</span>
+                    {% endif %}
+            
+                    <!-- Rating -->
+                    <div class="rating">
+                        <span class="stars">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= user.rating %}
+                                    <i class="fas fa-star"></i>
+                                {% else %}
+                                    <i class="far fa-star"></i>
+                                {% endif %}
+                            {% endfor %}
+                        </span>
+                        <span class="rating-count">({{ user.num_ratings }} valoraciones)</span>
+                    </div>
+                </div>
+               
+                <nav>
+                    <button class="nav-btn active" data-tab="personal">
+                        <i class="fas fa-user"></i> Personal
+                    </button>
+                    <button class="nav-btn" data-tab="professional">
+                        <i class="fas fa-briefcase"></i> Profesional
+                    </button>
+                    <button class="nav-btn" data-tab="client">
+                        <i class="fas fa-credit-card"></i> Cliente
+                    </button>
+                    <button class="nav-btn" data-tab="security">
+                        <i class="fas fa-lock"></i> Seguridad
+                    </button>
+                </nav>
+            </aside>
+
+          
+
+            <main class="main-content">
+                <form id="profileForm" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div id="personal" class="tab-content active">
+                        <h2>Información Personal</h2>
+                        {% for field in form %}
+                            {% if field.name in 'cedula,first_name,last_name,email,telefono,direccion,ciudad,provincia,pais,fecha_nacimiento,genero,idioma_preferido' %}
+                                <div class="form-group">
+                                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                    {{ field }}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+    
+                    <div id="professional" class="tab-content">
+                        <h2>Perfil Profesional</h2>
+                        {% for field in form %}
+                            {% if field.name in 'titulo_profesional,biografia,linkedin_url,github_url,portfolio_url,habilidades_tecnicas,habilidades_blandas' %}
+                                <div class="form-group">
+                                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                    {{ field }}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                        <h3>Educación</h3>
+                        <div id="educationList">
+                            {% for edu in education %}
+                                <div class="education-item" data-id="{{ edu.id }}">
+                                    <input type="text" name="institucion" value="{{ edu.institucion }}">
+                                    <input type="text" name="titulo" value="{{ edu.titulo }}">
+                                    <input type="date" name="fecha_inicio" value="{{ edu.fecha_inicio|date:'Y-m-d' }}">
+                                    <input type="date" name="fecha_fin" value="{{ edu.fecha_fin|date:'Y-m-d' }}">
+                                    <button type="button" class="btn btn-secondary save-education">Guardar</button>
+                                    <button type="button" class="btn btn-secondary remove-education">Eliminar</button>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <button type="button" id="addEducation" class="btn btn-secondary">
+                            <i class="fas fa-plus"></i> Agregar Educación
+                        </button>
+                        <h3>Experiencia</h3>
+                        <div id="experienceList">
+                            {% for exp in experience %}
+                                <div class="experience-item" data-id="{{ exp.id }}">
+                                    <input type="text" name="empresa" value="{{ exp.empresa }}">
+                                    <input type="text" name="cargo" value="{{ exp.cargo }}">
+                                    <input type="date" name="fecha_inicio" value="{{ exp.fecha_inicio|date:'Y-m-d' }}">
+                                    <input type="date" name="fecha_fin" value="{{ exp.fecha_fin|date:'Y-m-d' }}">
+                                    <textarea name="descripcion">{{ exp.descripcion }}</textarea>
+                                    <button type="button" class="btn btn-secondary save-experience">Guardar</button>
+                                    <button type="button" class="btn btn-secondary remove-experience">Eliminar</button>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <button type="button" id="addExperience" class="btn btn-secondary">
+                            <i class="fas fa-plus"></i> Agregar Experiencia
+                        </button>
+                    </div>
+    
+                    <div id="client" class="tab-content">
+                        <h2>Perfil de Cliente</h2>
+                        <h3>Métodos de Pago</h3>
+                        <div id="paymentMethods">
+                            {% for method in payment_methods %}
+                                <div class="payment-method-item" data-id="{{ method.id }}">
+                                    <input type="text" name="tipo_tarjeta" value="{{ method.tipo_tarjeta }}">
+                                    <input type="text" name="numero_tarjeta" value="{{ method.numero_tarjeta }}">
+                                    <button type="button" class="btn btn-secondary save-payment">Guardar</button>
+                                    <button type="button" class="btn btn-secondary remove-payment">Eliminar</button>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <button type="button" id="addPaymentMethod" class="btn btn-secondary">
+                            <i class="fas fa-plus"></i> Agregar Método de Pago
+                        </button>
+                        <div class="form-group">
+                            
+                        </div>
+                    </div>
+    
+                    <div id="security" class="tab-content">
+                        <h2>Configuración de Seguridad</h2>
+                        <a href="" class="btn btn-primary">Cambiar Contraseña</a>
+                        <div class="login-activity">
+                            <h3>Actividad de Inicio de Sesión</h3>
+                            <p>Último inicio de sesión: <span>{{ last_login_time|date:"d/m/Y H:i" }}</span></p>
+                            <p>IP de registro: <span>{{ ip_registro }}</span></p>
+                            
+                            
+                        </div>
+                        <div class="two-factor">
+                            <h3>Autenticación de Dos Factores</h3>
+                            <button id="enable2FA" class="btn btn-secondary">Habilitar 2FA</button>
+                        </div>
+                        <div class="notification-settings">
+                            <h3>Configuración de Notificaciones</h3>
+                            <div class="form-group">
+                                <label for="emailNotifications">Notificaciones por Email</label>
+                                <input type="checkbox" id="emailNotifications" name="email_notifications" {% if user.notification_settings.email_notifications %}checked{% endif %}>
+                            </div>
+                            <div class="form-group">
+                                <label for="pushNotifications">Notificaciones Push</label>
+                                <input type="checkbox" id="pushNotifications" name="push_notifications" {% if user.notification_settings.push_notifications %}checked{% endif %}>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                </form>
+            </main>
+        </div>
+    </div>
+<script src="{% static 'js/profile_dos.js' %}"></script>
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('profileForm');
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(form);
+
+            fetch('/update_profile/', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': csrfToken
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Perfil actualizado correctamente');
+                } else {
+                    alert('Error al actualizar el perfil');
+                }
+            });
+        });
+
+        // Individual field update
+        const inputs = form.querySelectorAll('input:not([type="file"])');
+        inputs.forEach(input => {
+            input.addEventListener('change', function() {
+                const field = this.name;
+                const value = this.value;
+
+                fetch('/update_profile_field/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': csrfToken
+                    },
+                    body: `field=${field}&value=${value}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log(`${field} actualizado correctamente`);
+                    } else {
+                        console.error(`Error al actualizar ${field}`);
+                    }
+                });
+            });
+        });
+
+    });
+</script>
+
+
+
+{% endblock %}
+
+
+
+

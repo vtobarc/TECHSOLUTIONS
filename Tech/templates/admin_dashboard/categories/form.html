@@ -1,0 +1,204 @@
+{% extends 'admin_dashboard/base.html' %}
+
+{% block title %}{{ title }} - Panel de Administración{% endblock %}
+
+{% block content %}
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">{{ title }}</h1>
+    <a href="{% url 'admin_category_list' %}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left me-2"></i> Volver a la lista
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">{{ title }}</h6>
+            </div>
+            <div class="card-body">
+                <form method="POST" id="categoryForm">
+                    {% csrf_token %}
+                    
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {% for error in form.non_field_errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <label for="{{ form.name.id_for_label }}" class="form-label">Nombre *</label>
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.name.errors|join:", " }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.description.id_for_label }}" class="form-label">Descripción</label>
+                        {{ form.description }}
+                        {% if form.description.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.description.errors|join:", " }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.parent.id_for_label }}" class="form-label">Categoría Padre (Opcional)</label>
+                        {{ form.parent }}
+                        <div class="form-text">
+                            Si deseas que esta sea una subcategoría, selecciona una categoría padre.
+                        </div>
+                        {% if form.parent.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.parent.errors|join:", " }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.icon.id_for_label }}" class="form-label">Icono</label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="fas fa-icons"></i>
+                            </span>
+                            {{ form.icon }}
+                        </div>
+                        <div class="form-text">
+                            Seleccione un icono de <a href="https://fontawesome.com/icons" target="_blank">Font Awesome</a>.
+                            Solo ingrese el nombre del icono (ejemplo: "shopping-cart").
+                        </div>
+                        {% if form.icon.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.icon.errors|join:", " }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            {{ form.is_active }}
+                            <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                                Categoría activa
+                            </label>
+                        </div>
+                        {% if form.is_active.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.is_active.errors|join:", " }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i> Guardar Categoría
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Vista Previa del Icono</h6>
+            </div>
+            <div class="card-body">
+                <div class="text-center">
+                    <i id="iconPreview" class="fas fa-question fa-3x mb-3"></i>
+                    <p class="text-muted" id="iconName">Nombre del icono</p>
+                </div>
+            </div>
+        </div>
+
+        {% if category %}
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Estadísticas</h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">Total de Productos</label>
+                    <h4>{{ category.product_count }}</h4>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Stock Total</label>
+                    <h4>{{ category.total_stock }}</h4>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Valor Total</label>
+                    <h4>${{ category.total_value|floatformat:2 }}</h4>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Subcategorías</h6>
+            </div>
+            <div class="card-body">
+                {% if category.get_subcategories %}
+                    <ul class="list-group">
+                        {% for subcategory in category.get_subcategories %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                {{ subcategory.name }}
+                                <span class="badge bg-primary rounded-pill">{{ subcategory.product_count }}</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-muted">No hay subcategorías registradas.</p>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Validación del formulario
+        $('#categoryForm').submit(function(e) {
+            let isValid = true;
+            
+            // Validar campos requeridos
+            $('.required').each(function() {
+                if (!$(this).val()) {
+                    isValid = false;
+                    $(this).addClass('is-invalid');
+                } else {
+                    $(this).removeClass('is-invalid');
+                }
+            });
+
+            if (!isValid) {
+                e.preventDefault();
+                alert('Por favor, complete todos los campos requeridos.');
+            }
+        });
+
+        // Vista previa del icono
+        $('#id_icon').on('input', function() {
+            const iconName = $(this).val();
+            if (iconName) {
+                $('#iconPreview').attr('class', 'fas fa-' + iconName + ' fa-3x mb-3');
+                $('#iconName').text(iconName);
+            } else {
+                $('#iconPreview').attr('class', 'fas fa-question fa-3x mb-3');
+                $('#iconName').text('Nombre del icono');
+            }
+        });
+
+        // Trigger inicial para mostrar el icono actual si existe
+        $('#id_icon').trigger('input');
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Etiquetas de Productos</title>
+    <style>
+        @media print {
+            @page {
+                size: auto;
+                margin: 0mm;
+            }
+            body {
+                margin: 0;
+                padding: 0;
+            }
+            .no-print {
+                display: none;
+            }
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        
+        .print-controls {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .print-btn {
+            background-color: #4e73df;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .labels-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        
+        .product-label {
+            border: 1px solid #ddd;
+            padding: 10px;
+            width: 300px;
+            height: 150px;
+            margin-bottom: 10px;
+            page-break-inside: avoid;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .product-name {
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        
+        .product-code {
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+        
+        .product-price {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .barcode-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+        }
+        
+        .barcode-image {
+            max-width: 150px;
+            max-height: 100px;
+        }
+        
+        .qr-image {
+            max-width: 50px;
+            max-height: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="print-controls no-print">
+        <button class="print-btn" onclick="window.print()">Imprimir Etiquetas</button>
+        <button class="print-btn" style="background-color: #1cc88a;" onclick="window.location.href='{% url 'admin_product_list' %}'">Volver a Productos</button>
+    </div>
+    <div class="labels-container">
+        {% for product in products %}
+        <div class="product-label">
+            <div class="product-name">{{ product.name }}</div>
+            <div class="product-code">Código: {{ product.code }}</div>
+            <div class="product-price">${{ product.price|floatformat:2 }}</div>
+            
+            <div class="barcode-container">
+                {% if product.barcode_image %}
+                <img src="{{ product.barcode_image.url }}" alt="Código de barras" class="barcode-image">
+                {% endif %}
+                
+                {% if product.qr_code %}
+                <img src="{{ product.qr_code.url }}" alt="Código QR" class="qr-image">
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>
+

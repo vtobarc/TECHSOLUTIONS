@@ -1,0 +1,35 @@
+{% extends 'dashboard/servicios.html' %}
+{% load static %}
+
+{% block title %}TechVanguard_Cliente{% endblock %}
+
+{% block extra_css %}
+<link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
+<link rel="stylesheet" href="{% static 'css/inventory.css' %}">
+{% endblock %}
+
+{% block main_content %}
+<div class="print-labels">
+    <div class="page-header">
+        <h2>Imprimir Etiquetas</h2>
+        <button class="btn btn-primary" onclick="window.print()">
+            <i class="fas fa-print"></i>
+            Imprimir
+        </button>
+    </div>
+
+    <div class="labels-grid">
+        {% for product in products %}
+        <div class="label-card">
+            <div class="label-content">
+                <h3>{{ product.name }}</h3>
+                <p class="product-code">{{ product.code }}</p>
+                <img src="{{ product.barcode_image.url }}" alt="Barcode" class="barcode-image">
+                <img src="{{ product.qr_code.url }}" alt="QR Code" class="qr-code">
+                <p class="price">${{ product.price|floatformat:2 }}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

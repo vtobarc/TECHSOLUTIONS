@@ -1,0 +1,99 @@
+{% extends 'dashboard/servicios.html' %}
+{% load static %}
+
+{% block title %}Factura {{ sale.number }}{% endblock %}
+
+{% block extra_css %}
+<link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
+<link rel="stylesheet" href="{% static 'css/inventory.css' %}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block main_content %}
+<style>
+   
+       
+    
+        .invoice-container {
+          background-color: #fff;
+          padding: 20px;
+          border-radius: 8px;
+          box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+          width: 80%;
+          max-width: 800px;
+        }
+    
+        h2 {
+          color: #333;
+          text-align: center;
+        }
+    
+        p {
+          margin: 8px 0;
+        }
+    
+        strong {
+          font-weight: bold;
+        }
+    
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 20px;
+        }
+    
+        th, td {
+          padding: 12px 15px;
+          text-align: left;
+          border-bottom: 1px solid #ddd;
+        }
+    
+        th {
+          background-color: #f2f2f2;
+          color: #333;
+        }
+    
+        tbody tr:nth-child(even) {
+          background-color: #f9f9f9;
+        }
+    
+        .btn-back {
+          background-color: #5bc0de;
+        }
+    
+        .btn-back:hover {
+          background-color: #46b8da;
+        }
+     
+</style>
+<div class="invoice-container">
+    <h2>Factura #{{ sale.number }}</h2>
+    <p><strong>Fecha:</strong> {{ sale.date|date:"d/m/Y H:i" }}</p>
+    <p><strong>Cliente:</strong> {{ sale.customer_name }}</p>
+    <p><strong>Total:</strong> ${{ sale.total }}</p>
+
+    <h3>Productos Comprados:</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Precio Unitario</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in sale.items.all %}
+            <tr>
+                <td>{{ item.product.name }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>${{ item.price }}</td>
+                <td>${{ item.subtotal }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{% url 'sales_history' %}" class="btn btn-back">Volver al Historial</a>
+</div>
+{% endblock %}

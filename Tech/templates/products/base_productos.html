@@ -1,0 +1,304 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}TechVanguard_Cliente{% endblock %}
+
+{% block extra_css %}
+<link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
+<link rel="stylesheet" href="{% static 'css/productos.css' %}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+{% endblock %}
+
+{% block content %}
+<style>
+   
+    
+    .toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 5px;
+        padding-bottom: 5px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .toolbar h1 {
+        font-size: 24px;
+        margin: 0;
+        color: #555;
+    }
+    
+    .search-results {
+        text-align: right;
+    }
+    
+    .search-results p {
+        font-style: italic;
+        color: #777;
+    }
+    
+    .clear-search {
+        color: #007bff;
+        text-decoration: none;
+        background-color: #f0f8ff;
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-size: 0.9em;
+    }
+    
+    .clear-search:hover {
+        background-color: #d0e9ff;
+    }
+    
+    .product-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+    }
+    
+    /* Example styling for individual product items (assuming they are divs) */
+    .product-grid > div {
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+    }
+    
+    .product-grid > div:hover {
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.15);
+        transition: box-shadow 0.3s ease;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .product-section {
+            width: 95%;
+            margin: 10px auto;
+            padding: 10px;
+        }
+    
+        .toolbar {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    
+        .toolbar h1 {
+            margin-bottom: 10px;
+        }
+    
+        .search-results {
+            text-align: left;
+        }
+    }
+</style>
+<main class="container">
+    <!-- Barra lateral de filtros -->
+    <aside class="sidebar">
+        <div class="filter-section">
+            <!-- Barra de búsqueda -->
+            <div class="search-container">
+                <h2>Buscar:</h2>
+                <form id="search-form" class="search-form">
+                    <div class="input-group">
+                        <input type="text" 
+                               name="search" 
+                               id="search-input" 
+                               placeholder="Buscar productos..." 
+                               value="{{ request.GET.search }}"
+                               class="form-control">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <div class="toolbar">
+                {% if current_category %}
+                    <h1>{{ current_category.name }}</h1>
+                {% else %}
+                   <!--<h1>Todos los productos</h1>--> 
+                {% endif %}
+                
+                {% if request.GET.search %}
+                    <div class="search-results">
+                        <p>Resultados para: <strong>"{{ request.GET.search }}"</strong></p>
+                        <a href="{{ request.path }}" class="clear-search">Limpiar búsqueda</a>
+                    </div>
+                {% endif %}
+            </div>
+
+            <h2>Categorías:</h2>
+            <div class="category-filters">
+                <ul class="category-pills">
+                    <li>
+                        <a href="{% url 'cliente_home' %}" 
+                           class="{% if not selected_category_id %}active{% endif %}">
+                            Todas las categorías
+                        </a>
+                    </li>
+                    
+                    {% for category in all_categories %}
+                        <li>
+                            <a href="{% url 'category_detail' category.id %}" 
+                               class="{% if selected_category_id == category.id|stringformat:'s' %}active{% endif %}">
+                                {{ category.name }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            
+            <div class="filter-group">
+                <label>Ordenar por:</label>
+                <select name="sort_by" class="sort-select form-select">
+                    <option value="relevance" {% if sort_by == 'relevance' %}selected{% endif %}>Relevancia</option>
+                    <option value="price-asc" {% if sort_by == 'price-asc' %}selected{% endif %}>Precio: Menor a Mayor</option>
+                    <option value="price-desc" {% if sort_by == 'price-desc' %}selected{% endif %}>Precio: Mayor a Menor</option>
+                    <option value="name-asc" {% if sort_by == 'name-asc' %}selected{% endif %}>Nombre: A-Z</option>
+                    <option value="name-desc" {% if sort_by == 'name-desc' %}selected{% endif %}>Nombre: Z-A</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label>Precio:</label>
+                <div class="price-range">
+                    <div class="price-slider-container">
+                        <input type="range" 
+                               id="price-slider-min" 
+                               min="0" 
+                               max="10000" 
+                               step="100" 
+                               value="{{ request.GET.min_price|default:'0' }}" 
+                               class="price-slider">
+                        <input type="range" 
+                               id="price-slider-max" 
+                               min="0" 
+                               max="10000" 
+                               step="100" 
+                               value="{{ request.GET.max_price|default:'10000' }}" 
+                               class="price-slider">
+                        <div class="price-slider-track"></div>
+                    </div>
+                    <div class="price-inputs">
+                        <input type="number" 
+                               name="min_price" 
+                               id="min-price-input"
+                               placeholder="Min" 
+                               value="{{ request.GET.min_price }}"
+                               class="form-control">
+                        <span>-</span>
+                        <input type="number" 
+                               name="max_price" 
+                               id="max-price-input"
+                               placeholder="Max" 
+                               value="{{ request.GET.max_price }}"
+                               class="form-control">
+                    </div>
+                    <button id="apply-filters" class="btn btn-primary w-100 mt-2">Aplicar filtros</button>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Sección principal de productos -->
+    <section class="product-section">
+        <!-- Barra de herramientas -->
+       
+
+        <!-- Grid de productos -->
+        <div class="product-grid">
+            {% block main_content %}{% endblock %}
+        </div>
+    </section>
+</main>
+
+<div id="error-message" class="error-message"></div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Manejar cambios en el selector de ordenamiento
+        const sortSelect = document.querySelector('.sort-select');
+        sortSelect.addEventListener('change', function() {
+            applyFilters();
+        });
+    
+        // Manejar cambios en los inputs de precio
+        const priceInputs = document.querySelectorAll('.price-inputs input');
+        priceInputs.forEach(input => {
+            input.addEventListener('change', function() {
+                // Sincronizar sliders con inputs
+                if (this.name === 'min_price') {
+                    document.getElementById('price-slider-min').value = this.value || 0;
+                } else if (this.name === 'max_price') {
+                    document.getElementById('price-slider-max').value = this.value || 10000;
+                }
+            });
+        });
+        
+        // Manejar cambios en los sliders de precio
+        const priceSliders = document.querySelectorAll('.price-slider');
+        priceSliders.forEach(slider => {
+            slider.addEventListener('input', function() {
+                // Sincronizar inputs con sliders
+                if (this.id === 'price-slider-min') {
+                    document.getElementById('min-price-input').value = this.value;
+                } else if (this.id === 'price-slider-max') {
+                    document.getElementById('max-price-input').value = this.value;
+                }
+                updatePriceTrack();
+            });
+        });
+        
+        // Actualizar la visualización del track del slider
+        function updatePriceTrack() {
+            const minVal = parseInt(document.getElementById('price-slider-min').value);
+            const maxVal = parseInt(document.getElementById('price-slider-max').value);
+            const track = document.querySelector('.price-slider-track');
+            
+            const minPercent = (minVal / 10000) * 100;
+            const maxPercent = (maxVal / 10000) * 100;
+            
+            track.style.left = minPercent + '%';
+            track.style.width = (maxPercent - minPercent) + '%';
+        }
+        
+        // Inicializar track
+        updatePriceTrack();
+        
+        // Manejar envío del formulario de búsqueda
+        const searchForm = document.getElementById('search-form');
+        searchForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            applyFilters();
+        });
+        
+        // Botón para aplicar filtros
+        const applyButton = document.getElementById('apply-filters');
+        applyButton.addEventListener('click', function() {
+            applyFilters();
+        });
+    
+        function applyFilters() {
+            const sortBy = sortSelect.value;
+            const minPrice = document.querySelector('input[name="min_price"]').value;
+            const maxPrice = document.querySelector('input[name="max_price"]').value;
+            const searchTerm = document.querySelector('input[name="search"]').value;
+            
+            // Construir URL con los filtros
+            let url = new URL(window.location.href);
+            url.searchParams.set('sort_by', sortBy);
+            if (minPrice) url.searchParams.set('min_price', minPrice);
+            if (maxPrice) url.searchParams.set('max_price', maxPrice);
+            if (searchTerm) url.searchParams.set('search', searchTerm);
+            
+            // Redirigir a la nueva URL con los filtros
+            window.location.href = url.toString();
+        }
+    });
+</script>
+
+{% endblock %}
+{% block extra_js %}
+<script src="{% static 'js/filters.js' %}"></script>
+{% endblock %}
+

@@ -1,0 +1,132 @@
+{% extends 'dashboard/servicios.html' %}
+{% load static %}
+
+{% block title %}Factura {{ sale.number }}{% endblock %}
+
+{% block extra_css %}
+<link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
+<link rel="stylesheet" href="{% static 'css/inventory.css' %}">
+{% endblock %}
+
+{% block main_content %}
+<style>
+    /* Main Content Styles */
+.main-content {
+  flex: 1;
+  padding: 20px;
+}
+
+.main-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.content {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Table Styles */
+.sales-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.sales-table th,
+.sales-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.sales-table th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+}
+
+.sales-table tbody tr:hover {
+  background-color: #f5f5f5;
+}
+
+/* Button Styles */
+.btn {
+  display: inline-block;
+  padding: 10px 15px;
+  font-size: 14px;
+  font-weight: bold;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.btn-primary {
+  background-color: #3498db;
+  color: #fff;
+}
+
+.btn-info {
+  background-color: #3498db;
+  color: #fff;
+}
+
+.btn-primary:hover,
+.btn-info:hover {
+  background-color: #2980b9;
+}
+
+/* Header Actions */
+.header-actions {
+  display: flex;
+  gap: 10px;
+}
+</style>
+<div class="app-container">
+   
+
+    <main class="main-content">
+        <header class="main-header">
+            <h2>Ventas Recientes</h2>
+        </header>
+
+        <div class="content">
+            {% if sales %}
+            <table class="sales-table">
+                <thead>
+                    <tr>
+                        <th># Factura</th>
+                        <th>Fecha</th>
+                        <th>Cliente</th>
+                        <th>Total</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sale_details in sales %}
+                    <tr>
+                        <td>{{ sale_details.sale.number }}</td>
+                        <td>{{ sale_details.sale.date|date:"d/m/Y" }}</td>
+                        <td>{{ sale_details.sale.customer_name }}</td>
+                        <td>${{ sale_details.total }}</td>
+                        <td>
+                          <a href="{% url 'invoice_detail' sale_details.sale.id %}" class="btn btn-info"><i class="fas fa-eye"></i> Ver</a>
+                          <a href="{% url 'get_receipt' sale_details.sale.number %}" class="btn btn-success"> <i class="fas fa-print"></i>Imprimir</a>
+
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p>No hay ventas recientes.</p>
+            {% endif %}
+        </div>
+    </main>
+</div>
+{% endblock %}

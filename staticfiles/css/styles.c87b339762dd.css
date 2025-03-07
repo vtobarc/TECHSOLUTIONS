@@ -1,0 +1,533 @@
+
+  h1.index{
+    color: #fdfdff;
+  }
+  
+  .logo img {
+    height: 70px;  /* Ajusta el tamaño del logo */
+    width: auto;
+    margin-top: 5px;  /* Ajusta el espacio desde la parte superior */
+  }
+  
+  
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: Arial, sans-serif;
+    color: var(--text-color);
+    background-color: var(--background-color);
+    
+  }
+  
+  
+  /* Header and Navigation Styles */
+  .header {
+     background: var(--primary-color, #01257D); /* Usa azul oscuro como respaldo */
+     color: #fff; 
+     
+     padding: 0.5rem 0; 
+     width: 100%; 
+     z-index: 1000; 
+     height: 64px; 
+     display: flex; 
+     align-items: center;
+  
+  }
+  
+    /* Header and Navigation */
+  
+  .header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: 8000px;
+    width: 100%;
+    margin: 0 auto;
+    padding:  0.50rem;
+   }
+   
+  
+   
+  
+  
+  /* Logo */
+  .logo {
+    text-decoration: none;
+    font-size: 1.25rem;
+    font-weight: bold;
+    margin-right: 10rem;
+    padding-left: 0.5rem; /* Added small padding for minimal spacing */
+    display: inline-flex; /* Changed to inline-flex for better alignment */
+    align-items: center;
+   }
+   
+  
+  .navigation {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+  
+  .nav-link {
+    color: white;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: color 0.3s;
+  }
+ 
+  .nav-link:hover {
+    color: var(--secondary-color);
+
+  }
+
+  /* Ocultar el texto en pantallas pequeñas (hasta 600px) */
+@media (max-width: 600px) {
+  .hide-on-mobile {
+      display: none;
+  }
+}
+
+  
+  /* Profile Dropdown */
+  .profile-wrapper {
+    position: relative;
+  }
+  
+  .profile-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    border-radius: 50%; /* Esto hace que el botón sea redondo */
+    width: 32px; /* Establece el mismo tamaño que la imagen */
+    height: 32px; /* Establece el mismo tamaño que la imagen */
+    display: flex; /* Asegura que el contenido se alinee correctamente */
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .profile-image {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+  
+  }
+  
+  .profile-dropdown {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    width: 240px;
+    display: none;
+    z-index: 1000;
+  }
+  
+  .profile-dropdown.show {
+    display: block;
+  }
+  
+  .profile-header {
+    padding: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+    background-color: var(--color-blu);
+  }
+  /* Estilos del footer */
+  .profile-footer {
+    background-color: var(--color-blu); 
+    color: white;
+    padding: 10px;
+    text-align: center;
+    border-top: 1px solid #ccc; 
+    font-size: 0.875rem; 
+  }
+  
+  .profile-footer p {
+    margin: 0; 
+  }
+  
+  
+  .username {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #ffffff;
+    margin: 0;
+  }
+  
+  .email {
+    font-size: 0.75rem;
+    color: #ffffff;
+    margin: 0.25rem 0 0 0;
+  }
+  
+  .profile-menu {
+    padding: 0.5rem 0;
+    background-color: #ffffff;
+  }
+  
+  .profile-menu a {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    color: black !important;
+    text-decoration: none;
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem; /* Añadir espacio entre los elementos */
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  
+  .profile-menu a:hover {
+    background-color: var(--secondary-color);
+    color:#000000; 
+  }
+  
+  .divider {
+    height: 1px;
+    background-color: #000000;
+    margin: 0.5rem 0;
+  }
+  
+  
+  
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  
+  /* Footer Styles */
+  .footer {
+    background: var(--primary-color, #01257D); /* Usa azul oscuro como respaldo */
+    color: var(--text-color);
+    padding: 40px 10px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  
+  .footer-content {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  
+  .footer-section h3 {
+    color: #ff6600;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+    padding-bottom: 0.5rem;
+  }
+  
+  .footer-section h3::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 50px;
+    height: 3px;
+    background: #ff6600;
+    border-radius: 2px;
+  }
+  
+  .footer-section p {
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    color: #cccccc;
+  }
+  
+  .footer-section ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .footer-section ul li {
+    margin-bottom: 0.8rem;
+  }
+  
+  .footer-section ul li a {
+    color: #cccccc;
+    text-decoration: none;
+    transition: color 0.3s ease;
+    display: inline-block;
+    position: relative;
+  }
+  
+  .footer-section ul li a::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: -2px;
+    left: 0;
+    background-color: #ff6600;
+    transition: width 0.3s ease;
+  }
+  
+  .footer-section ul li a:hover {
+    color: #ff6600;
+  }
+  
+  .footer-section ul li a:hover::after {
+    width: 100%;
+  }
+
+  
+ 
+  .social-icons {
+    display: flex;
+    gap: 10px; /* Espaciado entre iconos */
+}
+
+.social-icons a {
+     background: rgba(255, 255, 255, 0.1);
+    font-size: 24px; /* Tamaño de los iconos */
+    text-decoration: none; /* Eliminar subrayado en los enlaces */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    transition: transform 0.3s ease;
+}
+
+.social-icons a:hover {
+    transform: scale(1.1); /* Efecto de aumento al pasar el mouse */
+}
+
+/* Colores específicos para cada red social */
+.social-icons a[href*="facebook.com"] {
+    color: #1877F2; /* Azul de Facebook */
+}
+
+.social-icons a[href*="twitter.com"] {
+    color: #1DA1F2; /* Azul de Twitter (ahora X) */
+}
+
+.social-icons a[href*="instagram.com"] {
+    color: #E4405F; /* Rosa de Instagram */
+}
+
+.social-icons a[href*="linkedin.com"] {
+    color: #0077B5; /* Azul de LinkedIn */
+}
+
+  
+ 
+  .footer-bottom {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 2rem;
+    text-align: center;
+    color: #888888;
+  }
+  
+  .footer-bottom p {
+    margin: 0.5rem 0;
+  }
+  
+  .footer-bottom a {
+    color: #ff6600;
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+  
+  .footer-bottom a:hover {
+    color: #ff8533;
+  }
+  
+  @media (max-width: 768px) {
+    .footer-content {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+    
+    .footer {
+      padding: 3rem 0 1.5rem;
+    }
+  }
+  
+  /* Animaciones */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .footer-section {
+    animation: fadeIn 0.5s ease-out forwards;
+  }
+  
+  .footer-section:nth-child(1) { animation-delay: 0.1s; }
+  .footer-section:nth-child(2) { animation-delay: 0.2s; }
+  .footer-section:nth-child(3) { animation-delay: 0.3s; }
+  .footer-section:nth-child(4) { animation-delay: 0.4s; }
+  
+  
+  
+  
+  
+  @media (max-width: 768px) {
+    .icon-container {
+      flex-direction: column; /* Los íconos se apilan en columna */
+      align-items: flex-start; /* Alinearlos al inicio (izquierda) */
+    }
+    .header .container {
+      justify-content: space-between;
+    }
+  
+    #menu-toggle {
+      display: block;
+      background: none;
+      border: none;
+      color:var(--text);
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 0.5rem;
+      z-index: 1001;
+    }
+    .w-6 {
+      width: 1.5rem;
+      color: var(--color-text);
+  }
+    .navigation {
+      display: none;
+      position: fixed;
+      top: var(--header-height);
+      left: 0;
+      right: 0;
+      background: var(--primary-color);
+      flex-direction: column;
+      padding: 1rem;
+      height: calc(100vh - var(--header-height));
+      overflow-y: auto;
+      z-index: 1000;
+    }
+  
+    .navigation.show {
+      display: flex;
+      background: darkblue;
+    }
+  
+    .nav-link {
+      padding: 0.75rem 1rem;
+      width: 100%;
+    }
+  
+    .footer-content {
+      flex-direction: column;
+      align-items: center;
+    }
+  
+    .social-icons {
+      justify-content: center;
+    }
+  
+  
+    .theme-toggle,
+    .notification-button {
+      margin-left: 0; /* Elimina el margen en pantallas pequeñas */
+    }
+  
+    .profile-wrapper {
+      margin-left: 0; /* Ajusta el perfil para que no se desplace */
+    }
+   
+   
+    .profile-dropdown {
+      left: 0; /* Asegúrate de que esté alineado a la izquierda */
+      right: 0; /* Asegura el centrado en pantallas pequeñas */
+      top: calc(100% + 0.5rem);
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      width: 240px;
+      display: none;
+    }
+   
+  }
+  
+  .menu-icon {
+    width: 30px;
+    height: 20px;
+    position: relative;
+    transform: rotate(0deg);
+    transition: .5s ease-in-out;
+    cursor: pointer;
+  }
+  
+  .menu-icon span {
+    display: block;
+    position: absolute;
+    height: 3px;
+    width: 100%;
+    background: white;
+    border-radius: 9px;
+    opacity: 1;
+    left: 0;
+    transform: rotate(0deg);
+    transition: .25s ease-in-out;
+  }
+  
+  .menu-icon span:nth-child(1) {
+    top: 0px;
+  }
+  
+  .menu-icon span:nth-child(2),
+  .menu-icon span:nth-child(3) {
+    top: 10px;
+  }
+  
+  .menu-icon span:nth-child(4) {
+    top: 20px;
+  }
+  
+  .menu-icon.open span:nth-child(1),
+  .menu-icon.open span:nth-child(4) {
+    top: 10px;
+    width: 0%;
+    left: 50%;
+  }
+  
+  .menu-icon.open span:nth-child(2) {
+    transform: rotate(45deg);
+  }
+  
+  .menu-icon.open span:nth-child(3) {
+    transform: rotate(-45deg);
+  }
+  
+  
+  
+  
+  
+  
+  
+  
+  

@@ -1,0 +1,73 @@
+{% extends 'dashboard/servicios.html' %}
+{% load static %}
+
+{% block title %}TechVanguard_Cliente{% endblock %}
+
+{% block extra_css %}
+<link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
+<link rel="stylesheet" href="{% static 'css/servicios.css' %}">
+<link rel="stylesheet" href="{% static 'css/inventory.css' %}">
+{% endblock %}
+
+{% block main_content %}
+<div class="category-list">
+    <div class="page-header">
+        <h2>Categorías</h2>
+        <button class="btn btn-primary" onclick="location.href='{% url 'add_category' %}'">
+            <i class="fas fa-plus"></i>
+            Nueva Categoría
+        </button>
+    </div>
+
+    <div class="grid-cards">
+        {% for category in categories %}
+        <div class="card category-card">
+            <div class="card-header">
+                
+                <h3>{{ category.name }}</h3>
+                <div class="card-actions">
+                    <button class="btn btn-icon" onclick="location.href='{% url 'edit_category' category.id %}'">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    {% if category.name != "Sin Categoría" %}
+
+                    <form method="POST" action="{% url 'delete_category' category.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-icon text-danger">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </form>
+                    {% endif %}
+
+                </div>
+            </div>
+            <div class="card-content">
+                <p class="description">{{ category.description|truncatewords:30 }}</p>
+                <div class="stats">
+                    <div class="stat-item">
+                        <span class="label">Productos</span>
+                        <span class="value">{{ category.product_count }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="label">Stock Total</span>
+                        <span class="value">{{ category.total_stock|default:0 }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="label">Valor Total</span>
+                        <span class="value">${{ category.total_value|default:0|floatformat:2 }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="empty-state">
+            <i class="fas fa-tags fa-3x"></i>
+            <p>No hay categorías registradas</p>
+            <button class="btn btn-primary" onclick="location.href='{% url 'add_category' %}'">
+                Crear Primera Categoría
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

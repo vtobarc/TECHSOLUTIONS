@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Login - TechVanguard{% endblock %}
+
+{% block content %}
+{% block extra_css %}   
+    <link rel="stylesheet" href="{% static 'css/login_register.css' %}">
+{% endblock %}
+
+<style>
+    .error-message-container {
+        margin-top: 15px;
+    }
+    
+    .error-message {
+        color: #ff4d4d;
+        background-color: #ffe6e6;
+        border: 1px solid #ff0000;
+        padding: 10px;
+        border-radius: 5px;
+    }
+</style>
+
+<main class="mai"> 
+    <div class="login-container">
+        <div class="login-box">
+            <div class="login-image-section">
+                <img src="{% static 'img/Landscape.jpg' %}" alt="Login illustration" class="login-image">
+            </div>
+            <div class="login-form-section">
+                <div class="login-header">
+                    <h1 class="login-title">Welcome!</h1>
+                    <p class="login-subtitle">Sign in to your Account</p>
+                    
+                    {% if messages %}
+                    <div class="error-message-container">
+                        {% for message in messages %}
+                            {% if message.tags == 'error' %}
+                                <p class="error-message">{{ message }}</p>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <form class="login-form" method="post" action="{% url 'login' %}">
+                    {% csrf_token %}
+                    <input type="text" name="username" id="username" class="login-input" placeholder="Email" required>
+                    <div class="password-container">
+                        <input type="password" name="password" id="password" class="login-input" placeholder="Password" required>
+                        <button type="button" class="toggle-password" id="togglePassword" aria-label="Toggle password visibility">
+                            <svg class="eye-icon" viewBox="0 0 24 24">
+                                <path class="eye-open" d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                                <path class="eye-closed" d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="login-forgot-password">
+                        <a href="" class="login-link">Forgot Password?</a>
+                    </div>
+                    <button type="submit" class="login-btn login-btn-primary">SIGN IN</button>
+                    <button type="button" class="login-btn login-btn-outline" onclick="window.location.href='{% url 'signup' %}'">SIGN UP</button>
+                    <div class="login-divider">
+                        <span class="login-divider-text">OR LOGIN WITH</span>
+                    </div>
+                    <div class="login-social-buttons">
+                        <a href="{% url 'social:begin' 'google-oauth2' %}" class="login-social-btn">
+                            <img src="{% static 'img/google_128.png' %}" alt="Google" class="login-social-icon">
+                        </a>
+                        <a href="{% url 'social:begin' 'facebook' %}" class="login-social-btn">
+                            <img src="{% static 'img/facebook_128.png' %}" alt="Facebook" class="login-social-icon">
+                        </a>
+                        <a href="{% url 'social:begin' 'linkedin-oauth2' %}" class="login-social-btn">
+                            <img src="{% static 'img/linkedin_128.png' %}" alt="LinkedIn" class="login-social-icon">
+                        </a>
+                    </div>
+                    <div class="login-register-link">
+                        <p>¿No tienes una cuenta? <a href="{% url 'signup' %}" class="login-link">Regístrate aquí</a></p>
+                    </div>
+                </form>   
+            </div>
+        </div>
+    </div>
+</main>
+
+{% endblock %}
+
+{% block js %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const togglePassword = document.getElementById("togglePassword");
+        const passwordInput = document.getElementById("password");
+    
+        togglePassword.addEventListener("click", function() {
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+            } else {
+                passwordInput.type = "password";
+            }
+        });
+    });
+</script>
+{% endblock %}

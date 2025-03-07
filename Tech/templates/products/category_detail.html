@@ -1,0 +1,105 @@
+<!--category_detail.html-->
+{% extends 'products/base_productos.html' %}
+{% load static %}
+{% block title %}TechVanguard_Categorias{% endblock %}
+
+{% block extra_css %}
+<link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
+<link rel="stylesheet" href="{% static 'css/productos.css' %}">
+<link rel="stylesheet" href="{% static 'css/category.css' %}">
+{% endblock %}
+{% block main_content %}
+
+<div class="category-detail">
+    <div class="category-header">
+        <div class="header-content">
+
+            <h1>{{ selected_category.name }}</h1>
+            {% if selected_category.description %}
+            <p class="category-description">{{ selected_category.description }}</p>
+            {% else %}
+            <h1>General</h1>
+            <p class="category-description">Aquí puedes ver todos los productos de esta categoría.</p>
+        {% endif %}
+
+
+        </div>
+    </div>
+
+    <div class="products-container">
+        {% if products %}
+            <div class="products-grid">
+                {% for product in products %}
+                    <div class="product-card">
+                        <div class="product-image">
+                            <a href="{% url 'product_detail' category_id=category.id product_id=product.id %}">
+                                {% if product.get_main_image %}
+                                    <img src="{{ product.get_main_image.url }}" alt="{{ product.name }}">
+                                {% elif product.image %}
+                                    <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                                {% else %}
+                                    <img src="https://placehold.co/400x300" alt="Producto sin imagen">
+                                {% endif %}
+                            </a>
+                            <span class="stock-badge {% if product.stock > 0 %}in-stock{% else %}out-stock{% endif %}">
+                                {% if product.stock > 0 %}En Stock{% else %}Agotado{% endif %}
+                            </span>
+                        </div>
+                        <div class="product-info">
+                            <h3>{{ product.name }}</h3>
+                            <h3>${{ product.price }} + IVA</h3>
+                           <!-- {% if product.description %}
+                            <div class="product-description">
+                                {% autoescape off %}
+                                    {{ product.description|truncatechars:50 }}
+                                {% endautoescape %}
+                            </div>
+                                                            
+                            {% endif %}
+                             -->
+                           
+                            <div class="product-details">
+                                {% if is_cliente_home %}
+                                <a href="{% url 'cliente_product_detail' product_id=product.id %}" class="card-link">
+                            {% else %}
+                                <a href="{% url 'product_detail' category_id=category.id product_id=product.id %}" class="card-link">
+                            {% endif %}
+                                <button type="button" class="add-to-cart-btn">
+                                    <i class="fas fa-eye"></i> Ver
+                                </button>
+                            </a>
+                            <!--  <p>Category ID: {{ category.id }} | Product ID: {{ product.id }}</p>     -->
+                                
+                                <form action="{% url 'add_to_cart' product_id=product.id %}" method="POST">
+                                    {% csrf_token %}
+                    
+                                    <button type="submit" class="add-to-cart-btn">                
+                                        <i class="fas fa-shopping-cart"></i>
+                                        Añadir
+                                    </button>
+                                </form>
+                               <!--
+                                <div class="product-codes">
+                                    {% if product.barcode_image %}
+                                        <img src="{{ product.barcode_image.url }}" alt="Código de barras" class="code-image">
+                                    {% endif %}
+                                    {% if product.qr_code %}
+                                        <img src="{{ product.qr_code.url }}" alt="Código QR" class="code-image">
+                                    {% endif %}
+                                </div>
+                                -->
+                            </div>
+                            
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="no-products">
+                <p>No hay productos disponibles en esta categoría.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,162 @@
+{% extends 'admin_dashboard/base.html' %}
+
+{% block title %}Categorías - Panel de Administración{% endblock %}
+
+{% block content %}
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Gestión de Categorías</h1>
+    <div>
+        <button class="btn btn-primary" onclick="location.href='{% url 'export_products' %}'">
+            <i class="fas fa-file-export"></i> Exportar
+        </button>
+        <button class="btn btn-primary" onclick="location.href='{% url 'print_labels' %}'">
+            <i class="fas fa-print"></i> Imprimir Etiquetas
+        </button>
+        <a href="{% url 'admin_category_new' %}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i> Nueva Categoría
+        </a>
+        <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteAllModal">
+            <i class="fas fa-trash me-2"></i> Eliminar Todas
+        </button>
+    </div>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Lista de Categorías</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="categoriesTable" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th>Productos</th>
+                        <th>Stock Total</th>
+                        <th>Valor Total</th>
+                        <th>Subcategorías</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for category in categories %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-{{ category.icon|default:'folder' }} me-2"></i>
+                                {{ category.name }}
+                            </div>
+                        </td>
+                        <td>{{ category.description|truncatechars:100 }}</td>
+                        <td class="text-center">
+                            <span class="badge bg-primary">{{ category.product_count }}</span>
+                        </td>
+                        <td class="text-end">{{ category.total_stock|default:0 }}</td>
+                        <td class="text-end">${{ category.total_value|default:0|floatformat:2 }}</td>
+                        <td class="text-center">
+                            <span class="badge bg-secondary">{{ category.subcategory_count }}</span>
+                        </td>
+                        <td>
+                            <span class="badge {% if category.is_active %}bg-success{% else %}bg-danger{% endif %}">
+                                {{ category.is_active|yesno:"Activa,Inactiva" }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a href="{% url 'admin_category_edit' category.id %}" class="btn btn-sm btn-info" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button type="button" class="btn btn-sm btn-danger" title="Eliminar"
+                                    data-bs-toggle="modal" data-bs-target="#deleteModal{{ category.id }}"
+                                    {% if category.subcategory_count > 0 %}disabled{% endif %}>
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+
+                            <!-- Modal de confirmación de eliminación -->
+                            <div class="modal fade" id="deleteModal{{ category.id }}" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Confirmar Eliminación</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            {% if category.product_count > 0 %}
+                                                <div class="alert alert-warning">
+                                                    Esta categoría tiene {{ category.product_count }} producto(s).
+                                                    Los productos se moverán a "Sin Categoría".
+                                                </div>
+                                            {% endif %}
+                                            {% if category.subcategory_count > 0 %}
+                                                <div class="alert alert-danger">
+                                                    Esta categoría tiene {{ category.subcategory_count }} subcategoría(s).
+                                                    No puede eliminarla sin moverlas antes.
+                                                </div>
+                                            {% endif %}
+                                            ¿Está seguro de eliminar <strong>{{ category.name }}</strong>?
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                            <form action="{% url 'admin_category_delete' category.id %}" method="POST" class="d-inline">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-danger"
+                                                    {% if category.subcategory_count > 0 %}disabled{% endif %}>
+                                                    Eliminar
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para confirmar eliminación de todas las categorías -->
+<div class="modal fade" id="deleteAllModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Eliminar Todas las Categorías</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger">
+                    <strong>¡Advertencia!</strong> Esta acción eliminará todas las categorías excepto "Sin Categoría".
+                    Los productos se moverán a esa categoría.
+                </div>
+                <p>¿Está seguro que desea eliminar todas las categorías? Esta acción no se puede deshacer.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form action="{% url 'admin_category_delete_all' %}" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Eliminar Todas</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        $('#categoriesTable').DataTable({
+            deferRender: true,
+            language: { url: '//cdn.datatables.net/plug-ins/1.10.25/i18n/Spanish.json' },
+            order: [[0, 'asc']],
+            columnDefs: [{ orderable: false, targets: -1 }]
+        });
+    });
+</script>
+{% endblock %}

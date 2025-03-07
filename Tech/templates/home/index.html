@@ -1,0 +1,349 @@
+
+<!-- index.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}TechVanguard_Inicio{% endblock %}
+
+{% block extra_css %}
+<link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
+<link rel="stylesheet" href="{% static 'css/cliente.css' %}">
+{% endblock %}
+
+{% block content %}
+<style>
+
+</style>
+  <section class="company-info">
+    <div class="image-container">
+      {% if company.image %}
+      <img src="{{ company.image.url }}" alt="Imagen de la Empresa" class="company-image">
+  {% else %}
+      <p>No hay imagen disponible</p>
+      <img src="https://placehold.co/1200x400" alt="Imagen de la Empresa" class="company-image">
+  {% endif %}
+      <div class="paint-effect"></div>
+      <div class="company-text">
+        <h1>{{ company.name }}</h1>
+        <p>Delivering innovative healthcare products with proven efficacy and safety</p>
+        <div class="cta-buttons">
+          <button class="btn btn-primary" onclick="window.location.href='{% url 'login' %}'">
+              Comenzar <i class="fas fa-arrow-right"></i>
+          </button>
+          
+          <button class="btn btn-secondary"onclick="window.location.href='{% url 'nosotros' %}'" >Más Información</button>
+      </div>
+      </div>
+    </div>
+  </section>
+  
+    
+
+  <div class="promociones-container">
+    <!-- Promoción 1 -->
+    <section class="promociones">
+      <h2>Ofertas Especiales</h2>
+      <p>Descuentos exclusivos por tiempo limitado. ¡No te los pierdas!</p>
+    </section>
+
+    <!-- Promoción 2 -->
+    <section class="promociones">
+      <h2>Descuento del 20%</h2>
+      <p>En todos los productos seleccionados. ¡Aprovecha ahora!</p>
+    </section>
+  </div>
+
+ <!-- <section class="carousel-section">
+    <h2 class="carousel-title">Nuestros Productos Destacados</h2>
+    <div class="carousel-container">
+        <div class="carousel-track">
+            {% for producto in destacados %}
+            <div class="card">
+{% if producto.image %}
+    <img src="{{ producto.image.url }}" alt="{{ producto.name }}" class="card-image">
+{% else %}
+    <img src="{% static 'images/default-product.png' %}" alt="Imagen no disponible" class="card-image">
+{% endif %}
+                <div class="card-content">
+                    <h3 class="card-title">{{ producto.name }}</h3>
+                    <p class="card-description">{{ producto.description }}</p>
+                    <a href="#" class="card-link">Ver más</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+-->
+<section class="carousel-section">
+    <h2 class="carousel-title">Productos Destacados</h2>
+
+    <div class="carousel-container">
+      <button class="carousel-button prev" onclick="moveCarousel(-1)">&#10094;</button>
+
+        <div class="carousel-track">
+          {% for producto in mas_vendidos %}
+          <div class="card">
+              {% if producto.get_main_image %}
+                  <img src="{{ producto.get_main_image.url }}" alt="{{ producto.name }}" class="card-image">
+              {% elif producto.image %}
+                  <img src="{{ producto.image.url }}" alt="{{ producto.name }}" class="card-image">
+              {% else %}
+                  <img src="{% static 'images/default-product.png' %}" alt="Imagen no disponible" class="card-image">
+              {% endif %}              
+          
+              <div class="card-content">
+                <h3 class="card-title">
+                    {{ producto.name }}
+                </h3>
+               <!-- <p class="card-description">
+                    {% autoescape off %}
+                    {% if producto.description|length > 100 %}
+                        {{ producto.description|truncatechars:100 }}...
+                    {% else %}
+                        {{ producto.description }}
+                    {% endif %}
+                    {% endautoescape %}
+                </p>
+                -->
+            
+                <!-- El enlace siempre se mostrará -->
+                <a href="{% url 'product_detail' category_id=producto.category.id product_id=producto.id %}" class="card-link">Ver más</a>
+            </div>
+            
+            </div>
+            {% endfor %}
+        </div>
+        <button class="carousel-button next" onclick="moveCarousel(1)">&#10095;</button>
+
+    </div>
+</section>
+
+
+  <section class="products">
+    <h2>Nuestros Productos Personalizables</h2>
+
+    <div class="product-grid">
+      <div class="product-card">
+        <img src="https://placehold.co/400x300" alt="Taza Clásica Blanca">
+        <h3>Taza Clásica Blanca</h3>
+        <p>Taza personalizable de cerámica de alta calidad</p>
+        <p class="price">$15.99</p>
+        <button class="customize-button" data-product="taza-clasica">Personalizar</button>
+      </div>
+
+      <div class="product-card">
+        <img src="https://placehold.co/400x300" alt="Termo Térmico Plateado">
+        <h3>Termo Térmico Plateado</h3>
+        <p>Termo de acero inoxidable personalizable</p>
+        <p class="price">$24.99</p>
+        <button class="customize-button" data-product="termo-termico">Personalizar</button>
+      </div>
+
+      <div class="product-card">
+        <img src="https://placehold.co/400x300" alt="Taza Mágica Negra">
+        <h3>Taza Mágica Negra</h3>
+        <p>Taza que cambia de color con bebidas calientes</p>
+        <p class="price">$19.99</p>
+        <button class="customize-button" data-product="taza-magica">Personalizar</button>
+      </div>
+
+      <div class="product-card">
+        <img src="https://placehold.co/400x300" alt="Termo Deportivo Premium">
+        <h3>Termo Deportivo Premium</h3>
+        <p>Termo deportivo con diseño ergonómico</p>
+        <p class="price">$29.99</p>
+        <button class="customize-button" data-product="termo-deportivo">Personalizar</button>
+      </div>
+
+    
+
+      <div class="product-card">
+        <img src="https://placehold.co/400x300" alt="Termo Ejecutivo">
+        <h3>Termo Ejecutivo</h3>
+        <p>Termo elegante para profesionales</p>
+        <p class="price">$34.99</p>
+        <button class="customize-button" data-product="termo-ejecutivo">Personalizar</button>
+      </div>
+    </div>
+  </section>
+
+<!-- Galería -->
+<section class="galeria">
+    <h2>Nuestros Productos</h2>
+    
+   <!--
+     <div class="galeria-container">
+      {% for categoria, productos in productos_por_categoria.items %}
+        <div class="categoria">
+         <h3>{{ categoria.name }}</h3>
+          <div class="categoria-items">
+            {% for producto in productos %}
+            <a href="{% url 'category_detail' categoria.id %}" class="galeria-item">
+                {% if producto.image %}
+                  <img src="{{ producto.image.url }}" alt="{{ producto.name }}">
+                {% else %}
+                  <img src="https://placehold.co/400x300" alt="Producto sin imagen">
+                {% endif %}
+               
+                <div class="galeria-item-overlay">
+                  <span>Ver categoría</span>
+                </div>
+               
+              </a>
+            {% empty %}
+              <p class="no-products">No hay productos disponibles en esta categoría.</p>
+            {% endfor %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  -->
+   
+   
+  <div class="collage-container">
+    {% for categoria, productos in productos_por_categoria.items %}
+    <a href="{% url 'category_detail' categoria.id %}" class="collage-item">
+      <div class="categoria">
+        <h3>{{ categoria.name }}</h3>
+        <div class="categoria-items">
+          {% if productos %}
+          {% for producto in productos|slice:":3" %}
+              {% if producto.get_main_image %}
+                  <img src="{{ producto.get_main_image.url }}" alt="{{ producto.name }}">
+              {% elif producto.image %}
+                  <img src="{{ producto.image.url }}" alt="{{ producto.name }}">
+              {% else %}
+                  <img src="https://placehold.co/400x300" alt="Producto sin imagen">
+              {% endif %}
+          {% endfor %}
+      {% else %}
+          
+            <p class="no-products">No hay productos en esta categoría.</p>
+            
+          {% endif %}
+        </div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  
+</section>
+
+
+<!-- Equipo -->
+ <!--
+<section class="equipo">
+  <h2>Nuestro Equipo</h2>
+  <div class="equipo-container">
+    {% for employee in employees %}
+      <div class="miembro">
+          {% if employee.profile_picture %}
+            <img src="{{ employee.profile_picture.url }}" alt="{{ employee.name }}">
+          {% else %}
+            <img src="https://placehold.co/200x200" alt="{{ employee.name }}">
+          {% endif %}
+          <h3>{{ employee.name }}</h3>
+          <p>{{ employee.position }}</p>
+      </div>
+    {% empty %}
+      <p>No hay empleados registrados.</p>
+    {% endfor %}
+  </div>
+</section>
+-->
+
+<!-- Testimonios -->
+<!--
+<section id="testimonials">
+    <div class="testimonials-container">
+        <h2>Lo que dicen nuestros usuarios</h2>
+        <div class="testimonial-grid">
+            <div class="testimonial-card">
+                <p>"TechVanguard ha simplificado mi vida digital. ¡Ahora puedo encontrar todo lo que necesito en segundos!"</p>
+                <div class="author">
+                    <strong>Juan Pérez</strong>
+                    <span>Emprendedor</span>
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <p>"La seguridad que ofrece TechVanguard es incomparable. Duermo tranquilo sabiendo que mis archivos están protegidos."</p>
+                <div class="author">
+                    <strong>María García</strong>
+                    <span>Diseñadora Gráfica</span>
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <p>"La categorización es super útil, me ahorra mucho tiempo en la organización de mis documentos."</p>
+                <div class="author">
+                    <strong>Carlos López</strong>
+                    <span>Gerente de Proyectos</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+ -->
+
+<!-- Certificaciones y Alianzas -->
+ <!--
+<section class="certificaciones">
+    <h2>Marcas</h2>
+    <p>Nuestra empresa cuenta con certificaciones internacionales que garantizan calidad y confianza.</p>
+
+    <div class="carousel-container" style=/*"overflow: hidden;"*/>
+        <div class="carousel-track">
+          {% for certification in certifications %}
+          <div class="certificacion-item">
+                    {% if certification.logos %}
+                        <img src="{{ certification.logos.url }}" alt="Logo de {{ certification.name_certification }}" class="h-8" loading="lazy">
+                        <h3>{{ certification.name_certification }}</h3>
+
+                        {% else %}
+                        <img src="{% static 'img/default-logo.png' %}" alt="Logo predeterminado" class="h-8" loading="lazy">
+                        {{ certification.name_certification }}
+
+                    {% endif %}
+                </div>
+            {% empty %}
+                <p>No hay certificaciones disponibles.</p>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+-->
+
+
+<!-- Preguntas Frecuentes -->
+
+<!--
+<section class="faq">
+  <h2>Preguntas Frecuentes</h2>
+  <details>
+      <summary>¿Cuáles son los tiempos de entrega?</summary>
+      <p>Los pedidos se entregan en un plazo de 3 a 5 días hábiles.</p>
+  </details>
+</section>
+-->
+
+
+
+<script>
+  function moveCarousel(direction) {
+      const track = document.querySelector(".carousel-track");
+      const scrollAmount = 300; // Ajusta según necesidad
+      track.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
+  }
+  </script>
+  
+
+
+
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js"></script>
+  <script src="{% static 'js/cliente.js' %}"></script>
+
+
+{% endblock %}
