@@ -106,12 +106,16 @@ WSGI_APPLICATION = 'dynamics.wsgi.application'
 
 # Configurar la base de datos
 DATABASES = {
-    'default': dj_database_url.config(
-        default=os.getenv('DATABASE_URL'), 
-        conn_max_age=600,  # Para evitar que Django cierre las conexiones prematuramente
-        ssl_require=True     # Si usas una conexión segura (esto puede no ser necesario)
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',  # Esta es la línea que falta en tu configuración
+        'NAME': os.getenv('MYSQL_DATABASE', 'railway'),
+        'USER': os.getenv('MYSQL_USER', 'root'),
+        'PASSWORD': os.getenv('MYSQL_ROOT_PASSWORD', 'JnixKAaTjIVuyanfltZgrvGdWIPmqeKh'),
+        'HOST': os.getenv('RAILWAY_PRIVATE_DOMAIN', 'techsolutions.railway.internal'),
+        'PORT': os.getenv('MYSQLPORT', '3306'),
+    }
 }
+
 
 
 AUTHENTICATION_BACKENDS = [
