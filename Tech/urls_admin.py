@@ -6,8 +6,7 @@ urlpatterns = [
 
     # Dashboard principal
     path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),
-    
-    
+ 
     # Gestión de usuarios
     path('admin-dashboard/users/', views.user_list, name='admin_user_list'),
     path('admin-dashboard/users/<int:user_id>/', views.user_detail, name='admin_user_detail'),
