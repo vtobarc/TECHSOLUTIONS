@@ -3,7 +3,7 @@ from decimal import Decimal
 import os
 import json
 import csv
-from tkinter import Image
+from PIL import Image
 from django.forms import ValidationError
 from django.contrib.auth.decorators import login_required, permission_required
 from django.urls import reverse
