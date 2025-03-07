@@ -104,10 +104,14 @@ WSGI_APPLICATION = 'dynamics.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 
+# Configurar la base de datos
 DATABASES = {
-    'default': dj_database_url.config(default=os.getenv('DATABASE_URL'))
+    'default': dj_database_url.config(
+        default=os.getenv('DATABASE_URL'), 
+        conn_max_age=600,  # Para evitar que Django cierre las conexiones prematuramente
+        ssl_require=True     # Si usas una conexión segura (esto puede no ser necesario)
+    )
 }
-
 
 
 AUTHENTICATION_BACKENDS = [
