@@ -11,6 +11,7 @@ from .views import add_to_cart, cart_detail, remove_from_cart
 
 
 urlpatterns = [
+    
     path('', home_view, name='home'),  # La URL de la página de inicio
     path('login/', auth_views.LoginView.as_view(template_name='login_and_signup/login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(next_page='/'), name='logout'),
