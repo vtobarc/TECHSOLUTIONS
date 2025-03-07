@@ -20,7 +20,7 @@
       <img src="{{ company.image.url }}" alt="Imagen de la Empresa" class="company-image">
   {% else %}
       <p>No hay imagen disponible</p>
-      <img src="https://placehold.co/1200x400" alt="Imagen de la Empresa" class="company-image">
+      <img src="https://placehold.co/200x200" alt="Imagen de la Empresa" class="company-image">
   {% endif %}
       <div class="paint-effect"></div>
       <div class="company-text">
@@ -89,7 +89,7 @@
               {% elif producto.image %}
                   <img src="{{ producto.image.url }}" alt="{{ producto.name }}" class="card-image">
               {% else %}
-                  <img src="{% static 'images/default-product.png' %}" alt="Imagen no disponible" class="card-image">
+                  <img src="https://placehold.co/200x200" alt="Imagen no disponible" class="card-image">
               {% endif %}              
           
               <div class="card-content">
