@@ -8,7 +8,11 @@ from django.conf.urls.static import static
 from django.conf import settings
 from . import views
 from .views import add_to_cart, cart_detail, remove_from_cart
-
+from .views import (
+    home_view, nosotros_view, servicios, category_detail, product_detail, 
+    get_products, add_to_cart, cart_detail, remove_from_cart, base_product, 
+    create_quote, quote_pdf, quote_to_sale, register_view, cliente_home
+)
 
 urlpatterns = [
     
