@@ -32,15 +32,14 @@
                     <h1 class="login-title">Welcome!</h1>
                     <p class="login-subtitle">Sign in to your Account</p>
                     
-                    {% if messages %}
-                    <div class="error-message-container">
-                        {% for message in messages %}
-                            {% if message.tags == 'error' %}
-                                <p class="error-message">{{ message }}</p>
-                            {% endif %}
-                        {% endfor %}
-                    </div>
-                    {% endif %}
+                   {% if messages %}
+<div class="error-message-container">
+    {% for message in messages %}
+        <p class="error-message">{{ message }}</p>
+    {% endfor %}
+</div>
+{% endif %}
+
                 </div>
 
                 <form class="login-form" method="post" action="{% url 'login' %}">
