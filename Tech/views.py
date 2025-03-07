@@ -2754,3 +2754,19 @@ def admin_print_product_labels(request):
     products = Product.objects.filter(is_available=True).order_by('name')
     return render(request, 'admin_dashboard/print_labels.html', {'products': products})
 
+
+def associate_certification(request, cert_id):
+    # Obtén la certificación por su ID
+    certification = get_object_or_404(Certification, id=cert_id)
+    company = Company.objects.first()  # Obtener la primera empresa, puedes cambiar esto si es necesario
+    
+    if certification not in company.certifications.all():
+        company.certifications.add(certification)
+        messages.success(request, "Certificación asociada correctamente.")
+    else:
+        messages.warning(request, "La certificación ya está asociada a esta empresa.")
+    
+    return redirect('admin_company_detail')
+
+
+
