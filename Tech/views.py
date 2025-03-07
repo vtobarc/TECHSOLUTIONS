@@ -187,21 +187,31 @@ def register_view(request):
 
 from django.contrib import messages
 
+
 def user_login(request):
     if request.method == "POST":
-        username = request.POST['email']  # Correo
+        username = request.POST['email']
         password = request.POST['password']
-
+        
         user = authenticate(request, username=username, password=password)
-
+        
         if user is not None:
+            print(user.rol)  # Para verificar el valor del rol
+
             login(request, user)
             messages.success(request, "¡Inicio de sesión exitoso!")
+            
+            # Verifica si el rol es 'Admin' y redirige al dashboard correspondiente
+            if user.rol == 'Admin':
+                return redirect('admin_dashboard')
+
+            # Si no es admin, redirige a la página principal
             return redirect('home_view')
         else:
             messages.error(request, "Credenciales inválidas. Por favor, intenta nuevamente.")
     
     return render(request, 'login_and_signup/login.html')
+
 
 
 
