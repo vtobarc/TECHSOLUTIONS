@@ -41,6 +41,7 @@ ALLOWED_HOSTS = [
     # También puedes agregar otros dominios si es necesario
 ]
 
+AUTH_USER_MODEL = 'Tech.CustomUser'
 
 # Application definition
 
