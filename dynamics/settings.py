@@ -107,7 +107,7 @@ WSGI_APPLICATION = 'dynamics.wsgi.application'
 # Configurar la base de datos
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',  # Esta es la línea que falta en tu configuración
+        'ENGINE': 'django.db.backends.mysql',
         'NAME': os.getenv('MYSQL_DATABASE', 'railway'),
         'USER': os.getenv('MYSQL_USER', 'root'),
         'PASSWORD': os.getenv('MYSQL_ROOT_PASSWORD', 'JnixKAaTjIVuyanfltZgrvGdWIPmqeKh'),
@@ -115,7 +115,6 @@ DATABASES = {
         'PORT': os.getenv('MYSQLPORT', '3306'),
     }
 }
-
 
 
 AUTHENTICATION_BACKENDS = [
