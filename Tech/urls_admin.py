@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from . import views_admin  # Importa tus vistas para el panel admin personalizado
 
 urlpatterns = [
     path('', views.admin_dashboard, name='admin_dashboard'),
