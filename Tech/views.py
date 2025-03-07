@@ -165,12 +165,17 @@ def home_view(request):
     return render(request, 'home/index.html', contexto)
 
 
+
 def register_view(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST, request.FILES)  # Incluir files para imágenes
         if form.is_valid():
             user = form.save()
-            login(request, user)  # Inicia sesión automáticamente después del registro
+
+            # Especificamos el backend de autenticación aquí
+            backend = 'django.contrib.auth.backends.ModelBackend'  # Asegúrate de que sea el backend correcto
+            login(request, user, backend=backend)  # Inicia sesión automáticamente después del registro
+
             messages.success(request, 'Te has registrado correctamente.')  # Mensaje de éxito
             return redirect('cliente_home')  # Redirige a la página de inicio
         else:
@@ -179,6 +184,7 @@ def register_view(request):
         form = CustomUserCreationForm()
 
     return render(request, 'login_and_signup/signup.html', {'form': form})
+
 
 
 def user_login(request):
