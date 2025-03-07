@@ -29,11 +29,12 @@ SECRET_KEY = 'django-insecure-oui28d+89j$e!q#t5a44&q5v5gpbfrw1e)=*0eo-um2bn12f2o
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'djangodespliegu-production.up.railway.app',
+    'techsolutions-production.up.railway.app',
     'localhost',
     '127.0.0.1',
-    # Otros dominios o direcciones IP que necesites agregar
+    # También puedes agregar otros dominios si es necesario
 ]
+
 
 # Application definition
 
