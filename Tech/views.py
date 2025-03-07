@@ -126,6 +126,12 @@ ProductImageFormSet = inlineformset_factory(
 def is_admin(user):
     return user.is_authenticated and hasattr(user, 'rol') and user.rol == 'Admin'
 
+
+
+# Vista para la página principal
+def index(request):
+    return HttpResponse("home/index.html")
+    
 def home_view(request):
     company = Company.objects.first()  # Puedes cambiar la lógica si necesitas obtener una empresa específica
     categorias = Category.objects.all()
