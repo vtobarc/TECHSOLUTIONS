@@ -79,7 +79,7 @@ from .models import Product, ProductImage, Category, StockMovement
 from tinymce.widgets import TinyMCE
 
 # Create a formset for product images
-ProductImageFormSet = forms.inlineformset_factory(
+ProductImageForm = forms.inlineformset_factory(
     Product, 
     ProductImage,
     fields=['image', 'is_main', 'order'],
