@@ -335,6 +335,7 @@ from io import BytesIO
 import barcode
 from barcode.writer import ImageWriter
 import qrcode
+from cloudinary.uploader import upload
 
 class Product(models.Model):
     name = models.CharField(max_length=200)
@@ -357,31 +358,37 @@ class Product(models.Model):
     brand = models.CharField(max_length=200, blank=True)
     features = models.TextField(blank=True, help_text="List the features of the product, separated by commas or as a formatted text.")
     color = models.CharField(max_length=100, blank=True, help_text="Color of the product (e.g., Red, Blue, Black, #FFFFFF).")
-    
+
     def __str__(self):
         return f"{self.name} - {self.code}"
-    
+
     def save(self, *args, **kwargs):
         if not self.barcode and self.code:
             barcode_value = self.code.zfill(12)
             ean = barcode.get('ean13', barcode_value, writer=ImageWriter())
             buffer = BytesIO()
             ean.write(buffer)
-            # Guardamos en Cloudinary
-            self.barcode_image.save(f'barcode_{self.code}.png', File(buffer), save=False)
+            buffer.seek(0)
+
+            # Subir la imagen del código de barras a Cloudinary
+            barcode_image = upload(buffer, folder="barcodes")  # Subir directamente a Cloudinary
+            self.barcode_image = barcode_image['url']  # Guardar la URL de la imagen en el campo de Cloudinary
             self.barcode = ean.get_fullcode()
 
+            # Crear y subir el código QR a Cloudinary
             qr = qrcode.QRCode(version=1, box_size=10, border=5)
             qr.add_data(self.code)
             qr.make(fit=True)
             qr_image = qr.make_image(fill_color="black", back_color="white")
             buffer = BytesIO()
             qr_image.save(buffer, format='PNG')
-            # Guardamos en Cloudinary
-            self.qr_code.save(f'qr_{self.code}.png', File(buffer), save=False)
+            buffer.seek(0)
+
+            qr_code_image = upload(buffer, folder="qrcodes")  # Subir directamente a Cloudinary
+            self.qr_code = qr_code_image['url']  # Guardar la URL de la imagen en el campo de Cloudinary
 
         super().save(*args, **kwargs)
-    
+
     def get_main_image(self):
         main_image = self.images.filter(is_main=True).first()
         if main_image:
