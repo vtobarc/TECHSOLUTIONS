@@ -11,6 +11,17 @@ from django import forms
 from .models import Product, Category, StockMovement
 from tinymce.widgets import TinyMCE
 from django.contrib.auth.decorators import login_required
+import random
+import re
+from django.core.exceptions import ValidationError
+from django import forms
+from django.db import transaction
+from barcode import get_barcode_class
+from barcode.writer import ImageWriter
+from io import BytesIO
+from django.core.files.base import ContentFile, File  # Asegúrate de agregar 'File' aquí
+from .models import Product, ProductImage, Category, StockMovement
+from tinymce.widgets import TinyMCE
 
 class CustomUserCreationForm(UserCreationForm):
     cedula = forms.CharField(
