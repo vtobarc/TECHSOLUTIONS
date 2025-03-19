@@ -330,6 +330,11 @@ class Category(models.Model):
 
 def generate_unique_code(length=12):
     return ''.join(random.choices(string.digits, k=length))
+from django.core.files.base import File  # Importa File aquí
+from io import BytesIO
+import barcode
+from barcode.writer import ImageWriter
+import qrcode
 
 class Product(models.Model):
     name = models.CharField(max_length=200)
@@ -352,7 +357,6 @@ class Product(models.Model):
     brand = models.CharField(max_length=200, blank=True)
     features = models.TextField(blank=True, help_text="List the features of the product, separated by commas or as a formatted text.")
     color = models.CharField(max_length=100, blank=True, help_text="Color of the product (e.g., Red, Blue, Black, #FFFFFF).")
-    
     
     def __str__(self):
         return f"{self.name} - {self.code}"
@@ -384,6 +388,7 @@ class Product(models.Model):
         
     def get_gallery_images(self):
         return self.images.all()
+
     
     
 # Add this new model to your models.py file
