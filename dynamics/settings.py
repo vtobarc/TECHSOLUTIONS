@@ -25,14 +25,16 @@ load_dotenv()  # Make sure this is at the top of your file
 
 # CRITICAL: Set Cloudinary environment variables directly
 # These must be set BEFORE any cloudinary imports
-os.environ['CLOUDINARY_CLOUD_NAME'] = 'intitulado'
+
+# Set Cloudinary environment variables with your NEW credentials
+os.environ['CLOUDINARY_CLOUD_NAME'] = 'Intitulado'
 os.environ['CLOUDINARY_API_KEY'] = '844554634418234'
 os.environ['CLOUDINARY_API_SECRET'] = 'FSn6G0MfhIWiyanNcOwvo1bEYF8'
-os.environ['CLOUDINARY_URL'] = 'cloudinary://844554634418234:FSn6G0MfhIWiyanNcOwvo1bEYF8@intitulado'
+os.environ['CLOUDINARY_URL'] = 'cloudinary://844554634418234:FSn6G0MfhIWiyanNcOwvo1bEYF8@Intitulado'
 
-# Now define the CLOUDINARY_STORAGE dictionary
+# Define CLOUDINARY_STORAGE dictionary with your NEW credentials
 CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': 'intitulado',
+    'CLOUD_NAME': 'Intitulado',
     'API_KEY': '844554634418234',
     'API_SECRET': 'FSn6G0MfhIWiyanNcOwvo1bEYF8',
 }
@@ -59,11 +61,17 @@ ALLOWED_HOSTS = [
     # También puedes agregar otros dominios si es necesario
 ]
 
-# Configure cloudinary
+
+# Now import cloudinary modules
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
+
+# Configure cloudinary with your NEW credentials
 cloudinary.config(
-    cloud_name=CLOUDINARY_CLOUD_NAME,
-    api_key=CLOUDINARY_API_KEY,
-    api_secret=CLOUDINARY_API_SECRET
+    cloud_name='Intitulado',
+    api_key='844554634418234',
+    api_secret='FSn6G0MfhIWiyanNcOwvo1bEYF8'
 )
 
 AUTH_USER_MODEL = 'Tech.CustomUser'
@@ -87,6 +95,7 @@ INSTALLED_APPS = [
 ]
 
 # Now set the default storage
+# Set back to Cloudinary storage
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 TINYMCE_DEFAULT_CONFIG = {
