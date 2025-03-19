@@ -336,20 +336,19 @@ import barcode
 from barcode.writer import ImageWriter
 import qrcode
 from cloudinary.uploader import upload
-
 class Product(models.Model):
     name = models.CharField(max_length=200)
     code = models.CharField(max_length=50, unique=True)
     barcode = models.CharField(max_length=100, unique=True, blank=True)
-    barcode_image = CloudinaryField('barcodes', blank=True)  # Usar CloudinaryField
-    qr_code = CloudinaryField('qrcodes', blank=True)  # Usar CloudinaryField
+    barcode_image = models.ImageField(upload_to='barcodes/', blank=True)
+    qr_code = models.ImageField(upload_to='qrcodes/', blank=True)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
     description = HTMLField(blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     cost = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     stock = models.IntegerField(default=0)
     minimum_stock = models.IntegerField(default=0)
-    image = CloudinaryField('products', blank=True)  # Usar CloudinaryField
+    image = models.ImageField(upload_to='products/', validators=[validate_image], blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_available = models.BooleanField(default=True)
@@ -358,37 +357,29 @@ class Product(models.Model):
     brand = models.CharField(max_length=200, blank=True)
     features = models.TextField(blank=True, help_text="List the features of the product, separated by commas or as a formatted text.")
     color = models.CharField(max_length=100, blank=True, help_text="Color of the product (e.g., Red, Blue, Black, #FFFFFF).")
-
+    
     def __str__(self):
         return f"{self.name} - {self.code}"
-
+    
     def save(self, *args, **kwargs):
         if not self.barcode and self.code:
             barcode_value = self.code.zfill(12)
             ean = barcode.get('ean13', barcode_value, writer=ImageWriter())
             buffer = BytesIO()
             ean.write(buffer)
-            buffer.seek(0)
-
-            # Subir la imagen del código de barras a Cloudinary
-            barcode_image = upload(buffer, folder="barcodes")  # Subir directamente a Cloudinary
-            self.barcode_image = barcode_image['url']  # Guardar la URL de la imagen en el campo de Cloudinary
+            self.barcode_image.save(f'barcode_{self.code}.png', File(buffer), save=False)
             self.barcode = ean.get_fullcode()
 
-            # Crear y subir el código QR a Cloudinary
             qr = qrcode.QRCode(version=1, box_size=10, border=5)
             qr.add_data(self.code)
             qr.make(fit=True)
             qr_image = qr.make_image(fill_color="black", back_color="white")
             buffer = BytesIO()
             qr_image.save(buffer, format='PNG')
-            buffer.seek(0)
-
-            qr_code_image = upload(buffer, folder="qrcodes")  # Subir directamente a Cloudinary
-            self.qr_code = qr_code_image['url']  # Guardar la URL de la imagen en el campo de Cloudinary
+            self.qr_code.save(f'qr_{self.code}.png', File(buffer), save=False)
 
         super().save(*args, **kwargs)
-
+    
     def get_main_image(self):
         main_image = self.images.filter(is_main=True).first()
         if main_image:
@@ -403,7 +394,7 @@ class Product(models.Model):
 # Add this new model to your models.py file
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, related_name='images', on_delete=models.CASCADE)
-    image = CloudinaryField('products/gallery', blank=True)  # Usar CloudinaryField
+    image = models.ImageField(upload_to='products/gallery/', validators=[validate_image])
     is_main = models.BooleanField(default=False)
     order = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -415,11 +406,13 @@ class ProductImage(models.Model):
         return f"Image for {self.product.name} ({self.id})"
     
     def save(self, *args, **kwargs):
+        # If this is marked as main image, unmark others
         if self.is_main:
             ProductImage.objects.filter(product=self.product, is_main=True).update(is_main=False)
+        # If this is the first image, make it the main image
         elif not ProductImage.objects.filter(product=self.product).exists():
             self.is_main = True
-        super().save(*args, **kwargs)
+        super().save(*args, **kwargs) 
         
 class StockMovement(models.Model):
     MOVEMENT_TYPES = [
