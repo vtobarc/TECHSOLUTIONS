@@ -1,1 +1,3 @@
 DATABASE_URL=mysql://root:JnixKAaTjIVuyanfltZgrvGdWIPmqeKh@mysql.railway.internal:3306/railway
+SECRET_KEY=django-insecure-oui28d+89j$e!q#t5a44&q5v5gpbfrw1e)=*0eo-um2bn12f2o
+
