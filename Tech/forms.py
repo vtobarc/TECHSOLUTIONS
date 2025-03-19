@@ -138,10 +138,12 @@ class ProductForm(forms.ModelForm):
     def save(self, commit=True):
         # Si el código está vacío, generarlo antes de guardar
         if not self.instance.code:
+            print(f"Generando código para el producto: {self.instance.name}")
             self.instance.code = self.generate_unique_numeric_code()
 
         # Generar el código de barras y QR
         if not self.instance.barcode:
+            print(f"Generando código de barras para el producto: {self.instance.name}")
             barcode_value = self.instance.code
             ean = get_barcode_class('ean13')(barcode_value, writer=ImageWriter())
             buffer = BytesIO()
@@ -150,6 +152,7 @@ class ProductForm(forms.ModelForm):
             self.instance.barcode = ean.get_fullcode()
 
         if not self.instance.qr_code:
+            print(f"Generando código QR para el producto: {self.instance.name}")
             import qrcode
             qr = qrcode.QRCode(version=1, box_size=10, border=5)
             qr.add_data(self.instance.code)
