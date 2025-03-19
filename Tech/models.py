@@ -33,6 +33,7 @@ import cloudinary
 import cloudinary.uploader
 import cloudinary.api
 from cloudinary.uploader import upload
+from django.core.files.base import File
 
 User = settings.AUTH_USER_MODEL
 
