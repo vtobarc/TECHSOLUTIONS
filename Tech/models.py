@@ -34,6 +34,19 @@ import cloudinary.uploader
 import cloudinary.api
 from cloudinary.uploader import upload
 from django.core.files.base import File
+import random
+import string
+from io import BytesIO
+from django.core.exceptions import ValidationError
+from django.core.files.base import File
+from django.conf import settings
+from django.db import models
+from PIL import Image
+import imghdr
+import barcode
+from barcode.writer import ImageWriter
+import qrcode
+
 
 User = settings.AUTH_USER_MODEL
 
@@ -255,19 +268,15 @@ class ActivityMessage(models.Model):
     message = models.CharField(max_length=255)
     timestamp = models.DateTimeField(auto_now_add=True)
   
-import random
-import string
-from io import BytesIO
 
-from django.core.exceptions import ValidationError
-from django.core.files.base import File
-from django.conf import settings
-from django.db import models
-from PIL import Image
-import imghdr
-import barcode
-from barcode.writer import ImageWriter
-import qrcode
+
+
+
+
+
+
+
+
 
 def validate_image(image):
     # Verificar si la imagen tiene atributo `file.content_type`
