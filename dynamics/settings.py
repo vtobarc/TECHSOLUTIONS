@@ -16,32 +16,26 @@ import pymysql
 import dj_database_url
 from dotenv import load_dotenv
 from .cloudinary_config import CLOUDINARY_STORAGE, CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET
-# Cloudinary configuration
-load_dotenv()  # Make sure this is at the top of your file
-MEDIA_URL = 'https://res.cloudinary.com/dshj58ucs/'
-# CRITICAL: Set Cloudinary environment variables directly
-# Set Cloudinary credentials with fallbacks
-CLOUDINARY_CLOUD_NAME = os.getenv('CLOUDINARY_CLOUD_NAME', 'dshj58ucs')
-CLOUDINARY_API_KEY = os.getenv('CLOUDINARY_API_KEY', '844554634418234')
-CLOUDINARY_API_SECRET = os.getenv('CLOUDINARY_API_SECRET', 'FSn6G0MfhIWiyanNcOwvo1bEYF8')
+import os
+from pathlib import Path
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
+from dotenv import load_dotenv
 
-# Set environment variables for libraries that might use them directly
+# Load environment variables
+load_dotenv()
+
+# Cloudinary configuration with your actual credentials
+CLOUDINARY_CLOUD_NAME = 'dshj58ucs'
+CLOUDINARY_API_KEY = '241739348942567'
+CLOUDINARY_API_SECRET = 'wWcQab-9C_R0poTu8p5aOaAhvSk'
+
+# Set environment variables directly
 os.environ['CLOUDINARY_CLOUD_NAME'] = CLOUDINARY_CLOUD_NAME
 os.environ['CLOUDINARY_API_KEY'] = CLOUDINARY_API_KEY
 os.environ['CLOUDINARY_API_SECRET'] = CLOUDINARY_API_SECRET
 os.environ['CLOUDINARY_URL'] = f'cloudinary://{CLOUDINARY_API_KEY}:{CLOUDINARY_API_SECRET}@{CLOUDINARY_CLOUD_NAME}'
-
-# Define the dictionary that cloudinary_storage expects
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': CLOUDINARY_CLOUD_NAME,
-    'API_KEY': CLOUDINARY_API_KEY,
-    'API_SECRET': CLOUDINARY_API_SECRET,
-}
-
-# Now import cloudinary modules after setting environment variables
-import cloudinary
-import cloudinary.uploader
-import cloudinary.api
 
 # Configure cloudinary directly
 cloudinary.config(
@@ -49,12 +43,17 @@ cloudinary.config(
     api_key=CLOUDINARY_API_KEY,
     api_secret=CLOUDINARY_API_SECRET
 )
-# Test upload a simple file
-try:
-    result = cloudinary.uploader.upload("https://res.cloudinary.com/demo/image/upload/sample.jpg")
-    print("Success! Uploaded to:", result['url'])
-except Exception as e:
-    print("Error:", e)
+
+# Configure the dictionary that Django Cloudinary Storage expects
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': CLOUDINARY_CLOUD_NAME,
+    'API_KEY': CLOUDINARY_API_KEY,
+    'API_SECRET': CLOUDINARY_API_SECRET,
+}
+
+# Set the default file storage to use Cloudinary
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
 pymysql.install_as_MySQLdb()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
