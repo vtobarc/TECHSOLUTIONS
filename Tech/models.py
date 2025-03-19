@@ -262,9 +262,9 @@ from django.core.exceptions import ValidationError
 from django.core.files.base import File
 from django.conf import settings
 from django.db import models
-from django.db.models import Sum, F  # Añadido Sum y F
-from cloudinary.models import CloudinaryField  # Añadido CloudinaryField
-from tinymce.models import HTMLField  # Añadido HTMLField
+from django.db.models import Sum, F
+from cloudinary.models import CloudinaryField
+from tinymce.models import HTMLField
 from PIL import Image
 import imghdr
 import barcode
@@ -321,7 +321,7 @@ class Category(models.Model):
         return self.product_set.aggregate(total_value=Sum(F('stock') * F('price')))['total_value'] or 0
 
     def get_subcategories(self):
-        return self.subcategories.all()  # Obtiene todas las subcategorías
+        return self.subcategories.all()
 
 def generate_unique_code(length=12):
     return ''.join(random.choices(string.digits, k=length))
@@ -353,40 +353,74 @@ class Product(models.Model):
         return f"{self.name} - {self.code}"
     
     def save(self, *args, **kwargs):
+        # Generate code if not provided
         if not self.code:
             self.code = generate_unique_code()
-    
+        
+        # Only generate barcode if it doesn't exist yet
         if not self.barcode:
-            barcode_value = self.code.zfill(12)
-            ean = barcode.get('ean13', barcode_value, writer=ImageWriter())
-            barcode_buffer = BytesIO()
-            ean.write(barcode_buffer)
-            barcode_buffer.seek(0)
-    
-            # Subir código de barras a Cloudinary
-            barcode_result = cloudinary.uploader.upload(barcode_buffer, folder="barcodes", public_id=f"barcode_{self.code}")
-            if barcode_result and 'url' in barcode_result:
-                self.barcode_image = barcode_result['url']
-                self.barcode = ean.get_fullcode()
-            else:
-                print("Error al subir el código de barras a Cloudinary")
-    
+            try:
+                # Generate barcode
+                barcode_value = self.code.zfill(12)
+                ean = barcode.get('ean13', barcode_value, writer=ImageWriter())
+                barcode_buffer = BytesIO()
+                ean.write(barcode_buffer)
+                barcode_buffer.seek(0)
+                
+                # Check if Cloudinary is properly configured
+                if not hasattr(cloudinary, 'config') or not cloudinary.config().cloud_name:
+                    print("Cloudinary no está configurado correctamente")
+                else:
+                    # Upload barcode to Cloudinary
+                    try:
+                        barcode_result = cloudinary.uploader.upload(
+                            barcode_buffer, 
+                            folder="barcodes", 
+                            public_id=f"barcode_{self.code}"
+                        )
+                        if barcode_result and 'url' in barcode_result:
+                            self.barcode_image = barcode_result['url']
+                            self.barcode = ean.get_fullcode()
+                        else:
+                            print("Error al subir el código de barras a Cloudinary: Respuesta incompleta")
+                    except Exception as e:
+                        print(f"Error al subir el código de barras a Cloudinary: {str(e)}")
+            except Exception as e:
+                print(f"Error al generar el código de barras: {str(e)}")
+        
+        # Only generate QR code if it doesn't exist yet
         if not self.qr_code:
-            qr = qrcode.QRCode(version=1, box_size=10, border=5)
-            qr.add_data(self.code)
-            qr.make(fit=True)
-            qr_image = qr.make_image(fill_color="black", back_color="white")
-            qr_buffer = BytesIO()
-            qr_image.save(qr_buffer, format='PNG')
-            qr_buffer.seek(0)
-    
-            # Subir código QR a Cloudinary
-            qr_result = cloudinary.uploader.upload(qr_buffer, folder="qrcodes", public_id=f"qr_{self.code}")
-            if qr_result and 'url' in qr_result:
-                self.qr_code = qr_result['url']
-            else:
-                print("Error al subir el código QR a Cloudinary")
-    
+            try:
+                # Generate QR code
+                qr = qrcode.QRCode(version=1, box_size=10, border=5)
+                qr.add_data(self.code)
+                qr.make(fit=True)
+                qr_image = qr.make_image(fill_color="black", back_color="white")
+                qr_buffer = BytesIO()
+                qr_image.save(qr_buffer, format='PNG')
+                qr_buffer.seek(0)
+                
+                # Check if Cloudinary is properly configured
+                if not hasattr(cloudinary, 'config') or not cloudinary.config().cloud_name:
+                    print("Cloudinary no está configurado correctamente")
+                else:
+                    # Upload QR code to Cloudinary
+                    try:
+                        qr_result = cloudinary.uploader.upload(
+                            qr_buffer, 
+                            folder="qrcodes", 
+                            public_id=f"qr_{self.code}"
+                        )
+                        if qr_result and 'url' in qr_result:
+                            self.qr_code = qr_result['url']
+                        else:
+                            print("Error al subir el código QR a Cloudinary: Respuesta incompleta")
+                    except Exception as e:
+                        print(f"Error al subir el código QR a Cloudinary: {str(e)}")
+            except Exception as e:
+                print(f"Error al generar el código QR: {str(e)}")
+        
+        # Call the parent save method
         super().save(*args, **kwargs)
 
     def get_main_image(self):
@@ -413,10 +447,13 @@ class ProductImage(models.Model):
     
     def save(self, *args, **kwargs):
         if self.is_main:
-            ProductImage.objects.filter(product=self.product, is_main=True).update(is_main=False)
+            # Use update instead of iterating to avoid recursive issues
+            ProductImage.objects.filter(product=self.product, is_main=True).exclude(id=self.id).update(is_main=False)
         elif not ProductImage.objects.filter(product=self.product).exists():
             self.is_main = True
         super().save(*args, **kwargs)
+
+
         
         
 class StockMovement(models.Model):
