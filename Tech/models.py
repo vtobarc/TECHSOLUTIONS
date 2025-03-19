@@ -32,6 +32,7 @@ from cloudinary.models import CloudinaryField
 import cloudinary
 import cloudinary.uploader
 import cloudinary.api
+from cloudinary.uploader import upload
 
 User = settings.AUTH_USER_MODEL
 
@@ -272,12 +273,11 @@ import qrcode
 import cloudinary
 import cloudinary.uploader
 
+
 def validate_image(image):
-    # Si es None o una cadena (URL de Cloudinary), no validar
     if image is None or isinstance(image, str):
         return
-        
-    # Verificar si la imagen tiene atributo `file.content_type`
+    
     if hasattr(image, 'file') and hasattr(image.file, 'content_type'):
         content_type = image.file.content_type
     else:
@@ -291,7 +291,6 @@ def validate_image(image):
     if content_type not in valid_types:
         raise ValidationError("Formato de imagen no permitido. Usa JPG, PNG o GIF.")
 
-    # Verificar dimensiones si es necesario
     try:
         img = Image.open(image)
         if img.width > 5000 or img.height > 5000:
@@ -407,13 +406,12 @@ class ProductImage(models.Model):
         return f"Image for {self.product.name} ({self.id})"
     
     def save(self, *args, **kwargs):
-        # If this is marked as main image, unmark others
         if self.is_main:
             ProductImage.objects.filter(product=self.product, is_main=True).update(is_main=False)
-        # If this is the first image, make it the main image
         elif not ProductImage.objects.filter(product=self.product).exists():
             self.is_main = True
         super().save(*args, **kwargs)
+        
         
 class StockMovement(models.Model):
     MOVEMENT_TYPES = [
