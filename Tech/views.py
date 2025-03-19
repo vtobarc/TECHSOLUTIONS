@@ -1918,7 +1918,8 @@ def product_list(request):
     products = Product.objects.all().order_by('-created_at')
     return render(request, 'admin_dashboard/products/list.html', {'products': products})
 
-
+# The issue is likely in your product_form view function
+# Here's the fixed version:
 
 @login_required
 @user_passes_test(is_admin)
@@ -1932,38 +1933,49 @@ def product_form(request, product_id=None):
     
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES, instance=product)
-        formset = ProductImageFormSet(request.POST, request.FILES, instance=product)
         
-        if form.is_valid() and formset.is_valid():
+        # Only create the formset after the product is saved
+        if form.is_valid():
             try:
                 with transaction.atomic():
-                    # Guardar el producto primero
-                    product = form.save()
+                    # Save the product first
+                    product = form.save(commit=True)
                     
-                    # Guardar el formset de imágenes
-                    instances = formset.save(commit=False)
+                    # Now create and validate the formset with the saved product
+                    formset = ProductImageFormSet(request.POST, request.FILES, instance=product)
                     
-                    # Procesar las imágenes eliminadas
-                    for obj in formset.deleted_objects:
-                        obj.delete()
-                    
-                    # Guardar las nuevas imágenes y actualizar las existentes
-                    for instance in instances:
-                        instance.product = product
-                        instance.save()
-                    
-                    # Asegurarse de que haya una imagen principal
-                    if not product.images.filter(is_main=True).exists() and product.images.exists():
-                        first_image = product.images.first()
-                        first_image.is_main = True
-                        first_image.save()
-                    
-                    messages.success(request, f"Producto {'actualizado' if product_id else 'creado'} correctamente.")
-                    return redirect('admin_product_list')
-                    
+                    if formset.is_valid():
+                        # Process the formset
+                        instances = formset.save(commit=False)
+                        
+                        # Process deleted images
+                        for obj in formset.deleted_objects:
+                            obj.delete()
+                        
+                        # Save new images and update existing ones
+                        for instance in instances:
+                            # Ensure the product is set
+                            instance.product = product
+                            instance.save()
+                        
+                        # Ensure there's a main image
+                        if not product.images.filter(is_main=True).exists() and product.images.exists():
+                            first_image = product.images.first()
+                            first_image.is_main = True
+                            first_image.save()
+                        
+                        messages.success(request, f"Producto {'actualizado' if product_id else 'creado'} correctamente.")
+                        return redirect('admin_product_list')
+                    else:
+                        # If formset is invalid, raise an exception to rollback the transaction
+                        raise ValidationError("Error en el formulario de imágenes")
+                        
             except Exception as e:
                 logger.error(f"Error al {'actualizar' if product_id else 'crear'} el producto: {str(e)}")
                 messages.error(request, f"Error al {'actualizar' if product_id else 'crear'} el producto: {str(e)}")
+        else:
+            # If the main form is invalid, create an empty formset for rendering
+            formset = ProductImageFormSet(instance=product)
     else:
         form = ProductForm(instance=product)
         formset = ProductImageFormSet(instance=product)
@@ -1977,7 +1989,6 @@ def product_form(request, product_id=None):
     }
     
     return render(request, 'admin_dashboard/products/form.html', context)
-
 
 
 # Vista auxiliar para manejar operaciones AJAX con las imágenes
