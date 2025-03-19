@@ -330,12 +330,13 @@ class Category(models.Model):
 
 def generate_unique_code(length=12):
     return ''.join(random.choices(string.digits, k=length))
-from django.core.files.base import File  # Importa File aquí
+from cloudinary.uploader import upload
+from django.core.files.base import File
 from io import BytesIO
 import barcode
 from barcode.writer import ImageWriter
 import qrcode
-from cloudinary.uploader import upload
+
 class Product(models.Model):
     name = models.CharField(max_length=200)
     code = models.CharField(max_length=50, unique=True)
@@ -363,20 +364,28 @@ class Product(models.Model):
     
     def save(self, *args, **kwargs):
         if not self.barcode and self.code:
+            # Generación del código de barras
             barcode_value = self.code.zfill(12)
             ean = barcode.get('ean13', barcode_value, writer=ImageWriter())
             buffer = BytesIO()
             ean.write(buffer)
-            self.barcode_image.save(f'barcode_{self.code}.png', File(buffer), save=False)
-            self.barcode = ean.get_fullcode()
+            buffer.seek(0)
 
+            # Subir la imagen del código de barras a Cloudinary
+            barcode_image = upload(buffer, folder="barcodes")  # Subir directamente a Cloudinary
+            self.barcode_image = barcode_image['secure_url']  # Guardar la URL de la imagen en el campo de Cloudinary
+
+            # Generación y subida del código QR a Cloudinary
             qr = qrcode.QRCode(version=1, box_size=10, border=5)
             qr.add_data(self.code)
             qr.make(fit=True)
             qr_image = qr.make_image(fill_color="black", back_color="white")
             buffer = BytesIO()
             qr_image.save(buffer, format='PNG')
-            self.qr_code.save(f'qr_{self.code}.png', File(buffer), save=False)
+            buffer.seek(0)
+
+            qr_code_image = upload(buffer, folder="qrcodes")  # Subir directamente a Cloudinary
+            self.qr_code = qr_code_image['secure_url']  # Guardar la URL de la imagen en el campo de Cloudinary
 
         super().save(*args, **kwargs)
     
@@ -389,9 +398,7 @@ class Product(models.Model):
     def get_gallery_images(self):
         return self.images.all()
 
-    
-    
-# Add this new model to your models.py file
+# Modelo para las imágenes del producto
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, related_name='images', on_delete=models.CASCADE)
     image = CloudinaryField('products/gallery', blank=True)  # Usar CloudinaryField
@@ -406,13 +413,14 @@ class ProductImage(models.Model):
         return f"Image for {self.product.name} ({self.id})"
     
     def save(self, *args, **kwargs):
-        # If this is marked as main image, unmark others
+        # Si esta imagen es la principal, desmarcar las demás
         if self.is_main:
             ProductImage.objects.filter(product=self.product, is_main=True).update(is_main=False)
-        # If this is the first image, make it the main image
+        # Si es la primera imagen, hacerla la principal
         elif not ProductImage.objects.filter(product=self.product).exists():
             self.is_main = True
-        super().save(*args, **kwargs) 
+        super().save(*args, **kwargs)
+
         
 class StockMovement(models.Model):
     MOVEMENT_TYPES = [
