@@ -169,7 +169,7 @@
                       <div class="profile-wrapper">
                         <button id="profile-btn" class="profile-button" aria-label="Abrir menú de perfil">
                           {% if user.foto_perfil %}
-                            <img src="{{ user.foto_perfil.url }}" alt="Foto de perfil" class="profile-image">
+                            <img src="{{ user.foto_perfil.url|cloudinary_url:'w_100,h_100,c_fill,g_face,r_max' }}" alt="Foto de perfil" class="profile-image">
                         {% else %}
                             <img src="{% static 'img/placeholder.svg' %}" alt="Profile" class="profile-image">
                             {% endif %}
