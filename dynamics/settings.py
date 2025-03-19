@@ -20,17 +20,35 @@ from dotenv import load_dotenv
 load_dotenv()  # Make sure this is at the top of your file
 MEDIA_URL = 'https://res.cloudinary.com/Intitulado/'
 # CRITICAL: Set Cloudinary environment variables directly
-# These must be set BEFORE any cloudinary imports
-
+# Set Cloudinary credentials with fallbacks
 CLOUDINARY_CLOUD_NAME = os.getenv('CLOUDINARY_CLOUD_NAME', 'Intitulado')
 CLOUDINARY_API_KEY = os.getenv('CLOUDINARY_API_KEY', '844554634418234')
 CLOUDINARY_API_SECRET = os.getenv('CLOUDINARY_API_SECRET', 'FSn6G0MfhIWiyanNcOwvo1bEYF8')
 
+# Set environment variables for libraries that might use them directly
+os.environ['CLOUDINARY_CLOUD_NAME'] = CLOUDINARY_CLOUD_NAME
+os.environ['CLOUDINARY_API_KEY'] = CLOUDINARY_API_KEY
+os.environ['CLOUDINARY_API_SECRET'] = CLOUDINARY_API_SECRET
+os.environ['CLOUDINARY_URL'] = f'cloudinary://{CLOUDINARY_API_KEY}:{CLOUDINARY_API_SECRET}@{CLOUDINARY_CLOUD_NAME}'
+
+# Define the dictionary that cloudinary_storage expects
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': CLOUDINARY_CLOUD_NAME,
     'API_KEY': CLOUDINARY_API_KEY,
     'API_SECRET': CLOUDINARY_API_SECRET,
 }
+
+# Now import cloudinary modules after setting environment variables
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
+
+# Configure cloudinary
+cloudinary.config(
+    cloud_name=CLOUDINARY_CLOUD_NAME,
+    api_key=CLOUDINARY_API_KEY,
+    api_secret=CLOUDINARY_API_SECRET
+)
 pymysql.install_as_MySQLdb()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -54,17 +72,7 @@ ALLOWED_HOSTS = [
 ]
 
 
-# Now import cloudinary modules
-import cloudinary
-import cloudinary.uploader
-import cloudinary.api
 
-# Configure cloudinary with your NEW credentials
-cloudinary.config(
-    cloud_name='Intitulado',
-    api_key='844554634418234',
-    api_secret='FSn6G0MfhIWiyanNcOwvo1bEYF8'
-)
 
 AUTH_USER_MODEL = 'Tech.CustomUser'
 
