@@ -29,6 +29,9 @@ from tinymce.models import HTMLField
 from django.db import models
 from django.db.models import Sum, F
 from cloudinary.models import CloudinaryField
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
 
 User = settings.AUTH_USER_MODEL
 
