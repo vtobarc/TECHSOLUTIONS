@@ -15,6 +15,7 @@ from pathlib import Path
 import pymysql
 import dj_database_url
 from dotenv import load_dotenv
+
 import cloudinary
 import cloudinary.uploader
 import cloudinary.api
@@ -22,6 +23,7 @@ from cloudinary_storage.storage import MediaCloudinaryStorage
 
 # Cargar las variables de entorno
 load_dotenv()
+
 
 # Agrega esta línea para usar la variable de entorno de Cloudinary
 CLOUDINARY_URL = os.getenv('CLOUDINARY_URL')
