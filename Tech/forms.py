@@ -78,20 +78,17 @@ from django.core.files.base import ContentFile
 from .models import Product, ProductImage, Category, StockMovement
 from tinymce.widgets import TinyMCE
 
-# Create a formset for product images
-ProductImageForm = forms.inlineformset_factory(
-    Product, 
-    ProductImage,
-    fields=['image', 'is_main', 'order'],
-    widgets={
-        'image': forms.FileInput(attrs={'class': 'form-control-file'}),
-        'is_main': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-        'order': forms.NumberInput(attrs={'class': 'form-control', 'min': 0})
-    },
-    extra=3,
-    can_delete=True,
-    max_num=10
-)
+class ProductImageForm(forms.ModelForm):
+    class Meta:
+        model = ProductImage
+        fields = ['image', 'is_main', 'order']
+        widgets = {
+            'image': forms.FileInput(attrs={'class': 'form-control-file'}),
+            'is_main': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'order': forms.NumberInput(attrs={'class': 'form-control', 'min': 0})
+        }
+
+
 
 class ProductForm(forms.ModelForm):
     class Meta:
@@ -103,7 +100,7 @@ class ProductForm(forms.ModelForm):
             'image': forms.FileInput(attrs={'class': 'form-control-file'}),
             'features': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Características del producto separa con "," coma cada una'}),
             'color': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Color del producto'})        
-        }
+            }
 
     # Campo 'code' no obligatorio
     code = forms.CharField(
@@ -121,17 +118,14 @@ class ProductForm(forms.ModelForm):
 
     def generate_unique_numeric_code(self):
         while True:
-            # Generar un código numérico aleatorio de 12 dígitos
-            code = ''.join(random.choices('0123456789', k=12))
-            if not Product.objects.filter(code=code).exists():
+            # Generar un código numérico aleatorio de 12 dígitos (puedes ajustarlo según tus necesidades)
+            code = ''.join(random.choices('0123456789', k=12))  # Código numérico de 12 caracteres
+            if not Product.objects.filter(code=code).exists():  # Verificar si el código ya existe
                 break
         return code
-        
     def clean_color(self):
         color = self.cleaned_data.get('color')
-        if not color:  # Si el color está vacío, devolver como está
-            return color
-            
+        
         # Validación de color hexadecimal (ejemplo: #ff6347)
         hex_color_pattern = re.compile(r'^#[0-9A-Fa-f]{6}$')
         
@@ -143,58 +137,33 @@ class ProductForm(forms.ModelForm):
         
         return color
 
+    # Asegúrate de generar el código de barras y QR solo si es necesario
     def save(self, commit=True):
-        product = super().save(commit=False)
-        
         # Si el código está vacío, generarlo antes de guardar
-        if not product.code:
-            product.code = self.generate_unique_numeric_code()
-            print(f"Generando código para el producto: {product.name}")
+        if not self.instance.code:
+            self.instance.code = self.generate_unique_numeric_code()
 
-        # Primero guardar el producto para tener un ID
-        if commit:
-            product.save()
-            
-            # Ahora generar el código de barras y QR si es necesario
-            try:
-                # Generar el código de barras si no existe
-                if not product.barcode:
-                    print(f"Generando código de barras para el producto: {product.name}")
-                    barcode_value = product.code.zfill(12)
-                    ean = get_barcode_class('ean13')(barcode_value, writer=ImageWriter())
-                    buffer = BytesIO()
-                    ean.write(buffer)
-                    buffer.seek(0)
-                    
-                    # Usar ContentFile en lugar de File
-                    filename = f'barcode_{product.code}.png'
-                    product.barcode_image.save(filename, ContentFile(buffer.getvalue()), save=False)
-                    product.barcode = ean.get_fullcode()
-                
-                # Generar el código QR si no existe
-                if not product.qr_code:
-                    print(f"Generando código QR para el producto: {product.name}")
-                    import qrcode
-                    qr = qrcode.QRCode(version=1, box_size=10, border=5)
-                    qr.add_data(product.code)
-                    qr.make(fit=True)
-                    qr_image = qr.make_image(fill_color="black", back_color="white")
-                    buffer = BytesIO()
-                    qr_image.save(buffer, format='PNG')
-                    buffer.seek(0)
-                    
-                    # Usar ContentFile en lugar de File
-                    filename = f'qr_{product.code}.png'
-                    product.qr_code.save(filename, ContentFile(buffer.getvalue()), save=False)
-                
-                # Guardar el producto con los códigos generados
-                product.save()
-                
-            except Exception as e:
-                print(f"Error al generar códigos: {str(e)}")
-                # Continuar incluso si hay un error en la generación de códigos
-        
-        return product
+        # Generar el código de barras y QR
+        if not self.instance.barcode:
+            barcode_value = self.instance.code
+            ean = get_barcode_class('ean13')(barcode_value, writer=ImageWriter())
+            buffer = BytesIO()
+            ean.write(buffer)
+            self.instance.barcode_image.save(f'barcode_{self.instance.code}.png', File(buffer), save=False)
+            self.instance.barcode = ean.get_fullcode()
+
+        if not self.instance.qr_code:
+            import qrcode
+            qr = qrcode.QRCode(version=1, box_size=10, border=5)
+            qr.add_data(self.instance.code)
+            qr.make(fit=True)
+            qr_image = qr.make_image(fill_color="black", back_color="white")
+            buffer = BytesIO()
+            qr_image.save(buffer, format='PNG')
+            self.instance.qr_code.save(f'qr_{self.instance.code}.png', File(buffer), save=False)
+
+        return super().save(commit=commit)
+
 
 class StockMovementForm(forms.ModelForm):
     class Meta:
@@ -242,6 +211,7 @@ class StockMovementForm(forms.ModelForm):
 # inventory/forms.py (Agregar el CategoryForm)
 from django import forms
 from .models import Category
+
 class CategoryForm(forms.ModelForm):
     class Meta:
         model = Category
