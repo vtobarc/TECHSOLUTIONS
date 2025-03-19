@@ -15,6 +15,10 @@ from pathlib import Path
 import pymysql
 import dj_database_url
 from dotenv import load_dotenv
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
+from cloudinary_storage.storage import MediaCloudinaryStorage
 
 # Cargar las variables de entorno
 load_dotenv()
@@ -171,6 +175,17 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+# Agrega esta línea para usar la variable de entorno de Cloudinary
+CLOUDINARY_URL = os.getenv("CLOUDINARY_URL")
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': 'tu_cloud_name',
+    'API_KEY': 'tu_api_key',
+    'API_SECRET': 'tu_api_secret'
+}
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 
 # Internationalization
