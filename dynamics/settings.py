@@ -23,6 +23,9 @@ from cloudinary_storage.storage import MediaCloudinaryStorage
 # Cargar las variables de entorno
 load_dotenv()
 
+# Agrega esta línea para usar la variable de entorno de Cloudinary
+CLOUDINARY_URL = os.getenv("CLOUDINARY_URL")
+
 pymysql.install_as_MySQLdb()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -178,18 +181,14 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# Agrega esta línea para usar la variable de entorno de Cloudinary
-CLOUDINARY_URL = os.getenv("CLOUDINARY_URL")
 
 CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': 'tu_cloud_name',
-    'API_KEY': 'tu_api_key',
-    'API_SECRET': 'tu_api_secret'
+    'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
+    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
 }
 
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
@@ -217,7 +216,7 @@ STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Configuración para los archivos multimedia
-MEDIA_URL = 'https://res.cloudinary.com/tu_cloud_name/'
+MEDIA_URL = 'https://res.cloudinary.com/' + os.getenv('CLOUDINARY_CLOUD_NAME') + '/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
