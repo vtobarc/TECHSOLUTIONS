@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Explicit configuration
-CLOUDINARY_CLOUD_NAME = 'intitulado'  # Hardcoded from your env vars
+CLOUDINARY_CLOUD_NAME = 'dshj58ucs'  # Your correct cloud name
 CLOUDINARY_API_KEY = '241739348942567'  # Hardcoded from your env vars
 CLOUDINARY_API_SECRET = 'wWcQab-9C_R0poTu8p5aOaAhvSk'  # Hardcoded from your env vars
 
