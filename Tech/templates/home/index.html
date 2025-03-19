@@ -3,6 +3,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load cloudinary %}
+
 {% block title %}TechVanguard_Inicio{% endblock %}
 
 {% block extra_css %}
@@ -207,17 +208,20 @@
       <div class="categoria">
         <h3>{{ categoria.name }}</h3>
         <div class="categoria-items">
-          {% if productos %}
-          {% for producto in productos|slice:":3" %}
+         {% if productos %}
+            {% for producto in productos|slice:":3" %}
               {% if producto.get_main_image %}
-                  <img src="{{ product.get_main_image.url|cloudinary_url:'w_600,h_600,c_fill,q_auto' }}" alt="{{ producto.name }}">
+                <!-- Aplicar el filtro cloudinary_url correctamente sobre la URL de la imagen -->
+                <img src="{{ producto.get_main_image.url | cloudinary_url:'w_600,h_600,c_fill,q_auto' }}" alt="{{ producto.name }}">
               {% elif producto.image %}
-                  <img src="{{ image.image.url|cloudinary_url:'w_100,h_100,c_fill,q_auto' }}" alt="{{ producto.name }}">
+                <!-- Si el producto tiene una imagen adicional -->
+                <img src="{{ producto.image.url | cloudinary_url:'w_100,h_100,c_fill,q_auto' }}" alt="{{ producto.name }}">
               {% else %}
-                  <img src="https://placehold.co/400x300" alt="Producto sin imagen">
+                <!-- Imagen predeterminada si no tiene imagen -->
+                <img src="https://placehold.co/400x300" alt="Producto sin imagen">
               {% endif %}
-          {% endfor %}
-      {% else %}
+            {% endfor %}
+          {% else %}
           
             <p class="no-products">No hay productos en esta categoría.</p>
             
