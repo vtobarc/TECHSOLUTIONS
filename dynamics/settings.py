@@ -24,7 +24,7 @@ from cloudinary_storage.storage import MediaCloudinaryStorage
 load_dotenv()
 
 # Agrega esta línea para usar la variable de entorno de Cloudinary
-CLOUDINARY_URL = os.getenv("CLOUDINARY_URL")
+CLOUDINARY_URL = os.getenv('CLOUDINARY_URL')
 
 pymysql.install_as_MySQLdb()
 
