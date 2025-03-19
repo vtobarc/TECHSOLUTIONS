@@ -41,3 +41,22 @@ def multiply(value, arg):
         return value * arg
     except (ValueError, TypeError):
         return 0
+from django import template
+import cloudinary
+import cloudinary.uploader
+
+register = template.Library()
+
+@register.filter
+def cloudinary_url(value, transformation=''):
+    """
+    Este filtro toma un objeto de imagen y devuelve la URL de Cloudinary, 
+    con una transformación opcional.
+    """
+    if value:
+        # Verifica si el valor es un objeto de imagen de Cloudinary
+        if hasattr(value, 'url'):
+            # Aplica la transformación si se proporciona
+            return cloudinary.CloudinaryImage(value.name).build_url(transformation=transformation)
+    return value  # Devuelve el valor original si no es una imagen válida
+
