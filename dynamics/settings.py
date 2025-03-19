@@ -49,7 +49,12 @@ cloudinary.config(
     api_key=CLOUDINARY_API_KEY,
     api_secret=CLOUDINARY_API_SECRET
 )
-
+# Test upload a simple file
+try:
+    result = cloudinary.uploader.upload("https://res.cloudinary.com/demo/image/upload/sample.jpg")
+    print("Success! Uploaded to:", result['url'])
+except Exception as e:
+    print("Error:", e)
 pymysql.install_as_MySQLdb()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
