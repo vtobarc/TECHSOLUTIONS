@@ -21,7 +21,7 @@ load_dotenv()  # Make sure this is at the top of your file
 MEDIA_URL = 'https://res.cloudinary.com/Intitulado/'
 # CRITICAL: Set Cloudinary environment variables directly
 # Set Cloudinary credentials with fallbacks
-CLOUDINARY_CLOUD_NAME = os.getenv('CLOUDINARY_CLOUD_NAME', 'Intitulado')
+CLOUDINARY_CLOUD_NAME = os.getenv('CLOUDINARY_CLOUD_NAME', 'dshj58ucs')
 CLOUDINARY_API_KEY = os.getenv('CLOUDINARY_API_KEY', '844554634418234')
 CLOUDINARY_API_SECRET = os.getenv('CLOUDINARY_API_SECRET', 'FSn6G0MfhIWiyanNcOwvo1bEYF8')
 
