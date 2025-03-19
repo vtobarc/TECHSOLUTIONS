@@ -212,7 +212,7 @@
               {% if producto.get_main_image %}
                   <img src="{{ producto.get_main_image.url }}" alt="{{ producto.name }}">
               {% elif producto.image %}
-                  <img src="{{ producto.image.url }}" alt="{{ producto.name }}">
+                  <img src="{{ image.image.url|cloudinary_url:'w_100,h_100,c_fill,q_auto' }}" alt="{{ producto.name }}">
               {% else %}
                   <img src="https://placehold.co/400x300" alt="Producto sin imagen">
               {% endif %}
