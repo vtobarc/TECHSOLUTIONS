@@ -23,6 +23,20 @@ from cloudinary_storage.storage import MediaCloudinaryStorage
 # Cloudinary configuration
 load_dotenv()  # Make sure this is at the top of your file
 
+# CRITICAL: Set Cloudinary environment variables directly
+# These must be set BEFORE any cloudinary imports
+os.environ['CLOUDINARY_CLOUD_NAME'] = 'intitulado'
+os.environ['CLOUDINARY_API_KEY'] = '241739348942567'
+os.environ['CLOUDINARY_API_SECRET'] = 'wWcQab-9C_R0poTu8p5aOaAhvSk'
+os.environ['CLOUDINARY_URL'] = 'cloudinary://241739348942567:wWcQab-9C_R0poTu8p5aOaAhvSk@intitulado'
+
+# Now define the CLOUDINARY_STORAGE dictionary
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': 'intitulado',
+    'API_KEY': '241739348942567',
+    'API_SECRET': 'wWcQab-9C_R0poTu8p5aOaAhvSk',
+}
+
 pymysql.install_as_MySQLdb()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -44,14 +58,6 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     # También puedes agregar otros dominios si es necesario
 ]
-# Import Cloudinary settings first
-from dynamics.cloudinary_settings import CLOUDINARY_STORAGE, CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET
-
-# Now import cloudinary modules
-import cloudinary
-import cloudinary.uploader
-import cloudinary.api
-from cloudinary_storage.storage import MediaCloudinaryStorage
 
 # Configure cloudinary
 cloudinary.config(
