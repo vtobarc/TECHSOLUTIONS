@@ -20,24 +20,26 @@ import cloudinary
 import cloudinary.uploader
 import cloudinary.api
 from cloudinary_storage.storage import MediaCloudinaryStorage
+# Cloudinary configuration
+load_dotenv()  # Make sure this is at the top of your file
 
-# Cargar las variables de entorno
-load_dotenv()
-
-CLOUDINARY_URL = os.getenv('CLOUDINARY_URL')  # Carga la URL completa
-
-# Si prefieres, también puedes cargar las credenciales por separado:
+# Get Cloudinary credentials from environment variables
 CLOUDINARY_CLOUD_NAME = os.getenv('CLOUDINARY_CLOUD_NAME')
 CLOUDINARY_API_KEY = os.getenv('CLOUDINARY_API_KEY')
 CLOUDINARY_API_SECRET = os.getenv('CLOUDINARY_API_SECRET')
 
-# Configurar Cloudinary
-cloudinary.config(
-    cloud_name=CLOUDINARY_CLOUD_NAME,
-    api_key=CLOUDINARY_API_KEY,
-    api_secret=CLOUDINARY_API_SECRET
-)
+# Configure Cloudinary
+# Set Cloudinary configuration from URL
+cloudinary.config(cloud_name='intitulado', 
+                 api_key='241739348942567', 
+                 api_secret='wWcQab-9C_R0poTu8p5aOaAhvSk')
 
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': 'intitulado',
+    'API_KEY': '241739348942567',
+    'API_SECRET': 'wWcQab-9C_R0poTu8p5aOaAhvSk',
+}
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 pymysql.install_as_MySQLdb()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -193,14 +195,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': CLOUDINARY_CLOUD_NAME,
-    'API_KEY': CLOUDINARY_API_KEY,
-    'API_SECRET': CLOUDINARY_API_SECRET,
-}
-
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
