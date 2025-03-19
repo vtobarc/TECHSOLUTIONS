@@ -50,6 +50,8 @@ AUTH_USER_MODEL = 'Tech.CustomUser'
 # Application definition
 
 INSTALLED_APPS = [
+    'cloudinary_storage',
+    'cloudinary',
     'Tech',
     'social_django',
     'tinymce',
@@ -215,7 +217,7 @@ STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Configuración para los archivos multimedia
-MEDIA_URL = '/media/'
+MEDIA_URL = 'https://res.cloudinary.com/tu_cloud_name/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
