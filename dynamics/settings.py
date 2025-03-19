@@ -15,7 +15,7 @@ from pathlib import Path
 import pymysql
 import dj_database_url
 from dotenv import load_dotenv
-
+from .cloudinary_config import CLOUDINARY_STORAGE, CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET
 # Cloudinary configuration
 load_dotenv()  # Make sure this is at the top of your file
 MEDIA_URL = 'https://res.cloudinary.com/Intitulado/'
@@ -43,12 +43,13 @@ import cloudinary
 import cloudinary.uploader
 import cloudinary.api
 
-# Configure cloudinary
+# Configure cloudinary directly
 cloudinary.config(
     cloud_name=CLOUDINARY_CLOUD_NAME,
     api_key=CLOUDINARY_API_KEY,
     api_secret=CLOUDINARY_API_SECRET
 )
+
 pymysql.install_as_MySQLdb()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -238,7 +239,7 @@ SOCIAL_AUTH_LOGIN_ERROR_URL = 'user_login'
 # Configuración para los archivos estáticos
 STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-
+os.makedirs(os.path.join(BASE_DIR, 'static', 'img'), exist_ok=True)
 # Configuración para los archivos multimedia
 MEDIA_URL = 'https://res.cloudinary.com/' + os.getenv('CLOUDINARY_CLOUD_NAME') + '/'
 
