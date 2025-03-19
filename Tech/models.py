@@ -180,7 +180,7 @@ class Company(models.Model):
         return self.name
 class Certification(models.Model):
     name_certification = models.CharField(max_length=255)
-    logos = models.ImageField(upload_to='certifications/', blank=True, null=True)
+    logos = CloudinaryField('imagen', folder='certifications/', blank=True, null=True)
     expiry_date = models.DateField(null=True, blank=True)  # Campo de expiración
 
     def __str__(self):
@@ -192,7 +192,7 @@ class Employee(models.Model):
     position = models.CharField(max_length=255)
     email = models.EmailField()
     phone = models.CharField(max_length=20, blank=True, null=True)
-    profile_picture = models.ImageField(upload_to='employees/', blank=True, null=True)
+    profile_picture = CloudinaryField('imagen', folder='employees/', blank=True, null=True)
 
     def __str__(self):
         return f"{self.name} - {self.position}"
@@ -321,8 +321,8 @@ class Product(models.Model):
     name = models.CharField(max_length=200)
     code = models.CharField(max_length=50, unique=True)
     barcode = models.CharField(max_length=100, unique=True, blank=True)
-    barcode_image = models.ImageField(upload_to='barcodes/', blank=True)
-    qr_code = models.ImageField(upload_to='qrcodes/', blank=True)
+    barcode_image = CloudinaryField('imagen', folder='barcodes/', blank=True, null=True)
+    qr_code = CloudinaryField('imagen', folder='qrcodes/', blank=True, null=True)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
     description = HTMLField(blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
@@ -343,22 +343,34 @@ class Product(models.Model):
     def __str__(self):
         return f"{self.name} - {self.code}"
     
-    def save(self, *args, **kwargs):
+   def save(self, *args, **kwargs):
+        # Modificado para trabajar con Cloudinary
         if not self.barcode and self.code:
+            # Generar código de barras
             barcode_value = self.code.zfill(12)
             ean = barcode.get('ean13', barcode_value, writer=ImageWriter())
             buffer = BytesIO()
             ean.write(buffer)
-            self.barcode_image.save(f'barcode_{self.code}.png', File(buffer), save=False)
+            buffer.seek(0)
+            
+            # Guardar en Cloudinary
+            from cloudinary.uploader import upload
+            barcode_result = upload(buffer, folder="barcodes", public_id=f"barcode_{self.code}")
+            self.barcode_image = barcode_result['url']
             self.barcode = ean.get_fullcode()
 
+            # Generar código QR
             qr = qrcode.QRCode(version=1, box_size=10, border=5)
             qr.add_data(self.code)
             qr.make(fit=True)
             qr_image = qr.make_image(fill_color="black", back_color="white")
             buffer = BytesIO()
             qr_image.save(buffer, format='PNG')
-            self.qr_code.save(f'qr_{self.code}.png', File(buffer), save=False)
+            buffer.seek(0)
+            
+            # Guardar en Cloudinary
+            qr_result = upload(buffer, folder="qrcodes", public_id=f"qr_{self.code}")
+            self.qr_code = qr_result['url']
 
         super().save(*args, **kwargs)
     
@@ -366,16 +378,17 @@ class Product(models.Model):
         main_image = self.images.filter(is_main=True).first()
         if main_image:
             return main_image.image
-        return self.image  # Fallback to the original image field
+        return self.image
         
     def get_gallery_images(self):
         return self.images.all()
+        
     
     
 # Add this new model to your models.py file
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, related_name='images', on_delete=models.CASCADE)
-    image = models.ImageField(upload_to='products/gallery/', validators=[validate_image])
+    image = CloudinaryField('imagen', folder='products/gallery/', blank=True, null=True)
     is_main = models.BooleanField(default=False)
     order = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
