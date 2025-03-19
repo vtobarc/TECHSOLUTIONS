@@ -10,6 +10,7 @@ import magic
 from django import forms
 from .models import Product, Category, StockMovement
 from tinymce.widgets import TinyMCE
+from django.contrib.auth.decorators import login_required
 
 class CustomUserCreationForm(UserCreationForm):
     cedula = forms.CharField(
