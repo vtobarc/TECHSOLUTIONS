@@ -241,7 +241,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Configuración para los archivos multimedia
 MEDIA_URL = 'https://res.cloudinary.com/' + os.getenv('CLOUDINARY_CLOUD_NAME') + '/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
