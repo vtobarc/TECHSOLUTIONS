@@ -272,7 +272,10 @@ from barcode.writer import ImageWriter
 import qrcode
 import cloudinary
 import cloudinary.uploader
+import logging
 
+# Set up logging
+logger = logging.getLogger(__name__)
 
 def validate_image(image):
     if image is None or isinstance(image, str):
@@ -326,11 +329,10 @@ class Category(models.Model):
 def generate_unique_code(length=12):
     return ''.join(random.choices(string.digits, k=length))
     
-
 class Product(models.Model):
     name = models.CharField(max_length=200)
-    code = models.CharField(max_length=50, unique=True)
-    barcode = models.CharField(max_length=100, unique=True, blank=True)
+    code = models.CharField(max_length=50, unique=True, blank=True)  # Made blank=True to handle auto-generation
+    barcode = models.CharField(max_length=100, unique=True, blank=True, null=True)  # Added null=True
     barcode_image = CloudinaryField('imagen', folder='barcodes/', blank=True, null=True)
     qr_code = CloudinaryField('imagen', folder='qrcodes/', blank=True, null=True)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
@@ -356,72 +358,78 @@ class Product(models.Model):
         # Generate code if not provided
         if not self.code:
             self.code = generate_unique_code()
+            logger.debug(f"Generated code: {self.code}")
         
-        # Only generate barcode if it doesn't exist yet
-        if not self.barcode:
-            try:
-                # Generate barcode
-                barcode_value = self.code.zfill(12)
-                ean = barcode.get('ean13', barcode_value, writer=ImageWriter())
-                barcode_buffer = BytesIO()
-                ean.write(barcode_buffer)
-                barcode_buffer.seek(0)
-                
-                # Check if Cloudinary is properly configured
-                if not hasattr(cloudinary, 'config') or not cloudinary.config().cloud_name:
-                    print("Cloudinary no está configurado correctamente")
-                else:
-                    # Upload barcode to Cloudinary
-                    try:
-                        barcode_result = cloudinary.uploader.upload(
-                            barcode_buffer, 
-                            folder="barcodes", 
-                            public_id=f"barcode_{self.code}"
-                        )
-                        if barcode_result and 'url' in barcode_result:
-                            self.barcode_image = barcode_result['url']
-                            self.barcode = ean.get_fullcode()
-                        else:
-                            print("Error al subir el código de barras a Cloudinary: Respuesta incompleta")
-                    except Exception as e:
-                        print(f"Error al subir el código de barras a Cloudinary: {str(e)}")
-            except Exception as e:
-                print(f"Error al generar el código de barras: {str(e)}")
+        # Skip Cloudinary uploads if we're in a transaction or if it's not configured
+        skip_cloudinary = kwargs.pop('skip_cloudinary', False)
         
-        # Only generate QR code if it doesn't exist yet
-        if not self.qr_code:
-            try:
-                # Generate QR code
-                qr = qrcode.QRCode(version=1, box_size=10, border=5)
-                qr.add_data(self.code)
-                qr.make(fit=True)
-                qr_image = qr.make_image(fill_color="black", back_color="white")
-                qr_buffer = BytesIO()
-                qr_image.save(qr_buffer, format='PNG')
-                qr_buffer.seek(0)
-                
-                # Check if Cloudinary is properly configured
-                if not hasattr(cloudinary, 'config') or not cloudinary.config().cloud_name:
-                    print("Cloudinary no está configurado correctamente")
-                else:
-                    # Upload QR code to Cloudinary
-                    try:
-                        qr_result = cloudinary.uploader.upload(
-                            qr_buffer, 
-                            folder="qrcodes", 
-                            public_id=f"qr_{self.code}"
-                        )
-                        if qr_result and 'url' in qr_result:
-                            self.qr_code = qr_result['url']
-                        else:
-                            print("Error al subir el código QR a Cloudinary: Respuesta incompleta")
-                    except Exception as e:
-                        print(f"Error al subir el código QR a Cloudinary: {str(e)}")
-            except Exception as e:
-                print(f"Error al generar el código QR: {str(e)}")
+        if not skip_cloudinary:
+            # Only generate barcode if it doesn't exist yet
+            if not self.barcode:
+                try:
+                    # Generate barcode
+                    barcode_value = self.code.zfill(12)
+                    ean = barcode.get('ean13', barcode_value, writer=ImageWriter())
+                    barcode_buffer = BytesIO()
+                    ean.write(barcode_buffer)
+                    barcode_buffer.seek(0)
+                    
+                    # Check if Cloudinary is properly configured
+                    if hasattr(cloudinary, 'config') and cloudinary.config().cloud_name:
+                        try:
+                            barcode_result = cloudinary.uploader.upload(
+                                barcode_buffer, 
+                                folder="barcodes", 
+                                public_id=f"barcode_{self.code}"
+                            )
+                            if barcode_result and 'url' in barcode_result:
+                                self.barcode_image = barcode_result['url']
+                                self.barcode = ean.get_fullcode()
+                                logger.debug(f"Barcode uploaded: {self.barcode}")
+                            else:
+                                logger.error("Error al subir el código de barras a Cloudinary: Respuesta incompleta")
+                        except Exception as e:
+                            logger.error(f"Error al subir el código de barras a Cloudinary: {str(e)}")
+                    else:
+                        logger.warning("Cloudinary no está configurado correctamente, omitiendo la carga del código de barras")
+                except Exception as e:
+                    logger.error(f"Error al generar el código de barras: {str(e)}")
+            
+            # Only generate QR code if it doesn't exist yet
+            if not self.qr_code:
+                try:
+                    # Generate QR code
+                    qr = qrcode.QRCode(version=1, box_size=10, border=5)
+                    qr.add_data(self.code)
+                    qr.make(fit=True)
+                    qr_image = qr.make_image(fill_color="black", back_color="white")
+                    qr_buffer = BytesIO()
+                    qr_image.save(qr_buffer, format='PNG')
+                    qr_buffer.seek(0)
+                    
+                    # Check if Cloudinary is properly configured
+                    if hasattr(cloudinary, 'config') and cloudinary.config().cloud_name:
+                        try:
+                            qr_result = cloudinary.uploader.upload(
+                                qr_buffer, 
+                                folder="qrcodes", 
+                                public_id=f"qr_{self.code}"
+                            )
+                            if qr_result and 'url' in qr_result:
+                                self.qr_code = qr_result['url']
+                                logger.debug(f"QR code uploaded for code: {self.code}")
+                            else:
+                                logger.error("Error al subir el código QR a Cloudinary: Respuesta incompleta")
+                        except Exception as e:
+                            logger.error(f"Error al subir el código QR a Cloudinary: {str(e)}")
+                    else:
+                        logger.warning("Cloudinary no está configurado correctamente, omitiendo la carga del código QR")
+                except Exception as e:
+                    logger.error(f"Error al generar el código QR: {str(e)}")
         
         # Call the parent save method
-        super().save(*args, **kwargs)
+        super(Product, self).save(*args, **kwargs)
+        logger.debug(f"Product saved: {self.name} (ID: {self.id})")
 
     def get_main_image(self):
         main_image = self.images.filter(is_main=True).first()
@@ -446,15 +454,21 @@ class ProductImage(models.Model):
         return f"Image for {self.product.name} ({self.id})"
     
     def save(self, *args, **kwargs):
+        # Make sure product is not None before proceeding
+        if self.product is None:
+            logger.error("Cannot save ProductImage: product is None")
+            raise ValidationError("Product cannot be None when saving ProductImage")
+            
         if self.is_main:
             # Use update instead of iterating to avoid recursive issues
-            ProductImage.objects.filter(product=self.product, is_main=True).exclude(id=self.id).update(is_main=False)
+            ProductImage.objects.filter(product=self.product, is_main=True).exclude(id=self.id or 0).update(is_main=False)
         elif not ProductImage.objects.filter(product=self.product).exists():
             self.is_main = True
-        super().save(*args, **kwargs)
+            
+        super(ProductImage, self).save(*args, **kwargs)
+        logger.debug(f"ProductImage saved for product: {self.product.name} (ID: {self.product.id})")
 
 
-        
         
 class StockMovement(models.Model):
     MOVEMENT_TYPES = [
