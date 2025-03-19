@@ -340,15 +340,15 @@ class Product(models.Model):
     name = models.CharField(max_length=200)
     code = models.CharField(max_length=50, unique=True)
     barcode = models.CharField(max_length=100, unique=True, blank=True)
-    barcode_image = models.ImageField(upload_to='barcodes/', blank=True)
-    qr_code = models.ImageField(upload_to='qrcodes/', blank=True)
+    barcode_image = CloudinaryField('barcodes', blank=True)  # Usar CloudinaryField
+    qr_code = CloudinaryField('qrcodes', blank=True)  # Usar CloudinaryField
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
     description = HTMLField(blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     cost = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     stock = models.IntegerField(default=0)
     minimum_stock = models.IntegerField(default=0)
-    image = models.ImageField(upload_to='products/', validators=[validate_image], blank=True)
+    image = CloudinaryField('products', blank=True)  # Usar CloudinaryField
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_available = models.BooleanField(default=True)
@@ -367,6 +367,7 @@ class Product(models.Model):
             ean = barcode.get('ean13', barcode_value, writer=ImageWriter())
             buffer = BytesIO()
             ean.write(buffer)
+            # Guardamos en Cloudinary
             self.barcode_image.save(f'barcode_{self.code}.png', File(buffer), save=False)
             self.barcode = ean.get_fullcode()
 
@@ -376,6 +377,7 @@ class Product(models.Model):
             qr_image = qr.make_image(fill_color="black", back_color="white")
             buffer = BytesIO()
             qr_image.save(buffer, format='PNG')
+            # Guardamos en Cloudinary
             self.qr_code.save(f'qr_{self.code}.png', File(buffer), save=False)
 
         super().save(*args, **kwargs)
@@ -394,7 +396,7 @@ class Product(models.Model):
 # Add this new model to your models.py file
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, related_name='images', on_delete=models.CASCADE)
-    image = models.ImageField(upload_to='products/gallery/', validators=[validate_image])
+    image = CloudinaryField('products/gallery', blank=True)  # Usar CloudinaryField
     is_main = models.BooleanField(default=False)
     order = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -406,10 +408,8 @@ class ProductImage(models.Model):
         return f"Image for {self.product.name} ({self.id})"
     
     def save(self, *args, **kwargs):
-        # If this is marked as main image, unmark others
         if self.is_main:
             ProductImage.objects.filter(product=self.product, is_main=True).update(is_main=False)
-        # If this is the first image, make it the main image
         elif not ProductImage.objects.filter(product=self.product).exists():
             self.is_main = True
         super().save(*args, **kwargs)
