@@ -26,15 +26,15 @@ load_dotenv()  # Make sure this is at the top of your file
 # CRITICAL: Set Cloudinary environment variables directly
 # These must be set BEFORE any cloudinary imports
 os.environ['CLOUDINARY_CLOUD_NAME'] = 'intitulado'
-os.environ['CLOUDINARY_API_KEY'] = '241739348942567'
-os.environ['CLOUDINARY_API_SECRET'] = 'wWcQab-9C_R0poTu8p5aOaAhvSk'
-os.environ['CLOUDINARY_URL'] = 'cloudinary://241739348942567:wWcQab-9C_R0poTu8p5aOaAhvSk@intitulado'
+os.environ['CLOUDINARY_API_KEY'] = '844554634418234'
+os.environ['CLOUDINARY_API_SECRET'] = 'FSn6G0MfhIWiyanNcOwvo1bEYF8'
+os.environ['CLOUDINARY_URL'] = 'cloudinary://844554634418234:FSn6G0MfhIWiyanNcOwvo1bEYF8@intitulado'
 
 # Now define the CLOUDINARY_STORAGE dictionary
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': 'intitulado',
-    'API_KEY': '241739348942567',
-    'API_SECRET': 'wWcQab-9C_R0poTu8p5aOaAhvSk',
+    'API_KEY': '844554634418234',
+    'API_SECRET': 'FSn6G0MfhIWiyanNcOwvo1bEYF8',
 }
 
 pymysql.install_as_MySQLdb()
