@@ -277,6 +277,7 @@ import logging
 # Set up logging
 logger = logging.getLogger(__name__)
 
+
 def validate_image(image):
     if image is None or isinstance(image, str):
         return
@@ -467,6 +468,7 @@ class ProductImage(models.Model):
             
         super(ProductImage, self).save(*args, **kwargs)
         logger.debug(f"ProductImage saved for product: {self.product.name} (ID: {self.product.id})")
+
 
 
         
