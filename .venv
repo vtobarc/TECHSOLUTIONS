@@ -1,9 +1,9 @@
 DATABASE_URL=mysql://root:JnixKAaTjIVuyanfltZgrvGdWIPmqeKh@mysql.railway.internal:3306/railway
 SECRET_KEY=django-insecure-oui28d+89j$e!q#t5a44&q5v5gpbfrw1e)=*0eo-um2bn12f2o
 CLOUDINARY_CLOUD_NAME=intitulado
-CLOUDINARY_API_KEY=241739348942567
-CLOUDINARY_API_SECRET=wWcQab-9C_R0poTu8p5aOaAhvSk
-CLOUDINARY_URL=cloudinary://241739348942567:wWcQab-9C_R0poTu8p5aOaAhvSk@intitulado
+CLOUDINARY_API_KEY=844554634418234
+CLOUDINARY_API_SECRET=FSn6G0MfhIWiyanNcOwvo1bEYF8
+CLOUDINARY_URL=cloudinary://844554634418234:FSn6G0MfhIWiyanNcOwvo1bEYF8@intitulado
 
 
 
