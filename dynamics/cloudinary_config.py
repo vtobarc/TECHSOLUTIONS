@@ -1,13 +1,18 @@
-
 import os
 import cloudinary
 import cloudinary.uploader
 import cloudinary.api
 
-# IMPORTANT: Cloudinary cloud names are case-sensitive and should be lowercase
-CLOUDINARY_CLOUD_NAME = 'intitulado'  # Make sure this is lowercase
-CLOUDINARY_API_KEY = '844554634418234'
-CLOUDINARY_API_SECRET = 'FSn6G0MfhIWiyanNcOwvo1bEYF8'
+# CRITICAL: Use your actual Cloudinary cloud name
+CLOUDINARY_CLOUD_NAME = 'dshj58ucs'  # Your correct cloud name
+CLOUDINARY_API_KEY = 'YOUR_API_KEY'  # Replace with your actual API key
+CLOUDINARY_API_SECRET = 'YOUR_API_SECRET'  # Replace with your actual API secret
+
+# Set environment variables directly (some libraries check these)
+os.environ['CLOUDINARY_CLOUD_NAME'] = CLOUDINARY_CLOUD_NAME
+os.environ['CLOUDINARY_API_KEY'] = CLOUDINARY_API_KEY
+os.environ['CLOUDINARY_API_SECRET'] = CLOUDINARY_API_SECRET
+os.environ['CLOUDINARY_URL'] = f'cloudinary://{CLOUDINARY_API_KEY}:{CLOUDINARY_API_SECRET}@{CLOUDINARY_CLOUD_NAME}'
 
 # Configure cloudinary directly
 cloudinary.config(
