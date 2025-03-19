@@ -23,23 +23,6 @@ from cloudinary_storage.storage import MediaCloudinaryStorage
 # Cloudinary configuration
 load_dotenv()  # Make sure this is at the top of your file
 
-# Get Cloudinary credentials from environment variables
-CLOUDINARY_CLOUD_NAME = os.getenv('CLOUDINARY_CLOUD_NAME')
-CLOUDINARY_API_KEY = os.getenv('CLOUDINARY_API_KEY')
-CLOUDINARY_API_SECRET = os.getenv('CLOUDINARY_API_SECRET')
-
-# Configure Cloudinary
-# Set Cloudinary configuration from URL
-cloudinary.config(cloud_name='intitulado', 
-                 api_key='241739348942567', 
-                 api_secret='wWcQab-9C_R0poTu8p5aOaAhvSk')
-
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': 'intitulado',
-    'API_KEY': '241739348942567',
-    'API_SECRET': 'wWcQab-9C_R0poTu8p5aOaAhvSk',
-}
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 pymysql.install_as_MySQLdb()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -61,6 +44,21 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     # También puedes agregar otros dominios si es necesario
 ]
+# Import Cloudinary settings first
+from dynamics.cloudinary_settings import CLOUDINARY_STORAGE, CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET
+
+# Now import cloudinary modules
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
+from cloudinary_storage.storage import MediaCloudinaryStorage
+
+# Configure cloudinary
+cloudinary.config(
+    cloud_name=CLOUDINARY_CLOUD_NAME,
+    api_key=CLOUDINARY_API_KEY,
+    api_secret=CLOUDINARY_API_SECRET
+)
 
 AUTH_USER_MODEL = 'Tech.CustomUser'
 
@@ -81,6 +79,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'whitenoise.runserver_nostatic'
 ]
+
+# Now set the default storage
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
 TINYMCE_DEFAULT_CONFIG = {
     "height": 400,
     "menubar": True,
