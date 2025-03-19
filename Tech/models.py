@@ -261,13 +261,22 @@ from django.core.exceptions import ValidationError
 from django.core.files.base import File
 from django.conf import settings
 from django.db import models
+from django.db.models import Sum, F  # Añadido Sum y F
+from cloudinary.models import CloudinaryField  # Añadido CloudinaryField
+from tinymce.models import HTMLField  # Añadido HTMLField
 from PIL import Image
 import imghdr
 import barcode
 from barcode.writer import ImageWriter
 import qrcode
+import cloudinary
+import cloudinary.uploader
 
 def validate_image(image):
+    # Si es None o una cadena (URL de Cloudinary), no validar
+    if image is None or isinstance(image, str):
+        return
+        
     # Verificar si la imagen tiene atributo `file.content_type`
     if hasattr(image, 'file') and hasattr(image.file, 'content_type'):
         content_type = image.file.content_type
@@ -289,8 +298,6 @@ def validate_image(image):
             raise ValidationError("La imagen es demasiado grande (máx: 5000x5000px).")
     except Exception:
         raise ValidationError("No se pudo procesar la imagen. Asegúrate de que es válida.")
-
-
 
 class Category(models.Model):
     name = models.CharField(max_length=100)
@@ -319,6 +326,7 @@ class Category(models.Model):
 
 def generate_unique_code(length=12):
     return ''.join(random.choices(string.digits, k=length))
+    
 
 class Product(models.Model):
     name = models.CharField(max_length=200)
@@ -342,11 +350,10 @@ class Product(models.Model):
     features = models.TextField(blank=True, help_text="List the features of the product, separated by commas or as a formatted text.")
     color = models.CharField(max_length=100, blank=True, help_text="Color of the product (e.g., Red, Blue, Black, #FFFFFF).")
     
-    
     def __str__(self):
         return f"{self.name} - {self.code}"
     
-   def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs):  # CORREGIDO: Indentación correcta aquí
         # Modificado para trabajar con Cloudinary
         if not self.barcode and self.code:
             # Generar código de barras
@@ -385,10 +392,7 @@ class Product(models.Model):
         
     def get_gallery_images(self):
         return self.images.all()
-        
     
-    
-# Add this new model to your models.py file
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, related_name='images', on_delete=models.CASCADE)
     image = CloudinaryField('imagen', folder='products/gallery/', blank=True, null=True)
