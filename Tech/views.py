@@ -63,6 +63,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from .models import Product, Category
 from django.contrib.auth.decorators import user_passes_test
+from django.core.files.base import File
 
 # Django imports
 from django.shortcuts import render, redirect, get_object_or_404
