@@ -18,7 +18,7 @@ from dotenv import load_dotenv
 from .cloudinary_config import CLOUDINARY_STORAGE, CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET
 # Cloudinary configuration
 load_dotenv()  # Make sure this is at the top of your file
-MEDIA_URL = 'https://res.cloudinary.com/Intitulado/'
+MEDIA_URL = 'https://res.cloudinary.com/dshj58ucs/'
 # CRITICAL: Set Cloudinary environment variables directly
 # Set Cloudinary credentials with fallbacks
 CLOUDINARY_CLOUD_NAME = os.getenv('CLOUDINARY_CLOUD_NAME', 'dshj58ucs')
