@@ -340,15 +340,15 @@ class Product(models.Model):
     name = models.CharField(max_length=200)
     code = models.CharField(max_length=50, unique=True)
     barcode = models.CharField(max_length=100, unique=True, blank=True)
-    barcode_image = models.ImageField(upload_to='barcodes/', blank=True)
-    qr_code = models.ImageField(upload_to='qrcodes/', blank=True)
+    barcode_image = CloudinaryField('barcodes', blank=True)  # Usar CloudinaryField
+    qr_code = CloudinaryField('qrcodes', blank=True)  # Usar CloudinaryField
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
     description = HTMLField(blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     cost = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     stock = models.IntegerField(default=0)
     minimum_stock = models.IntegerField(default=0)
-    image = models.ImageField(upload_to='products/', validators=[validate_image], blank=True)
+    image = CloudinaryField('products', blank=True)  # Usar CloudinaryField
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_available = models.BooleanField(default=True)
@@ -394,7 +394,7 @@ class Product(models.Model):
 # Add this new model to your models.py file
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, related_name='images', on_delete=models.CASCADE)
-    image = models.ImageField(upload_to='products/gallery/', validators=[validate_image])
+    image = CloudinaryField('products/gallery', blank=True)  # Usar CloudinaryField
     is_main = models.BooleanField(default=False)
     order = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
