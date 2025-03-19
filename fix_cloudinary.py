@@ -7,9 +7,9 @@ load_dotenv()
 
 # Cloudinary configuration
 CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME', 'intitulado'),
-    'API_KEY': os.environ.get('CLOUDINARY_API_KEY', '844554634418234'),
-    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET', 'FSn6G0MfhIWiyanNcOwvo1bEYF8'),
+    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME', 'dshj58ucs'),
+    'API_KEY': os.environ.get('CLOUDINARY_API_KEY', '241739348942567'),
+    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET', 'wWcQab-9C_R0poTu8p5aOaAhvSk'),
 
 }
 
