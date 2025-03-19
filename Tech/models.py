@@ -72,8 +72,8 @@ class CustomUser(AbstractUser):
     suspension_reason = models.CharField(max_length=255, blank=True, null=True)
     
     # Seguimiento y actividad
-    foto_perfil = models.ImageField(upload_to='perfil/', blank=True, null=True, default='default_profile.jpg')
-    cover_photo = models.ImageField(upload_to='cover_photos/', blank=True, null=True, default='default_cover.jpg', validators=[validate_image])
+    foto_perfil = CloudinaryField('imagen', folder='perfil/', blank=True, null=True, default='default_profile.jpg')
+    cover_photo = CloudinaryField('imagen', folder='cover_photos/', blank=True, null=True, default='default_cover.jpg')
     last_activity = models.DateTimeField(auto_now=True)
     last_login_time = models.DateTimeField(null=True, blank=True)
     last_logout_time = models.DateTimeField(null=True, blank=True)
@@ -130,8 +130,8 @@ class Company(models.Model):
     phone = models.CharField(max_length=20)
     email = models.EmailField()
     website = models.URLField(blank=True, null=True)
-    logo = models.ImageField(upload_to='company_logos/', blank=True, null=True)  
-    image = models.ImageField(upload_to='images/', blank=True, null=True)  
+    logo = CloudinaryField('imagen', folder='company_logos/', blank=True, null=True)
+    image = CloudinaryField('imagen', folder='company_images/', blank=True, null=True)
 
     # Información adicional
     mission = models.TextField(blank=True, null=True)  
@@ -328,7 +328,7 @@ class Product(models.Model):
     cost = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     stock = models.IntegerField(default=0)
     minimum_stock = models.IntegerField(default=0)
-    image = models.ImageField(upload_to='products/', validators=[validate_image], blank=True)
+    image = CloudinaryField('imagen', folder='products/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_available = models.BooleanField(default=True)
