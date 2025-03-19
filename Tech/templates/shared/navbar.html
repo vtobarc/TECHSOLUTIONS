@@ -1,4 +1,5 @@
 {% load static %}
+{% load cloudinary %}
 {% block extra_css %}   
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <link rel="stylesheet" href="{% static 'css/in-styles.css' %}">
@@ -25,7 +26,7 @@
     <div class="container">
       <a href="{% url 'home' %}" class="logo">
         {% if company.logo %}
-        <img src="{{ company.logo.url }}" alt="Logo de {{ company.name }}" class="h-8" loading="lazy">
+        <img src="{{ company.logo.url|cloudinary_url:'w_200,h_100,c_scale,q_auto' }}" alt="Logo de {{ company.name }}" class="h-8" loading="lazy">
         {% else %}
             <img src="{% static 'img/default-logo.png' %}" alt="Logo predeterminado" class="h-8" loading="lazy">
         {% endif %}
