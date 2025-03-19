@@ -352,37 +352,43 @@ class Product(models.Model):
     def __str__(self):
         return f"{self.name} - {self.code}"
     
-    def save(self, *args, **kwargs):  # CORREGIDO: Indentación correcta aquí
-        # Modificado para trabajar con Cloudinary
-        if not self.barcode and self.code:
-            # Generar código de barras
+    def save(self, *args, **kwargs):
+        if not self.code:
+            self.code = generate_unique_code()
+    
+        if not self.barcode:
             barcode_value = self.code.zfill(12)
             ean = barcode.get('ean13', barcode_value, writer=ImageWriter())
-            buffer = BytesIO()
-            ean.write(buffer)
-            buffer.seek(0)
-            
-            # Guardar en Cloudinary
-            from cloudinary.uploader import upload
-            barcode_result = upload(buffer, folder="barcodes", public_id=f"barcode_{self.code}")
-            self.barcode_image = barcode_result['url']
-            self.barcode = ean.get_fullcode()
-
-            # Generar código QR
+            barcode_buffer = BytesIO()
+            ean.write(barcode_buffer)
+            barcode_buffer.seek(0)
+    
+            # Subir código de barras a Cloudinary
+            barcode_result = cloudinary.uploader.upload(barcode_buffer, folder="barcodes", public_id=f"barcode_{self.code}")
+            if barcode_result and 'url' in barcode_result:
+                self.barcode_image = barcode_result['url']
+                self.barcode = ean.get_fullcode()
+            else:
+                print("Error al subir el código de barras a Cloudinary")
+    
+        if not self.qr_code:
             qr = qrcode.QRCode(version=1, box_size=10, border=5)
             qr.add_data(self.code)
             qr.make(fit=True)
             qr_image = qr.make_image(fill_color="black", back_color="white")
-            buffer = BytesIO()
-            qr_image.save(buffer, format='PNG')
-            buffer.seek(0)
-            
-            # Guardar en Cloudinary
-            qr_result = upload(buffer, folder="qrcodes", public_id=f"qr_{self.code}")
-            self.qr_code = qr_result['url']
-
-        super().save(*args, **kwargs)
+            qr_buffer = BytesIO()
+            qr_image.save(qr_buffer, format='PNG')
+            qr_buffer.seek(0)
     
+            # Subir código QR a Cloudinary
+            qr_result = cloudinary.uploader.upload(qr_buffer, folder="qrcodes", public_id=f"qr_{self.code}")
+            if qr_result and 'url' in qr_result:
+                self.qr_code = qr_result['url']
+            else:
+                print("Error al subir el código QR a Cloudinary")
+    
+        super().save(*args, **kwargs)
+
     def get_main_image(self):
         main_image = self.images.filter(is_main=True).first()
         if main_image:
