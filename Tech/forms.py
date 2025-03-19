@@ -11,7 +11,6 @@ from django import forms
 from .models import Product, Category, StockMovement
 from tinymce.widgets import TinyMCE
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.decorators import user_passes_test
 
 class CustomUserCreationForm(UserCreationForm):
     cedula = forms.CharField(
@@ -91,80 +90,80 @@ class ProductImageForm(forms.ModelForm):
         }
 
 
-@login_required
-@user_passes_test(is_admin)
-def product_form(request, product_id=None):
-    if product_id:
-        product = get_object_or_404(Product, id=product_id)
-        title = "Editar Producto"
-    else:
-        product = None
-        title = "Nuevo Producto"
-    
-    if request.method == 'POST':
-        form = ProductForm(request.POST, request.FILES, instance=product)
+class ProductForm(forms.ModelForm):
+    class Meta:
+        model = Product
+        fields = ['name', 'code', 'barcode', 'category', 'description', 'price', 
+                   'stock', 'minimum_stock', 'image', 'tax', 'discount', 'brand', 'features', 'color']
+        widgets = {
+            'description': TinyMCE(attrs={'cols': 80, 'rows': 20}),
+            'image': forms.FileInput(attrs={'class': 'form-control-file'}),
+            'features': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Características del producto separa con "," coma cada una'}),
+            'color': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Color del producto'})        
+            }
+
+    # Campo 'code' no obligatorio
+    code = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': 'Se generará automáticamente si no se ingresa'})
+    )
+
+    # Método para generar el código automáticamente si no se ha ingresado
+    def clean_code(self):
+        code = self.cleaned_data.get('code')
+        if not code:
+            # Generar un código único numérico
+            code = self.generate_unique_numeric_code()
+        return code
+
+    def generate_unique_numeric_code(self):
+        while True:
+            # Generar un código numérico aleatorio de 12 dígitos (puedes ajustarlo según tus necesidades)
+            code = ''.join(random.choices('0123456789', k=12))  # Código numérico de 12 caracteres
+            if not Product.objects.filter(code=code).exists():  # Verificar si el código ya existe
+                break
+        return code
+    def clean_color(self):
+        color = self.cleaned_data.get('color')
         
-        if form.is_valid():
-            try:
-                with transaction.atomic():
-                    # First save the product to get a valid instance with ID
-                    product = form.save()
-                    
-                    # Now that we have a saved product with an ID, create the formset
-                    formset = ProductImageFormSet(request.POST, request.FILES, instance=product)
-                    
-                    if formset.is_valid():
-                        # Process the formset
-                        formset_instances = formset.save(commit=False)
-                        
-                        # Explicitly set the product for each instance and save
-                        for instance in formset_instances:
-                            instance.product = product  # This is crucial
-                            instance.save()
-                        
-                        # Handle deleted objects
-                        for obj in formset.deleted_objects:
-                            obj.delete()
-                        
-                        # Ensure there's a main image if any images exist
-                        if not ProductImage.objects.filter(product=product, is_main=True).exists() and \
-                           ProductImage.objects.filter(product=product).exists():
-                            first_image = ProductImage.objects.filter(product=product).first()
-                            first_image.is_main = True
-                            first_image.save()
-                        
-                        messages.success(request, f"Producto {'actualizado' if product_id else 'creado'} correctamente.")
-                        return redirect('admin_product_list')
-                    else:
-                        # Log formset errors for debugging
-                        logger.error(f"Formset validation errors: {formset.errors}")
-                        for error in formset.non_form_errors():
-                            logger.error(f"Non-form error: {error}")
-                        
-                        # Raise an exception to trigger rollback
-                        raise ValidationError("Error en el formulario de imágenes")
-            except ValidationError as ve:
-                messages.error(request, f"Error de validación: {str(ve)}")
-            except Exception as e:
-                logger.error(f"Error al {'actualizar' if product_id else 'crear'} el producto: {str(e)}")
-                messages.error(request, f"Error al {'actualizar' if product_id else 'crear'} el producto: {str(e)}")
-        else:
-            # Form is invalid, create formset for rendering
-            formset = ProductImageFormSet(request.POST, request.FILES, instance=product)
-    else:
-        # GET request
-        form = ProductForm(instance=product)
-        formset = ProductImageFormSet(instance=product)
-    
-    context = {
-        'form': form,
-        'formset': formset,
-        'title': title,
-        'product': product,
-        'is_edit': product_id is not None
-    }
-    
-    return render(request, 'admin_dashboard/products/form.html', context)
+        # Validación de color hexadecimal (ejemplo: #ff6347)
+        hex_color_pattern = re.compile(r'^#[0-9A-Fa-f]{6}$')
+        
+        # Validación de color por nombre (opcional)
+        valid_colors = ['red', 'blue', 'green', 'yellow', 'black', 'white', 'gray', 'orange', 'purple', 'pink']
+        
+        if not hex_color_pattern.match(color) and color.lower() not in valid_colors:
+            raise ValidationError(f"El color '{color}' no es válido. Usa un color válido como: rojo, azul, #ff6347, etc.")
+        
+        return color
+
+    # Asegúrate de generar el código de barras y QR solo si es necesario
+    def save(self, commit=True):
+        # Si el código está vacío, generarlo antes de guardar
+        if not self.instance.code:
+            self.instance.code = self.generate_unique_numeric_code()
+
+        # Generar el código de barras y QR
+        if not self.instance.barcode:
+            barcode_value = self.instance.code
+            ean = get_barcode_class('ean13')(barcode_value, writer=ImageWriter())
+            buffer = BytesIO()
+            ean.write(buffer)
+            self.instance.barcode_image.save(f'barcode_{self.instance.code}.png', File(buffer), save=False)
+            self.instance.barcode = ean.get_fullcode()
+
+        if not self.instance.qr_code:
+            import qrcode
+            qr = qrcode.QRCode(version=1, box_size=10, border=5)
+            qr.add_data(self.instance.code)
+            qr.make(fit=True)
+            qr_image = qr.make_image(fill_color="black", back_color="white")
+            buffer = BytesIO()
+            qr_image.save(buffer, format='PNG')
+            self.instance.qr_code.save(f'qr_{self.instance.code}.png', File(buffer), save=False)
+
+        return super().save(commit=commit)
+
 
 
 class StockMovementForm(forms.ModelForm):
