@@ -512,46 +512,37 @@ def add_product(request):
         
         if form.is_valid() and formset.is_valid():
             try:
-                with transaction.atomic():  # Use transaction to ensure data integrity
-                    # Si el código está vacío, lo generamos automáticamente
-                    if not form.cleaned_data['code']:
-                        last_product = Product.objects.all().order_by('-id').first()
-                        if last_product:
-                            last_code = int(last_product.code)
-                            new_code = str(last_code + 1).zfill(3)
-                        else:
-                            new_code = '001'
-                        
-                        while Product.objects.filter(code=new_code).exists():
-                            new_code = str(int(new_code) + 1).zfill(3)
-
-                        form.instance.code = new_code
-
-                    # Verificar si el código de barras ya existe
-                    barcode = form.cleaned_data['barcode']
-                    if barcode and Product.objects.filter(barcode=barcode).exists():
-                        messages.error(request, 'El código de barras ya está registrado.')
-                        return render(request, 'inventory/product_form.html', {
-                            'form': form,
-                            'formset': formset
-                        })
-
-                    # Guardar el producto
+                with transaction.atomic():
+                    # Guardar el producto primero sin generar códigos
                     product = form.save()
                     
-                    # Guardar las imágenes
+                    # Ahora guardar las imágenes
                     formset.instance = product
-                    formset.save()
+                    instances = formset.save(commit=False)
+                    
+                    for instance in instances:
+                        instance.product = product
+                        instance.save()
+                    
+                    # Procesar eliminaciones
+                    for obj in formset.deleted_objects:
+                        obj.delete()
+                    
+                    # Asegurarse de que haya una imagen principal
+                    if not product.images.filter(is_main=True).exists() and product.images.exists():
+                        first_image = product.images.first()
+                        first_image.is_main = True
+                        first_image.save()
                     
                     messages.success(request, 'Producto agregado exitosamente.')
                     return redirect('product_list')
                     
-            except IntegrityError:
-                messages.error(request, 'Error: Código duplicado. Inténtelo de nuevo.')
-                return render(request, 'inventory/product_form.html', {
-                    'form': form,
-                    'formset': formset
-                })
+            except IntegrityError as e:
+                logger.error(f"Error al crear producto: {str(e)}")
+                messages.error(request, f'Error: {str(e)}. Inténtelo de nuevo.')
+            except Exception as e:
+                logger.error(f"Error inesperado al crear producto: {str(e)}")
+                messages.error(request, f'Error inesperado: {str(e)}. Inténtelo de nuevo.')
     else:
         form = ProductForm()
         formset = ProductImageFormSet()
@@ -577,7 +568,14 @@ def edit_product(request, pk):
                     product = form.save()
                     
                     # Guardar las imágenes
-                    formset.save()
+                    instances = formset.save(commit=False)
+                    for instance in instances:
+                        instance.product = product
+                        instance.save()
+                    
+                    # Procesar eliminaciones
+                    for obj in formset.deleted_objects:
+                        obj.delete()
                     
                     # Asegurarse de que haya una imagen principal
                     if not product.images.filter(is_main=True).exists() and product.images.exists():
@@ -588,7 +586,8 @@ def edit_product(request, pk):
                     messages.success(request, 'Producto actualizado exitosamente.')
                     return redirect('product_list')
                     
-            except IntegrityError as e:
+            except Exception as e:
+                logger.error(f"Error al actualizar producto: {str(e)}")
                 messages.error(request, f'Error al actualizar el producto: {str(e)}')
     else:
         form = ProductForm(instance=product)
@@ -1963,6 +1962,7 @@ def product_form(request, product_id=None):
                     return redirect('admin_product_list')
                     
             except Exception as e:
+                logger.error(f"Error al {'actualizar' if product_id else 'crear'} el producto: {str(e)}")
                 messages.error(request, f"Error al {'actualizar' if product_id else 'crear'} el producto: {str(e)}")
     else:
         form = ProductForm(instance=product)
@@ -1977,6 +1977,8 @@ def product_form(request, product_id=None):
     }
     
     return render(request, 'admin_dashboard/products/form.html', context)
+
+
 
 # Vista auxiliar para manejar operaciones AJAX con las imágenes
 @login_required
