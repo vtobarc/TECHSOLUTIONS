@@ -112,6 +112,7 @@ class ProductForm(forms.ModelForm):
             'features': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Características del producto separa con "," coma cada una'}),
             'color': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Color del producto'})        
         }
+    brand = forms.ModelChoiceField(queryset=Brand.objects.all(), required=False)
 
     # Campo 'code' no obligatorio
     code = forms.CharField(
