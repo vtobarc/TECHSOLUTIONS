@@ -2771,7 +2771,7 @@ def manage_brands(request):
         form = BrandForm()
     
     brands = Brand.objects.all()
-    return render(request, 'admin_dashboard/manage_brands.html', {'form': form, 'brands': brands})
+    return render(request, 'admin_dashboard/products/manage_brands.html', {'form': form, 'brands': brands})
 
 
 def associate_certification(request, cert_id):
