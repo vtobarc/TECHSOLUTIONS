@@ -188,7 +188,37 @@ button {
   .sidebar {
     display: none !important;
   }
-  
+  /* For the alternative HTML structure with category-grid */
+.categories-section .category-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.categories-section .filter-option {
+  display: inline-flex;
+  width: calc(50% - 4px);
+  padding: 10px;
+  border-radius: 8px;
+  background-color: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  color: #333;
+  text-decoration: none;
+  align-items: center;
+  justify-content: flex-start;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  font-size: 14px;
+  height: 44px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Rest of the CSS remains the same but with .categories-section as the parent selector */
+
+
   /* Layout */
   .category-detail {
     width: 100%;
