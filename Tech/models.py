@@ -402,7 +402,9 @@ class Product(models.Model):
                 Product.objects.filter(pk=self.pk).update(
                     barcode=self.code,
                     barcode_image=barcode_result['public_id'],
-                    qr_code=qr_result['public_id']
+                    barcode_image_url=barcode_result['secure_url'],  # Guardar URL en campo separado
+                    qr_code=qr_result['public_id'],
+                    qr_code_url=qr_result['secure_url']  # Guardar URL en campo separado
                 )
             
             # Refrescar el objeto
