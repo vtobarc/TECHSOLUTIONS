@@ -2757,6 +2757,22 @@ def admin_print_product_labels(request):
     products = Product.objects.filter(is_available=True).order_by('name')
     return render(request, 'admin_dashboard/print_labels.html', {'products': products})
 
+from django.shortcuts import render, redirect
+from .forms import BrandForm
+from .models import Brand
+
+def manage_brands(request):
+    if request.method == 'POST':
+        form = BrandForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('manage_brands')  # Redirige a la misma página para ver la marca agregada
+    else:
+        form = BrandForm()
+    
+    brands = Brand.objects.all()
+    return render(request, 'admin_dashboard/manage_brands.html', {'form': form, 'brands': brands})
+
 
 def associate_certification(request, cert_id):
     # Obtén la certificación por su ID
