@@ -104,39 +104,26 @@ class ProductImageForm(forms.ModelForm):
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
-        fields = ['name', 'code', 'barcode', 'category', 'description', 'price', 
-                   'stock', 'minimum_stock', 'image', 'tax', 'discount', 'brand', 'features', 'color']
+        fields = ['name', 'code', 'category', 'description', 'price', 
+                  'stock', 'minimum_stock', 'image', 'tax', 'discount', 'brand', 'features', 'color']
         widgets = {
             'description': TinyMCE(attrs={'cols': 80, 'rows': 20}),
             'image': forms.FileInput(attrs={'class': 'form-control-file'}),
             'features': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Características del producto separa con "," coma cada una'}),
             'color': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Color del producto'})        
-            }
+        }
 
     # Campo 'code' no obligatorio
     code = forms.CharField(
         required=False,
         widget=forms.TextInput(attrs={'placeholder': 'Se generará automáticamente si no se ingresa'})
     )
-
-    # Método para generar el código automáticamente si no se ha ingresado
-    def clean_code(self):
-        code = self.cleaned_data.get('code')
-        if not code:
-            # Generar un código único numérico
-            code = self.generate_unique_numeric_code()
-        return code
-
-    def generate_unique_numeric_code(self):
-        while True:
-            # Generar un código numérico aleatorio de 12 dígitos (puedes ajustarlo según tus necesidades)
-            code = ''.join(random.choices('0123456789', k=12))  # Código numérico de 12 caracteres
-            if not Product.objects.filter(code=code).exists():  # Verificar si el código ya existe
-                break
-        return code
+    
     def clean_color(self):
         color = self.cleaned_data.get('color')
-        
+        if not color:
+            return color
+            
         # Validación de color hexadecimal (ejemplo: #ff6347)
         hex_color_pattern = re.compile(r'^#[0-9A-Fa-f]{6}$')
         
@@ -147,33 +134,6 @@ class ProductForm(forms.ModelForm):
             raise ValidationError(f"El color '{color}' no es válido. Usa un color válido como: rojo, azul, #ff6347, etc.")
         
         return color
-
-    # Asegúrate de generar el código de barras y QR solo si es necesario
-    def save(self, commit=True):
-        # Si el código está vacío, generarlo antes de guardar
-        if not self.instance.code:
-            self.instance.code = self.generate_unique_numeric_code()
-
-        # Generar el código de barras y QR
-        if not self.instance.barcode:
-            barcode_value = self.instance.code
-            ean = get_barcode_class('ean13')(barcode_value, writer=ImageWriter())
-            buffer = BytesIO()
-            ean.write(buffer)
-            self.instance.barcode_image.save(f'barcode_{self.instance.code}.png', File(buffer), save=False)
-            self.instance.barcode = ean.get_fullcode()
-
-        if not self.instance.qr_code:
-            import qrcode
-            qr = qrcode.QRCode(version=1, box_size=10, border=5)
-            qr.add_data(self.instance.code)
-            qr.make(fit=True)
-            qr_image = qr.make_image(fill_color="black", back_color="white")
-            buffer = BytesIO()
-            qr_image.save(buffer, format='PNG')
-            self.instance.qr_code.save(f'qr_{self.instance.code}.png', File(buffer), save=False)
-
-        return super().save(commit=commit)
 
 
 
