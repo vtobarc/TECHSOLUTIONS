@@ -1521,7 +1521,12 @@ def apply_filters_and_sorting(products, request):
     min_price = request.GET.get('min_price', None)
     max_price = request.GET.get('max_price', None)
     selected_category_id = request.GET.get('category', None)
+    selected_brand_id = request.GET.get('brand')  # Añadir el filtro de marca
     
+    # Filtrar por marca si se especifica
+    if selected_brand_id:
+        products = products.filter(brand_id=selected_brand_id)
+        
     # Aplicar filtro de precio mínimo
     if min_price:
         try:
@@ -1549,7 +1554,8 @@ def apply_filters_and_sorting(products, request):
         products = products.order_by('-name')
     # Para 'relevance' no aplicamos ordenamiento específico
     
-    return products, selected_category_id, sort_by
+    return products, selected_category_id, selected_brand_id, sort_by
+
 def add_to_cart(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     cart = request.session.get('cart', {})
