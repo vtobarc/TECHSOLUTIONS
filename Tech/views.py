@@ -1390,6 +1390,7 @@ def cliente_home(request, product_id=None):
     
     # Obtener todas las categorías
     all_categories = Category.objects.all()
+    all_brands = Brand.objects.all()
 
     # Si no hay categorías, renderizar sin productos
     if not all_categories.exists():
@@ -1397,6 +1398,7 @@ def cliente_home(request, product_id=None):
             'category': None,
             'products': [],
             'all_categories': [],
+            'all_brands': all_brands,  # Pasar las marcas al contexto
             'selected_category': None,
             'is_cliente_home': True
         })
@@ -1410,8 +1412,8 @@ def cliente_home(request, product_id=None):
         products = products.filter(name__icontains=search_query)
     
     # Aplicar filtros y ordenamiento
-    products, selected_category_id, sort_by = apply_filters_and_sorting(products, request)
-    
+    products, selected_category_id, selected_brand_id, sort_by = apply_filters_and_sorting(products, request)
+        
     # Seleccionar la categoría activa
     if selected_category_id:
         selected_category = get_object_or_404(Category, id=selected_category_id)
@@ -1439,6 +1441,7 @@ def cliente_home(request, product_id=None):
         'products': products,
         'all_categories': all_categories,
         'selected_category': selected_category_id,
+        'selected_brand': selected_brand_id,  # Pasar el ID de la marca seleccionada
         'sort_by': sort_by,
         'min_price': request.GET.get('min_price', ''),
         'max_price': request.GET.get('max_price', ''),
