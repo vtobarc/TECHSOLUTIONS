@@ -440,7 +440,7 @@
                             <h6 class="m-0 font-weight-bold text-primary"> Imagen del código de barras</h6>
                         </div>
                         <div class="card-body">
-                                {% if product.barcode_image %}
+                            {% if product.barcode_image_url %}
                                     <div class="form-group">
                                         <img src="{{ product.barcode_image.url }}" alt="Código de barras" class="img_code">
                                     </div>
@@ -455,7 +455,7 @@
                                <h6 class="m-0 font-weight-bold text-primary">Imagen del código QR</h6>
                            </div>
                         <div class="card-body">
-                        {% if product.qr_code %}
+                     {% if product.qr_code_url %}
                             <div class="form-group">
                                 <img src="{{ product.qr_code.url }}" alt="Código QR" class="img_code">
                             </div>
