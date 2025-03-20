@@ -87,12 +87,12 @@
 
   }
 
-  /* Ocultar el texto en pantallas pequeñas (hasta 600px) */
+  /* Ocultar el texto en pantallas pequeñas (hasta 600px) 
 @media (max-width: 600px) {
   .hide-on-mobile {
       display: none;
   }
-}
+}*/
 
   
   /* Profile Dropdown */
