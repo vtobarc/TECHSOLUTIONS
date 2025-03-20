@@ -138,6 +138,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'Tech.context_processors.company_info',  # Agrega tu context processor aquí
+
             ],
         },
     },
