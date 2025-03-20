@@ -1,67 +1,183 @@
-/* Mobile styles */
-@media screen and (max-width: 768px) {
+/* Mobile Footer Styles - For screens 768px and below */
+@media (max-width: 768px) {
+  .footer {
+    padding: 20px 15px;
+  }
+
   .footer-content {
     flex-direction: column;
+    gap: 0;
   }
 
   .footer-section {
-    margin-bottom: 0.5rem;
+    width: 100%;
     padding: 0;
+    margin-bottom: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    animation: none; /* Disable the animation on mobile */
+  }
+
+  .footer-section:last-child {
+    border-bottom: none;
   }
 
   .footer-toggle {
-    cursor: pointer;
-    padding: 0.75rem 0;
-    margin-bottom: 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     position: relative;
+    cursor: pointer;
+    padding: 15px 0;
+    margin-bottom: 0;
+    font-size: 1.2rem;
+    color: #ff6600;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
 
   .footer-toggle::after {
     content: "+";
-    position: absolute;
-    right: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 1.2rem;
+    font-size: 1.5rem;
+    color: #ff6600;
+    transition: transform 0.3s ease;
   }
 
   .footer-section.active .footer-toggle::after {
     content: "-";
+    transform: translateY(-2px);
   }
 
+  /* Remove the underline since we're using borders between sections */
+  .footer-section h3::after {
+    display: none;
+  }
+
+  /* Hide content by default */
   .footer-section ul,
   .footer-section p,
   .footer-section .social-icons,
-  .footer-section .space-y-2.5 {
+  .footer-section .space-y-2\.5 {
     display: none;
-    padding: 0.5rem 0;
+    padding: 0 0 15px 0;
+    margin-top: -10px;
   }
 
+  /* Show content when active */
   .footer-section.active ul,
   .footer-section.active p,
   .footer-section.active .social-icons,
-  .footer-section.active .space-y-2.5 {
+  .footer-section.active .space-y-2\.5 {
     display: block;
+    animation: slideDown 0.3s ease-out forwards;
   }
 
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Adjust list items */
+  .footer-section ul li {
+    margin-bottom: 12px;
+  }
+
+  .footer-section ul li a {
+    padding: 5px 0;
+    display: block;
+    font-size: 0.95rem;
+  }
+
+  /* Social icons adjustments */
   .social-icons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 15px;
     justify-content: flex-start;
   }
 
+  .social-icons a {
+    width: 36px;
+    height: 36px;
+    font-size: 20px;
+  }
+
+  /* Footer bottom adjustments */
   .footer-bottom {
-    margin-top: 1rem;
-    padding-top: 1rem;
-    font-size: 0.75rem;
+    margin-top: 15px;
+    padding-top: 15px;
+    text-align: center;
+    font-size: 0.85rem;
   }
 
   .footer-bottom p {
-    margin-bottom: 0.5rem;
+    margin: 8px 0;
+    line-height: 1.4;
+  }
+
+  /* Contact info spacing */
+  .space-y-2\.5 > * {
+    margin-bottom: 12px;
+  }
+
+  .space-y-2\.5 > *:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Make links more tappable */
+  .footer-section a {
+    padding: 5px 0;
+  }
+
+  /* Adjust paragraph text */
+  .footer-section p {
+    font-size: 0.9rem;
+    line-height: 1.5;
   }
 }
 
-/* Space utility class */
-.space-y-2\.5 > * + * {
-  margin-top: 0.625rem;
+/* Extra small devices (phones, 480px and down) */
+@media (max-width: 480px) {
+  .footer {
+    padding: 15px 10px;
+  }
+
+  .footer-toggle {
+    font-size: 1.1rem;
+    padding: 12px 0;
+  }
+
+  .social-icons {
+    gap: 10px;
+  }
+
+  .social-icons a {
+    width: 32px;
+    height: 32px;
+    font-size: 18px;
+  }
+
+  .footer-bottom {
+    font-size: 0.8rem;
+  }
 }
+
+/* Fix for very small screens */
+@media (max-width: 320px) {
+  .footer-toggle {
+    font-size: 1rem;
+  }
+
+  .social-icons a {
+    width: 30px;
+    height: 30px;
+    font-size: 16px;
+  }
+}
+
+
 
