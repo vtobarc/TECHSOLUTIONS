@@ -1,1 +1,320 @@
+/* Mobile styles for About Us page - For screens 768px and below */
+
+@media (max-width: 768px) {
+  /* General container adjustments */
+  .container {
+    width: 100%;
+    padding: 0 15px;
+    margin: 0 auto;
+  }
+
+  /* Header section */
+  .heder_main {
+    padding: 30px 0;
+    text-align: center;
+    background-color: var(--primary-color, #01257d);
+    color: white;
+    border-radius: 0 0 15px 15px;
+    margin-bottom: 20px;
+  }
+
+  .heder_main h1 {
+    font-size: 28px;
+    margin-bottom: 10px;
+  }
+
+  .heder_main p {
+    font-size: 16px !important;
+    padding: 0 10px;
+  }
+
+  /* Section styling */
+  section {
+    padding: 25px 0;
+    margin-bottom: 15px;
+  }
+
+  section h2 {
+    font-size: 24px;
+    margin-bottom: 15px;
+    text-align: center;
+    position: relative;
+    padding-bottom: 10px;
+  }
+
+  section h2::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background-color: #ff6600;
+    border-radius: 1.5px;
+  }
+
+  section p {
+    font-size: 15px;
+    line-height: 1.5;
+    margin-bottom: 15px;
+    text-align: justify;
+  }
+
+  /* Company values section */
+  .company-values {
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    padding: 20px 15px;
+  }
+
+  /* Mission, Vision, Values section */
+  .mission-vision-values {
+    padding-bottom: 10px;
+  }
+
+  .mvv-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .mvv-item {
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  }
+
+  .mvv-item h3 {
+    font-size: 20px;
+    color: var(--primary-color, #01257d);
+    margin-bottom: 10px;
+    position: relative;
+    padding-bottom: 8px;
+  }
+
+  .mvv-item h3::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 40px;
+    height: 2px;
+    background-color: #ff6600;
+  }
+
+  /* Values list */
+  .mvv-item ul {
+    padding-left: 5px;
+    list-style-type: none;
+  }
+
+  .mvv-item ul li {
+    margin-bottom: 12px;
+    display: flex;
+    align-items: flex-start;
+  }
+
+  .mvv-item ul li i {
+    color: #ff6600;
+    margin-right: 10px;
+    font-size: 16px;
+    margin-top: 3px;
+  }
+
+  /* Testimonials section */
+  .testimonials {
+    background-color: #f5f8ff;
+    padding: 25px 15px;
+    border-radius: 10px;
+  }
+
+  .testimonials-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .testimonial {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+    position: relative;
+  }
+
+  .testimonial::before {
+    content: '"';
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    font-size: 40px;
+    color: #f0f0f0;
+    font-family: serif;
+    z-index: 0;
+  }
+
+  .testimonial p {
+    position: relative;
+    z-index: 1;
+    margin-bottom: 10px;
+  }
+
+  .testimonial p:last-child {
+    text-align: right;
+    margin-bottom: 0;
+    font-size: 14px;
+  }
+
+  /* FAQ section */
+  .faq-section {
+    padding: 20px 15px;
+  }
+
+  .faq-section p:first-of-type {
+    font-size: 16px;
+    margin-bottom: 5px;
+  }
+
+  .faq-section p:last-of-type {
+    font-size: 15px;
+    color: #555;
+  }
+
+  /* Contact section */
+  .contact-section {
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    padding: 20px 15px;
+  }
+
+  .contact-section a {
+    color: #ff6600;
+    text-decoration: none;
+    font-weight: bold;
+  }
+
+  /* Team section */
+  .team-section {
+    padding: 25px 0;
+  }
+
+  .team-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+  }
+
+  .team-member {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .team-member img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 10px;
+    border: 3px solid #f0f0f0;
+  }
+
+  .team-member h3 {
+    font-size: 16px;
+    margin-bottom: 5px;
+  }
+
+  .team-member p {
+    font-size: 14px;
+    color: #666;
+    margin: 0;
+  }
+
+  /* Certifications section */
+  .certifications-section {
+    background-color: #f5f8ff;
+    padding: 25px 15px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+  }
+
+  .certifications-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+  }
+
+  .certification {
+    width: calc(50% - 15px);
+    text-align: center;
+  }
+
+  .certification img {
+    max-width: 100%;
+    height: auto;
+    max-height: 60px;
+    object-fit: contain;
+  }
+
+  /* Extra small devices (phones, 480px and down) */
+  @media (max-width: 480px) {
+    .heder_main h1 {
+      font-size: 24px;
+    }
+
+    section h2 {
+      font-size: 22px;
+    }
+
+    .team-container {
+      grid-template-columns: 1fr;
+    }
+
+    .certification {
+      width: 100%;
+    }
+  }
+
+  /* Animation for sections */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  section {
+    animation: fadeInUp 0.5s ease-out forwards;
+  }
+
+  /* Staggered animations */
+  section:nth-child(1) {
+    animation-delay: 0.1s;
+  }
+  section:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+  section:nth-child(3) {
+    animation-delay: 0.3s;
+  }
+  section:nth-child(4) {
+    animation-delay: 0.4s;
+  }
+  section:nth-child(5) {
+    animation-delay: 0.5s;
+  }
+  section:nth-child(6) {
+    animation-delay: 0.6s;
+  }
+  section:nth-child(7) {
+    animation-delay: 0.7s;
+  }
+}
 
