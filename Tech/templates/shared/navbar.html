@@ -1,14 +1,12 @@
-{% load static %}
+{{% load static %}
 {% load cloudinary %}
 {% load custom_filters %}  <!-- Cargar el archivo con el nombre correcto -->
-
 
 {% block extra_css %}   
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <link rel="stylesheet" href="{% static 'css/in-styles.css' %}">
     <link rel="stylesheet" href="{% static 'css/mobile-nav.css' %}">
 {% endblock %}
-
 
 <head>
     <meta charset="UTF-8">
@@ -320,7 +318,6 @@
     }
   });
 </script>
-
 
     {% block extra_js %}
     <script src="{% static '' %}"></script>
