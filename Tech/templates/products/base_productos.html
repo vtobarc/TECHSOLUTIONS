@@ -159,11 +159,11 @@
                 </select>
             </div>
             <div class="filter-group">
-                <label>Ordenar por:</label>
+                <label>Marca::</label>
                   <select name="brand" id="brand">
                  <option value="">Todas las marcas</option>
                  {% for brand in all_brands %}
-                     <option value="{{ brand.id }}" {% if brand.id == selected_brand %}selected{% endif %}>{{ brand.name }}</option>
+                  <option value="{{ brand.id }}" {% if brand.id == selected_brand %}selected{% endif %}>{{ brand.name }}</option>
                  {% endfor %}
              </select>
               
