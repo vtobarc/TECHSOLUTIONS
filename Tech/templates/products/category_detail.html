@@ -101,17 +101,21 @@
     </button>
   </div>
   <div class="filter-modal-content">
-    <div class="filter-section">
-      <h3>Categorías:</h3>
-      <a href="{% url 'cliente_home' %}" class="filter-option {% if not selected_category %}active{% endif %}">
-        Todas las categorías
-      </a>
-      {% for category in all_categories %}
-        <a href="{% url 'category_detail' category.id %}" class="filter-option {% if selected_category_id == category.id|stringformat:'s' %}active{% endif %}">
-          {{ category.name }}
-        </a>
-      {% endfor %}
+   <div class="filter-section categories-section">
+        <h3>Categorías:</h3>
+        <div class="category-grid">
+          <a href="{% url 'cliente_home' %}" class="filter-option {% if not selected_category %}active{% endif %}">
+            <i class="fas fa-th-large"></i> Todas las categorías
+          </a>
+          {% for category in all_categories %}
+            <a href="{% url 'category_detail' category.id %}" class="filter-option {% if selected_category_id == category.id|stringformat:'s' %}active{% endif %}">
+              {{ category.name }}
+            </a>
+          {% endfor %}
+        </div>
     </div>
+
+
     
     <div class="filter-section">
       <h3>Ordenar por:</h3>
