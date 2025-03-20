@@ -371,9 +371,9 @@ class Product(models.Model):
             ean.write(buffer)
             buffer.seek(0)
 
-            # Subir la imagen del código de barras a Cloudinary
-            barcode_image = upload(buffer, folder="barcodes")  # Subir directamente a Cloudinary
-            self.barcode_image = barcode_image['secure_url']  # Guardar la URL de la imagen en el campo de Cloudinary
+            # Subir la imagen del código de barras a Cloudinary directamente
+            barcode_image = upload(buffer, folder="barcodes")  # Subir a Cloudinary
+            self.barcode_image = barcode_image['secure_url']  # Asignar la URL generada por Cloudinary
 
             # Generación y subida del código QR a Cloudinary
             qr = qrcode.QRCode(version=1, box_size=10, border=5)
@@ -384,8 +384,8 @@ class Product(models.Model):
             qr_image.save(buffer, format='PNG')
             buffer.seek(0)
 
-            qr_code_image = upload(buffer, folder="qrcodes")  # Subir directamente a Cloudinary
-            self.qr_code = qr_code_image['secure_url']  # Guardar la URL de la imagen en el campo de Cloudinary
+            qr_code_image = upload(buffer, folder="qrcodes")  # Subir a Cloudinary
+            self.qr_code = qr_code_image['secure_url']  # Asignar la URL generada por Cloudinary
 
         super().save(*args, **kwargs)
     
