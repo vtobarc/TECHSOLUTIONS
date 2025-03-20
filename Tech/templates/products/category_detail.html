@@ -14,14 +14,7 @@
 
 <!-- Mobile Header (only visible on mobile) -->
 <div class="mobile-header">
-  <div class="logo-container">
-    <div class="logo">T</div>
-    <h2 class="brand">Taskforge</h2>
-    <button class="menu-button" id="menu-button">
-      <i class="fas fa-bars"></i>
-    </button>
-  </div>
-  
+
   <div class="search-container">
     <input type="text" placeholder="Buscar productos..." class="search-input">
     <button class="filter-button" id="filter-button">
@@ -177,22 +170,7 @@
   </div>
 </div>
 
-<!-- Menu Modal -->
-<div class="menu-modal" id="menu-modal">
-  <div class="filter-modal-header">
-    <h2>Menú</h2>
-    <button class="close-button" id="close-menu">
-      <i class="fas fa-times"></i>
-    </button>
-  </div>
-  <div class="menu-modal-content">
-    <a href="{% url 'cliente_home' %}" class="menu-item">Inicio</a>
-    <a href="" class="menu-item">Productos</a>
-    <a href="" class="menu-item">Categorías</a>
-    <a href="" class="menu-item">Mi Cuenta</a>
-    <a href="" class="menu-item">Carrito</a>
-  </div>
-</div>
+
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
