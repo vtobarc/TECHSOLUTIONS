@@ -21,6 +21,65 @@
   </div>
 </div>
 
+<!-- Filter Modal -->
+<div class="filter-modal" id="filter-modal">
+  <div class="filter-modal-header">
+    <h2>Filtros</h2>
+    <button class="close-button" id="close-filter">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <div class="filter-modal-content">
+    <div class="filter-section">
+      <h3>Categorías:</h3>
+      <a href="{% url 'cliente_home' %}" class="filter-option {% if not selected_category %}active{% endif %}">
+        Todas las categorías
+      </a>
+      {% for category in all_categories %}
+        <a href="{% url 'category_detail' category.id %}" class="filter-option {% if selected_category_id == category.id|stringformat:'s' %}active{% endif %}">
+          {{ category.name }}
+        </a>
+      {% endfor %}
+    </div>
+    
+    <div class="filter-section">
+      <h3>Ordenar por:</h3>
+      <select name="sort_by" class="form-control">
+        <option value="relevance" {% if sort_by == 'relevance' %}selected{% endif %}>Relevancia</option>
+        <option value="price-asc" {% if sort_by == 'price-asc' %}selected{% endif %}>Precio: Menor a Mayor</option>
+        <option value="price-desc" {% if sort_by == 'price-desc' %}selected{% endif %}>Precio: Mayor a Menor</option>
+        <option value="name-asc" {% if sort_by == 'name-asc' %}selected{% endif %}>Nombre: A-Z</option>
+        <option value="name-desc" {% if sort_by == 'name-desc' %}selected{% endif %}>Nombre: Z-A</option>
+      </select>
+    </div>
+    
+    <div class="filter-section">
+      <h3>Marca:</h3>
+      <select name="brand" id="brand" class="form-control">
+        <option value="">Todas las marcas</option>
+        {% for brand in all_brands %}
+          <option value="{{ brand.id }}" {% if brand.id == selected_brand %}selected{% endif %}>
+            {{ brand.name }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+    
+    <div class="filter-section">
+      <h3>Precio:</h3>
+      <input type="range" id="price-slider" min="0" max="100" class="price-slider">
+      <div class="price-range">
+        <span>$0</span>
+        <span>$100</span>
+      </div>
+    </div>
+    
+    <div class="filter-buttons">
+      <button class="btn-secondary" id="cancel-filter">Cancelar</button>
+      <button class="btn-primary" id="apply-filter">Aplicar Filtros</button>
+    </div>
+  </div>
+</div>
 
 <div class="product-detail-container">
     <div class="product-detail-header">
