@@ -1385,7 +1385,7 @@ def apply_filters_and_sorting(products, request):
 
     return products, selected_category_id, selected_brand_id, sort_by
     
-@login_required
+
 def cliente_home(request, product_id=None):
     # Si se pasa un product_id, redirige a la página de detalles del producto
     if product_id:
