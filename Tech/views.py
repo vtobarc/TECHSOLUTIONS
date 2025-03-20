@@ -1358,11 +1358,15 @@ def apply_filters_and_sorting(products, request):
     max_price = request.GET.get('max_price')
     sort_by = request.GET.get('sort_by', 'relevance')
     selected_category_id = request.GET.get('category')
+    selected_brand_id = request.GET.get('brand')  # Añadir el filtro de marca
 
     # Filtrar por categoría si se especifica
     if selected_category_id:
         products = products.filter(category_id=selected_category_id)
-
+     # Filtrar por marca si se especifica
+    if selected_brand_id:
+        products = products.filter(brand_id=selected_brand_id)
+        
     # Filtrar por precio
     if min_price:
         products = products.filter(price__gte=float(min_price))
@@ -1379,7 +1383,8 @@ def apply_filters_and_sorting(products, request):
     if sort_by in ordering_options:
         products = products.order_by(ordering_options[sort_by])
 
-    return products, selected_category_id, sort_by
+    return products, selected_category_id, selected_brand_id, sort_by
+    
 @login_required
 def cliente_home(request, product_id=None):
     # Si se pasa un product_id, redirige a la página de detalles del producto
@@ -1453,6 +1458,7 @@ def cliente_home(request, product_id=None):
 
 def category_detail(request, category_id, product_id=None):
     selected_category_id = request.GET.get('category', None)
+    selected_brand_id = request.GET.get('brand', None)  # Obtener el filtro de marca
     category = get_object_or_404(Category, id=category_id)
     selected_category = category
 
@@ -1478,9 +1484,12 @@ def category_detail(request, category_id, product_id=None):
             'gallery_images': gallery_images,
             'main_image': main_image
         })
-
-    # Resto del código para la lista de productos
+# Filtrar los productos por categoría y marca si es necesario
     products = Product.objects.filter(is_available=True, category=selected_category)
+
+    if selected_brand_id:
+        products = products.filter(brand_id=selected_brand_id)  # Filtrar por marca
+        
     
     # Aplicar búsqueda por nombre si existe
     search_query = request.GET.get('search', '')
@@ -1488,8 +1497,8 @@ def category_detail(request, category_id, product_id=None):
         products = products.filter(name__icontains=search_query)
     
     # Aplicar filtros y ordenamiento
-    products, selected_category_id, sort_by = apply_filters_and_sorting(products, request)
-
+    products, selected_category_id, selected_brand_id, sort_by = apply_filters_and_sorting(products, request)
+    
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         products_data = [{
             'id': product.id,
@@ -1503,12 +1512,16 @@ def category_detail(request, category_id, product_id=None):
             'is_available': product.is_available,
         } for product in products]
         return JsonResponse({'products': products_data})
-
+    # Obtener todas las marcas para el filtro en el template
+    all_brands = Brand.objects.all()
+    
     context = {
         'category': category,
         'selected_category': selected_category,
+        'selected_brand': selected_brand_id,  # Pasar el ID de la marca seleccionada
         'products': products,
         'all_categories': Category.objects.exclude(id=category.id),
+        'all_brands': all_brands,  # Incluir todas las marcas
         'sort_by': sort_by,
         'min_price': request.GET.get('min_price', ''),
         'max_price': request.GET.get('max_price', ''),
