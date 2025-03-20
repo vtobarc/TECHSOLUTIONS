@@ -337,6 +337,13 @@ import barcode
 from barcode.writer import ImageWriter
 import qrcode
 from django.db import transaction
+class Brand(models.Model):
+    name = models.CharField(max_length=200, unique=True)
+    logo = CloudinaryField('brands', blank=True, null=True)  # Opcional, para guardar el logo de la marca
+    website = models.URLField(blank=True, null=True)
+    
+    def __str__(self):
+        return self.name
 
 class Product(models.Model):
     name = models.CharField(max_length=200)
@@ -359,7 +366,7 @@ class Product(models.Model):
     is_available = models.BooleanField(default=True)
     tax = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
     discount = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
-    brand = models.CharField(max_length=200, blank=True)
+    brand = models.ForeignKey(Brand, on_delete=models.SET_NULL, null=True, blank=True)  # Relación con Brand
     features = models.TextField(blank=True, help_text="List the features of the product, separated by commas or as a formatted text.")
     color = models.CharField(max_length=100, blank=True, help_text="Color of the product (e.g., Red, Blue, Black, #FFFFFF).")
     
