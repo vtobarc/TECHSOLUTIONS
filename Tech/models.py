@@ -337,7 +337,6 @@ import barcode
 from barcode.writer import ImageWriter
 import qrcode
 from django.db import transaction
-from django.db import models
 
 class Product(models.Model):
     name = models.CharField(max_length=200)
@@ -368,13 +367,28 @@ class Product(models.Model):
         return f"{self.name} - {self.code}"
     
     def save(self, *args, **kwargs):
-        # Guardar primero sin generar códigos
+        # Verificar si es un objeto nuevo
         is_new = self._state.adding
+        
+        # Si no tiene código, generar uno automáticamente
+        if not self.code:
+            self.code = self.generate_unique_code()
+        
+        # Guardar primero para tener un ID
         super(Product, self).save(*args, **kwargs)
         
-        # Después de guardar, generar los códigos si es necesario
-        if is_new and self.code and not self.barcode:
+        # Generar códigos de barras y QR si es un objeto nuevo o no tiene códigos
+        if (is_new or not self.barcode or not self.barcode_image_url or not self.qr_code_url):
             self.generate_codes()
+    
+    def generate_unique_code(self):
+        """Genera un código único para el producto"""
+        import random
+        while True:
+            # Generar un código numérico aleatorio de 12 dígitos
+            code = ''.join(random.choices('0123456789', k=12))
+            if not Product.objects.filter(code=code).exists():
+                return code
     
     def generate_codes(self):
         """Método separado para generar códigos de barras y QR"""
@@ -405,9 +419,7 @@ class Product(models.Model):
             with transaction.atomic():
                 Product.objects.filter(pk=self.pk).update(
                     barcode=self.code,
-                    barcode_image=barcode_result['public_id'],
                     barcode_image_url=barcode_result['secure_url'],
-                    qr_code=qr_result['public_id'],
                     qr_code_url=qr_result['secure_url']
                 )
             
