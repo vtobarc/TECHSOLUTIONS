@@ -443,7 +443,7 @@
     <div class="card-body">
         {% if producto.barcode_image_url %}
             <div class="form-group">
-                <img src="{{ producto.barcode_image_url | cloudinary_url:'w_600,h_600,c_fill,q_auto' }}" alt="Código de barras" class="img_code">
+                <img src="{{ producto.barcode_image_url }}" alt="Código de barras" class="img_code">
             </div>
         {% else %}
             <p>No se ha generado un código de barras.</p>
@@ -458,7 +458,7 @@
     <div class="card-body">
         {% if producto.qr_code_url %}
             <div class="form-group">
-                <img src="{{ producto.qr_code_url | cloudinary_url:'w_600,h_600,c_fill,q_auto' }}" alt="Código QR" class="img_code">
+                <img src="{{ producto.qr_code_url }}" alt="Código QR" class="img_code">
             </div>
         {% else %}
             <p>No se ha generado un código QR.</p>
