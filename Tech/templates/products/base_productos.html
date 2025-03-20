@@ -158,7 +158,19 @@
                     <option value="name-desc" {% if sort_by == 'name-desc' %}selected{% endif %}>Nombre: Z-A</option>
                 </select>
             </div>
-
+            <div class="filter-group">
+                <label>Ordenar por:</label>
+                <select name="brand" id="brand">
+                    <option value="">Todas las marcas</option>
+                    {% for brand in all_brands %}
+                        <option value="{{ brand.id }}" {% if brand.id == selected_brand %}selected{% endif %}>{{ brand.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+           
+           
+  
+           
             <div class="filter-group">
                 <label>Precio:</label>
                 <div class="price-range">
