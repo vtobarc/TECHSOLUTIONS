@@ -498,3 +498,52 @@ button {
     display: none !important;
   }
 }
+/* Show mobile header with search and filter */
+  .mobile-header {
+    display: flex;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background-color: var(--primary-color, #01257d);
+    padding: 10px 15px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    width: 100%;
+  }
+
+  .search-container {
+    display: flex;
+    width: 100%;
+    align-items: center;
+  }
+
+  .search-input {
+    flex: 1;
+    padding: 10px 15px;
+    border-radius: 20px;
+    border: none;
+    font-size: 14px;
+    background-color: rgba(255, 255, 255, 0.9);
+  }
+
+  .filter-button {
+    background-color: #ff6600;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    margin-left: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease;
+  }
+
+  .filter-button:active {
+    transform: scale(0.95);
+  }
+
+  .filter-button i {
+    font-size: 18px;
+  }
