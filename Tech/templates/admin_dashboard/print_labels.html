@@ -99,17 +99,20 @@
     <div class="labels-container">
         {% for product in products %}
         <div class="product-label">
+             
+               
+
             <div class="product-name">{{ product.name }}</div>
             <div class="product-code">Código: {{ product.code }}</div>
             <div class="product-price">${{ product.price|floatformat:2 }}</div>
             
             <div class="barcode-container">
-                {% if product.barcode_image %}
-                <img src="{{ product.barcode_image.url }}" alt="Código de barras" class="barcode-image">
+                {% if product.barcode_image_url %}
+                <img src="{{ product.barcode_image_url }}" alt="Código de barras" class="barcode-image">
                 {% endif %}
                 
-                {% if product.qr_code %}
-                <img src="{{ product.qr_code.url }}" alt="Código QR" class="qr-image">
+                {% if product.qr_code_url %}
+                <img src="{{ product.qr_code_url }}" alt="Código QR" class="qr-image">
                 {% endif %}
             </div>
         </div>
