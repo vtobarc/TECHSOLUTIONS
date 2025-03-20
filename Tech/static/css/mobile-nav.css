@@ -9,8 +9,10 @@
 }
 
 /* Hide mobile elements by default (for desktop) */
-.mobile-nav {
-  display: none;
+.mobile-nav,
+.mobile-menu-modal,
+.menu-overlay {
+  display: none !important;
 }
 
 /* Mobile styles */
@@ -22,7 +24,7 @@
   
   /* Show mobile navigation */
   .mobile-nav {
-    display: flex;
+    display: flex !important;
     position: fixed;
     bottom: 0;
     left: 0;
@@ -56,6 +58,7 @@
   
   /* Mobile menu modal */
   .mobile-menu-modal {
+    display: block !important;
     position: fixed;
     top: 0;
     right: 0;
@@ -162,6 +165,7 @@
   
   /* Overlay for mobile menu */
   .menu-overlay {
+    display: block !important;
     position: fixed;
     top: 0;
     left: 0;
@@ -169,11 +173,14 @@
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
     z-index: 1999;
-    display: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
   }
   
   .menu-overlay.open {
-    display: block;
+    opacity: 1;
+    visibility: visible;
   }
   
   /* Cart badge for mobile nav */
