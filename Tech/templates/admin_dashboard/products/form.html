@@ -436,35 +436,48 @@
                     </div>
 
 
-                                 <div class="card mb-4">
-                        <div class="card-header">
-                            <h6 class="m-0 font-weight-bold text-primary">Imagen del código de barras</h6>
-                        </div>
-                        <div class="card-body">
-                            {% if producto.barcode_image_url %}
-                                <div class="form-group">
-                                    <img src="{{ producto.barcode_image_url }}" alt="Código de barras" class="img_code">
-                                </div>
-                            {% else %}
-                                <p>No se ha generado un código de barras.</p>
-                            {% endif %}
-                        </div>
+                    <!-- Replace the barcode and QR code sections in your template with this code -->
+
+                <!-- Barcode Image Section -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h6 class="m-0 font-weight-bold text-primary">Imagen del código de barras</h6>
                     </div>
-                    
-                    <div class="card mb-4">
-                        <div class="card-header">
-                            <h6 class="m-0 font-weight-bold text-primary">Imagen del código QR</h6>
-                        </div>
-                        <div class="card-body">
-                            {% if producto.qr_code_url %}
-                                <div class="form-group">
-                                    <img src="{{ producto.qr_code_url }}" alt="Código QR" class="img_code">
+                    <div class="card-body text-center">
+                        {% if product.barcode_image_url %}
+                            <div class="form-group">
+                                <img src="{{ product.barcode_image_url }}" alt="Código de barras" class="img_code">
+                                <div class="mt-2">
+                                    <small class="text-muted">Código: {{ product.barcode }}</small>
                                 </div>
-                            {% else %}
-                                <p>No se ha generado un código QR.</p>
+                            </div>
+                        {% else %}
+                            <p>No se ha generado un código de barras.</p>
+                            {% if product.code %}
+                                <p>El código del producto es: {{ product.code }}</p>
                             {% endif %}
-                        </div>
+                        {% endif %}
                     </div>
+                </div>
+                
+                <!-- QR Code Image Section -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h6 class="m-0 font-weight-bold text-primary">Imagen del código QR</h6>
+                    </div>
+                    <div class="card-body text-center">
+                        {% if product.qr_code_url %}
+                            <div class="form-group">
+                                <img src="{{ product.qr_code_url }}" alt="Código QR" class="img_code">
+                                <div class="mt-2">
+                                    <small class="text-muted">Código: {{ product.code }}</small>
+                                </div>
+                            </div>
+                        {% else %}
+                            <p>No se ha generado un código QR.</p>
+                        {% endif %}
+                    </div>
+                </div>
 
 
                 </div>
