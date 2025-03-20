@@ -112,6 +112,27 @@
     color: white;
 }
 
+/* Hide mobile header on large screens */
+@media (min-width: 769px) {
+  .mobile-header {
+    display: none;
+  }
+}
+
+/* Ensure mobile header is visible on small screens */
+@media (max-width: 768px) {
+  .mobile-header {
+    display: flex;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background-color: var(--primary-color, #01257d);
+    padding: 10px 15px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    width: 100%;
+  }
+}
+
 
 
 
