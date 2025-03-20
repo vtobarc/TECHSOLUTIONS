@@ -337,20 +337,24 @@ import barcode
 from barcode.writer import ImageWriter
 import qrcode
 from django.db import transaction
+from django.db import models
 
 class Product(models.Model):
     name = models.CharField(max_length=200)
     code = models.CharField(max_length=50, unique=True)
     barcode = models.CharField(max_length=100, unique=True, blank=True)
-    barcode_image = CloudinaryField('barcodes', blank=True)  # Usar CloudinaryField
-    qr_code = CloudinaryField('qrcodes', blank=True)  # Usar CloudinaryField
+    barcode_image = CloudinaryField('barcodes', blank=True)
+    # Añadir estos campos para almacenar las URLs
+    barcode_image_url = models.URLField(blank=True)
+    qr_code = CloudinaryField('qrcodes', blank=True)
+    qr_code_url = models.URLField(blank=True)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
     description = HTMLField(blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     cost = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     stock = models.IntegerField(default=0)
     minimum_stock = models.IntegerField(default=0)
-    image = CloudinaryField('products', blank=True)  # Usar CloudinaryField
+    image = CloudinaryField('products', blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_available = models.BooleanField(default=True)
@@ -365,11 +369,11 @@ class Product(models.Model):
     
     def save(self, *args, **kwargs):
         # Guardar primero sin generar códigos
-        generate_codes = not self.barcode and self.code
+        is_new = self._state.adding
         super(Product, self).save(*args, **kwargs)
         
         # Después de guardar, generar los códigos si es necesario
-        if generate_codes:
+        if is_new and self.code and not self.barcode:
             self.generate_codes()
     
     def generate_codes(self):
@@ -402,9 +406,9 @@ class Product(models.Model):
                 Product.objects.filter(pk=self.pk).update(
                     barcode=self.code,
                     barcode_image=barcode_result['public_id'],
-                    barcode_image_url=barcode_result['secure_url'],  # Guardar URL en campo separado
+                    barcode_image_url=barcode_result['secure_url'],
                     qr_code=qr_result['public_id'],
-                    qr_code_url=qr_result['secure_url']  # Guardar URL en campo separado
+                    qr_code_url=qr_result['secure_url']
                 )
             
             # Refrescar el objeto
@@ -417,7 +421,7 @@ class Product(models.Model):
         main_image = self.images.filter(is_main=True).first()
         if main_image:
             return main_image.image
-        return self.image  # Fallback to the original image field
+        return self.image
         
     def get_gallery_images(self):
         return self.images.all()
