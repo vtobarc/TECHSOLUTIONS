@@ -22,6 +22,7 @@ from io import BytesIO
 from django.core.files.base import ContentFile, File  # Asegúrate de agregar 'File' aquí
 from .models import Product, ProductImage, Category, StockMovement
 from tinymce.widgets import TinyMCE
+from .models import Brand
 
 class CustomUserCreationForm(UserCreationForm):
     cedula = forms.CharField(
