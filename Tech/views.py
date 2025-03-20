@@ -1923,7 +1923,6 @@ def product_list(request):
 
 # The issue is likely in your product_form view function
 
-
 @login_required
 @user_passes_test(is_admin)
 def product_form(request, product_id=None):
@@ -1941,7 +1940,7 @@ def product_form(request, product_id=None):
         if form.is_valid() and formset.is_valid():
             try:
                 with transaction.atomic():
-                    # Guardar el producto primero
+                    # Guardar el producto primero - los códigos se generarán automáticamente
                     product = form.save()
                     
                     # Guardar el formset de imágenes
