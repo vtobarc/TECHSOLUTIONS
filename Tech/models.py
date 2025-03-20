@@ -336,6 +336,7 @@ from io import BytesIO
 import barcode
 from barcode.writer import ImageWriter
 import qrcode
+from django.core.files.uploadedfile import InMemoryUploadedFile
 
 class Product(models.Model):
     name = models.CharField(max_length=200)
@@ -363,31 +364,77 @@ class Product(models.Model):
         return f"{self.name} - {self.code}"
     
     def save(self, *args, **kwargs):
-        if not self.barcode and self.code:
-            # Generación del código de barras
-            barcode_value = self.code.zfill(12)
-            ean = barcode.get('ean13', barcode_value, writer=ImageWriter())
-            buffer = BytesIO()
-            ean.write(buffer)
-            buffer.seek(0)
-
-            # Subir la imagen del código de barras a Cloudinary directamente
-            barcode_image = upload(buffer, folder="barcodes")  # Subir a Cloudinary
-            self.barcode_image = barcode_image['secure_url']  # Asignar la URL generada por Cloudinary
-
-            # Generación y subida del código QR a Cloudinary
-            qr = qrcode.QRCode(version=1, box_size=10, border=5)
-            qr.add_data(self.code)
-            qr.make(fit=True)
-            qr_image = qr.make_image(fill_color="black", back_color="white")
-            buffer = BytesIO()
-            qr_image.save(buffer, format='PNG')
-            buffer.seek(0)
-
-            qr_code_image = upload(buffer, folder="qrcodes")  # Subir a Cloudinary
-            self.qr_code = qr_code_image['secure_url']  # Asignar la URL generada por Cloudinary
-
-        super().save(*args, **kwargs)
+        is_new = self._state.adding or not self.pk
+        
+        # Si no tiene código de barras y tiene código, generarlo
+        generate_codes = not self.barcode and self.code
+        
+        # Primero guardar el objeto para tener un ID si es necesario
+        if is_new:
+            super().save(*args, **kwargs)
+        
+        if generate_codes:
+            try:
+                # Generación del código de barras
+                barcode_value = self.code.zfill(12)
+                ean = barcode.get('ean13', barcode_value, writer=ImageWriter())
+                buffer = BytesIO()
+                ean.write(buffer)
+                buffer.seek(0)
+                
+                # Subir a Cloudinary
+                barcode_result = upload(buffer, folder="barcodes")
+                
+                # Crear un archivo temporal para CloudinaryField
+                barcode_file = InMemoryUploadedFile(
+                    BytesIO(buffer.getvalue()), 
+                    None, 
+                    f"{self.code}_barcode.png", 
+                    'image/png',
+                    buffer.getbuffer().nbytes, 
+                    None
+                )
+                
+                # Asignar el código de barras y el public_id
+                self.barcode = self.code
+                self.barcode_image.public_id = barcode_result['public_id']
+                
+                # Generación del código QR
+                qr = qrcode.QRCode(version=1, box_size=10, border=5)
+                qr.add_data(self.code)
+                qr.make(fit=True)
+                qr_image = qr.make_image(fill_color="black", back_color="white")
+                qr_buffer = BytesIO()
+                qr_image.save(qr_buffer, format='PNG')
+                qr_buffer.seek(0)
+                
+                # Subir a Cloudinary
+                qr_result = upload(qr_buffer, folder="qrcodes")
+                
+                # Asignar el public_id del QR
+                self.qr_code.public_id = qr_result['public_id']
+                
+                # Guardar los cambios
+                if not is_new:
+                    super().save(*args, **kwargs)
+                else:
+                    # Si ya guardamos antes, actualizar solo los campos específicos
+                    Product.objects.filter(pk=self.pk).update(
+                        barcode=self.code,
+                        barcode_image=barcode_result['public_id'],
+                        qr_code=qr_result['public_id']
+                    )
+                    # Refrescar el objeto
+                    self.refresh_from_db()
+            except Exception as e:
+                print(f"Error al generar códigos: {e}")
+                # Si hubo un error pero es un objeto nuevo, asegurarse de que se guarde
+                if is_new and not self.pk:
+                    super().save(*args, **kwargs)
+        else:
+            # Si no necesitamos generar códigos, guardar normalmente
+            if not is_new:
+                super().save(*args, **kwargs)
     
     def get_main_image(self):
         main_image = self.images.filter(is_main=True).first()
@@ -420,7 +467,6 @@ class ProductImage(models.Model):
         elif not ProductImage.objects.filter(product=self.product).exists():
             self.is_main = True
         super().save(*args, **kwargs)
-
         
 class StockMovement(models.Model):
     MOVEMENT_TYPES = [
