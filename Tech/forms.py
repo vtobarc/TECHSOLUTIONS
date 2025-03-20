@@ -101,7 +101,16 @@ class ProductImageForm(forms.ModelForm):
             'order': forms.NumberInput(attrs={'class': 'form-control', 'min': 0})
         }
 
-
+class BrandForm(forms.ModelForm):
+    class Meta:
+        model = Brand
+        fields = ['name', 'logo', 'website']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre de la marca'}),
+            'logo': forms.FileInput(attrs={'class': 'form-control-file'}),
+            'website': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'Sitio web (opcional)'}),
+        }
+        
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
