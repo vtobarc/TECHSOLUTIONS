@@ -436,37 +436,36 @@
                     </div>
 
 
-               <div class="card mb-4">
-    <div class="card-header">
-        <h6 class="m-0 font-weight-bold text-primary">Imagen del código de barras</h6>
-    </div>
-    <div class="card-body">
-        {% if product.barcode_image %}
-            <div class="form-group">
-                <img src="{{ producto.barcode_image_url }}" alt="Código de barras" class="img_code">
-                <img src="{{ product.barcode_image.url }}" alt="Código de barras" class="img_code">
+                                 <div class="card mb-4">
+                        <div class="card-header">
+                            <h6 class="m-0 font-weight-bold text-primary">Imagen del código de barras</h6>
+                        </div>
+                        <div class="card-body">
+                            {% if producto.barcode_image_url %}
+                                <div class="form-group">
+                                    <img src="{{ producto.barcode_image_url }}" alt="Código de barras" class="img_code">
+                                </div>
+                            {% else %}
+                                <p>No se ha generado un código de barras.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h6 class="m-0 font-weight-bold text-primary">Imagen del código QR</h6>
+                        </div>
+                        <div class="card-body">
+                            {% if producto.qr_code_url %}
+                                <div class="form-group">
+                                    <img src="{{ producto.qr_code_url }}" alt="Código QR" class="img_code">
+                                </div>
+                            {% else %}
+                                <p>No se ha generado un código QR.</p>
+                            {% endif %}
+                        </div>
+                    </div>
 
-            </div>
-        {% else %}
-            <p>No se ha generado un código de barras.</p>
-        {% endif %}
-    </div>
-</div>
-
-<div class="card mb-4">
-    <div class="card-header">
-        <h6 class="m-0 font-weight-bold text-primary">Imagen del código QR</h6>
-    </div>
-    <div class="card-body">
-        {% if producto.qr_code_url %}
-            <div class="form-group">
-                <img src="{{ producto.qr_code_url }}" alt="Código QR" class="img_code">
-            </div>
-        {% else %}
-            <p>No se ha generado un código QR.</p>
-        {% endif %}
-    </div>
-</div>
 
                 </div>
 
