@@ -7,22 +7,39 @@
 <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
 <link rel="stylesheet" href="{% static 'css/productos.css' %}">
 <link rel="stylesheet" href="{% static 'css/category.css' %}">
+<link rel="stylesheet" href="{% static 'css/mobile-category.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 {% endblock %}
 {% block main_content %}
+
+<!-- Mobile Header (only visible on mobile) -->
+<div class="mobile-header">
+  <div class="logo-container">
+    <div class="logo">T</div>
+    <h2 class="brand">Taskforge</h2>
+    <button class="menu-button" id="menu-button">
+      <i class="fas fa-bars"></i>
+    </button>
+  </div>
+  
+  <div class="search-container">
+    <input type="text" placeholder="Buscar productos..." class="search-input">
+    <button class="filter-button" id="filter-button">
+      <i class="fas fa-filter"></i>
+    </button>
+  </div>
+</div>
 
 <div class="category-detail">
     <div class="category-header">
         <div class="header-content">
-
             <h1>{{ selected_category.name }}</h1>
             {% if selected_category.description %}
             <p class="category-description">{{ selected_category.description }}</p>
             {% else %}
             <h1>General</h1>
             <p class="category-description">Aquí puedes ver todos los productos de esta categoría.</p>
-        {% endif %}
-
-
+            {% endif %}
         </div>
     </div>
 
@@ -48,48 +65,26 @@
                         <div class="product-info">
                             <h3>{{ product.name }}</h3>
                             <h3>${{ product.price }} + IVA</h3>
-                           <!-- {% if product.description %}
-                            <div class="product-description">
-                                {% autoescape off %}
-                                    {{ product.description|truncatechars:50 }}
-                                {% endautoescape %}
-                            </div>
-                                                            
-                            {% endif %}
-                             -->
                            
                             <div class="product-details">
                                 {% if is_cliente_home %}
                                 <a href="{% url 'cliente_product_detail' product_id=product.id %}" class="card-link">
-                            {% else %}
+                                {% else %}
                                 <a href="{% url 'product_detail' category_id=category.id product_id=product.id %}" class="card-link">
-                            {% endif %}
+                                {% endif %}
                                 <button type="button" class="add-to-cart-btn">
                                     <i class="fas fa-eye"></i> Ver
                                 </button>
-                            </a>
-                            <!--  <p>Category ID: {{ category.id }} | Product ID: {{ product.id }}</p>     -->
+                                </a>
                                 
                                 <form action="{% url 'add_to_cart' product_id=product.id %}" method="POST">
                                     {% csrf_token %}
-                    
                                     <button type="submit" class="add-to-cart-btn">                
                                         <i class="fas fa-shopping-cart"></i>
                                         Añadir
                                     </button>
                                 </form>
-                               <!--
-                                <div class="product-codes">
-                                    {% if product.barcode_image %}
-                                        <img src="{{ product.barcode_image.url }}" alt="Código de barras" class="code-image">
-                                    {% endif %}
-                                    {% if product.qr_code %}
-                                        <img src="{{ product.qr_code.url }}" alt="Código QR" class="code-image">
-                                    {% endif %}
-                                </div>
-                                -->
                             </div>
-                            
                         </div>
                     </div>
                 {% endfor %}
@@ -102,4 +97,174 @@
     </div>
 </div>
 
+<!-- Mobile Navigation Bar (only visible on mobile) -->
+<div class="mobile-nav">
+  <a href="{% url 'cliente_home' %}" class="active">
+    <i class="fas fa-home"></i>
+    <span>Inicio</span>
+  </a>
+  <a href="#" id="search-link">
+    <i class="fas fa-search"></i>
+    <span>Buscar</span>
+  </a>
+  <a href="{% url 'cart' %}">
+    <i class="fas fa-shopping-cart"></i>
+    <span>Carrito</span>
+  </a>
+  <a href="#" id="menu-link">
+    <i class="fas fa-bars"></i>
+    <span>Menú</span>
+  </a>
+</div>
+
+<!-- Filter Modal -->
+<div class="filter-modal" id="filter-modal">
+  <div class="filter-modal-header">
+    <h2>Filtros</h2>
+    <button class="close-button" id="close-filter">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <div class="filter-modal-content">
+    <div class="filter-section">
+      <h3>Categorías:</h3>
+      <a href="{% url 'cliente_home' %}" class="filter-option {% if not selected_category %}active{% endif %}">
+        Todas las categorías
+      </a>
+      {% for category in all_categories %}
+        <a href="{% url 'category_detail' category.id %}" class="filter-option {% if selected_category_id == category.id|stringformat:'s' %}active{% endif %}">
+          {{ category.name }}
+        </a>
+      {% endfor %}
+    </div>
+    
+    <div class="filter-section">
+      <h3>Ordenar por:</h3>
+      <select name="sort_by" class="form-control">
+        <option value="relevance" {% if sort_by == 'relevance' %}selected{% endif %}>Relevancia</option>
+        <option value="price-asc" {% if sort_by == 'price-asc' %}selected{% endif %}>Precio: Menor a Mayor</option>
+        <option value="price-desc" {% if sort_by == 'price-desc' %}selected{% endif %}>Precio: Mayor a Menor</option>
+        <option value="name-asc" {% if sort_by == 'name-asc' %}selected{% endif %}>Nombre: A-Z</option>
+        <option value="name-desc" {% if sort_by == 'name-desc' %}selected{% endif %}>Nombre: Z-A</option>
+      </select>
+    </div>
+    
+    <div class="filter-section">
+      <h3>Marca:</h3>
+      <select name="brand" id="brand" class="form-control">
+        <option value="">Todas las marcas</option>
+        {% for brand in all_brands %}
+          <option value="{{ brand.id }}" {% if brand.id == selected_brand %}selected{% endif %}>
+            {{ brand.name }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+    
+    <div class="filter-section">
+      <h3>Precio:</h3>
+      <input type="range" id="price-slider" min="0" max="100" class="price-slider">
+      <div class="price-range">
+        <span>$0</span>
+        <span>$100</span>
+      </div>
+    </div>
+    
+    <div class="filter-buttons">
+      <button class="btn-secondary" id="cancel-filter">Cancelar</button>
+      <button class="btn-primary" id="apply-filter">Aplicar Filtros</button>
+    </div>
+  </div>
+</div>
+
+<!-- Menu Modal -->
+<div class="menu-modal" id="menu-modal">
+  <div class="filter-modal-header">
+    <h2>Menú</h2>
+    <button class="close-button" id="close-menu">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <div class="menu-modal-content">
+    <a href="{% url 'cliente_home' %}" class="menu-item">Inicio</a>
+    <a href="{% url 'productos' %}" class="menu-item">Productos</a>
+    <a href="{% url 'categorias' %}" class="menu-item">Categorías</a>
+    <a href="{% url 'mi_cuenta' %}" class="menu-item">Mi Cuenta</a>
+    <a href="{% url 'cart' %}" class="menu-item">Carrito</a>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Show/hide filter modal
+    const filterButton = document.getElementById('filter-button');
+    const filterModal = document.getElementById('filter-modal');
+    const closeFilter = document.getElementById('close-filter');
+    const cancelFilter = document.getElementById('cancel-filter');
+    
+    if (filterButton) {
+      filterButton.addEventListener('click', function() {
+        filterModal.classList.add('open');
+      });
+    }
+    
+    if (closeFilter) {
+      closeFilter.addEventListener('click', function() {
+        filterModal.classList.remove('open');
+      });
+    }
+    
+    if (cancelFilter) {
+      cancelFilter.addEventListener('click', function() {
+        filterModal.classList.remove('open');
+      });
+    }
+    
+    // Show/hide menu modal
+    const menuButton = document.getElementById('menu-button');
+    const menuLink = document.getElementById('menu-link');
+    const menuModal = document.getElementById('menu-modal');
+    const closeMenu = document.getElementById('close-menu');
+    
+    if (menuButton) {
+      menuButton.addEventListener('click', function() {
+        menuModal.classList.add('open');
+      });
+    }
+    
+    if (menuLink) {
+      menuLink.addEventListener('click', function(e) {
+        e.preventDefault();
+        menuModal.classList.add('open');
+      });
+    }
+    
+    if (closeMenu) {
+      closeMenu.addEventListener('click', function() {
+        menuModal.classList.remove('open');
+      });
+    }
+    
+    // Apply filters
+    const applyFilter = document.getElementById('apply-filter');
+    if (applyFilter) {
+      applyFilter.addEventListener('click', function() {
+        // Get filter values
+        const sortBy = document.querySelector('select[name="sort_by"]').value;
+        const brand = document.querySelector('select[name="brand"]').value;
+        const priceSlider = document.getElementById('price-slider');
+        const maxPrice = priceSlider ? priceSlider.value : 100;
+        
+        // Build URL with filter parameters
+        let url = new URL(window.location.href);
+        url.searchParams.set('sort_by', sortBy);
+        if (brand) url.searchParams.set('brand', brand);
+        url.searchParams.set('max_price', maxPrice);
+        
+        // Redirect to filtered URL
+        window.location.href = url.toString();
+      });
+    }
+  });
+</script>
 {% endblock %}
