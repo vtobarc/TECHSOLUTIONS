@@ -11,6 +11,17 @@
 {% endblock %}
 
 {% block main_content %}
+<!-- Mobile Header (only visible on mobile) -->
+<div class="mobile-header">
+  <div class="search-container">
+    <input type="text" placeholder="Buscar productos..." class="search-input">
+    <button class="filter-button" id="filter-button">
+      <i class="fas fa-filter"></i>
+    </button>
+  </div>
+</div>
+
+
 <div class="product-detail-container">
     <div class="product-detail-header">
         <h1>{{ product.name }}</h1>
