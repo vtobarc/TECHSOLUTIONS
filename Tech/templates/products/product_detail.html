@@ -218,4 +218,45 @@
         });
     }
 </script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Create overlay element\
+    const overlay = document.createElement('div');
+    overlay.className = 'filter-overlay';
+    document.body.appendChild(overlay);
+    
+    // Show/hide filter modal with overlay
+    const filterButton = document.getElementById('filter-button');
+    const filterModal = document.getElementById('filter-modal');
+    const closeFilter = document.getElementById('close-filter');
+    const cancelFilter = document.getElementById('cancel-filter');
+    
+    if (filterButton) {
+      filterButton.addEventListener('click', () => {
+        filterModal.classList.add('open');
+        overlay.classList.add('open');
+        document.body.style.overflow = 'hidden'; // Prevent scrolling
+      });
+    }
+    
+    function closeFilterModal() {
+      filterModal.classList.remove('open');
+      overlay.classList.remove('open');
+      document.body.style.overflow = ''; // Re-enable scrolling
+    }
+    
+    if (closeFilter) {
+      closeFilter.addEventListener('click', closeFilterModal);
+    }
+    
+    if (cancelFilter) {
+      cancelFilter.addEventListener('click', closeFilterModal);
+    }
+    
+    // Close modal when clicking on overlay
+    overlay.addEventListener('click', closeFilterModal);
+  });
+</script>
+
+
 {% endblock %}
