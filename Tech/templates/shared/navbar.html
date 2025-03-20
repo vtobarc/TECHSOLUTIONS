@@ -2,29 +2,21 @@
 {% load cloudinary %}
 {% load custom_filters %}  <!-- Cargar el archivo con el nombre correcto -->
 
+
 {% block extra_css %}   
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <link rel="stylesheet" href="{% static 'css/in-styles.css' %}">
-
+    <link rel="stylesheet" href="{% static 'css/mobile-nav.css' %}">
 {% endblock %}
 
 
-<!-- # Barra de navegación -->
-<style>
- 
-</style>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}TechVanguard{% endblock %}</title>
-   <style>
-   </style>
-  </head>    
-
-
+</head>    
 
 <header class="header">
-
     <div class="container">
       <a href="{% url 'home' %}" class="logo">
         {% if company.logo %}
@@ -33,193 +25,301 @@
             <img src="{% static 'img/default-logo.png' %}" alt="Logo predeterminado" class="h-8" loading="lazy">
         {% endif %}
         <span class="text-white text-lg ml-2 hide-on-mobile">{{ company.name }}</span>
-
       </a>
-        <button id="menu-toggle" class="block md:hidden text-black focus:outline-none">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
-            </svg>
-        </button>
+      
+      <button id="menu-toggle" class="block md:hidden text-black focus:outline-none">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+          </svg>
+      </button>
+      
+      <nav id="nav-menu" class="navigation">
+          <a href="{% url 'home' %}" class="nav-link"><i class="fas fa-home"></i> Inicio</a>
+          
+          {% if user.is_authenticated %}
+              {% if user.rol != 'Servidor' %}
+                  <a href="{% url 'cliente_home' %}" class="nav-link"><i class="fas fa-users"></i> Clientes</a>
+              {% endif %}
+
+              {% if user.rol in 'Servidor,Admin' %}
+                  <a href="" class="nav-link"><i class="fas fa-cogs"></i> Prestadores</a>
+              {% endif %}
+          {% endif %}
         
-                  <nav id="nav-menu" class="navigation">
-                      <a href="{% url 'home' %}" class="nav-link"><i class="fas fa-home"></i> Inicio</a>
-                      
-                          {% if user.is_authenticated %}
+          <a href="{% url 'nosotros' %}" class="nav-link"><i class="fas fa-info-circle"></i> Nosotros</a>
+          
+          {% if user.is_authenticated %}
+              {% if user.rol in 'Servidor,Admin' %}
+                  <a href="{% url 'servicios' %}" class="nav-link"><i class="fas fa-briefcase"></i> Servicios</a>
+              {% endif %}
 
-                              {% if user.rol != 'Servidor' %}
-                              
-                                  <a href="{% url 'cliente_home' %}" class="nav-link"><i class="fas fa-users"></i> Clientes</a>
-                             
-                                  {% endif %}
+              <button id="theme-toggle" class="theme-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"></path>
+                </svg>                        
+              </button>
+              
+              <div class="icon-container">
+                <div class="notification-icon nav-link">
+                    <i class="fas fa-bell"></i>
+                    <span class="badge" id="notification-count"></span>
+                    <div class="dropdown" id="notifications-dropdown">
+                        <h2 class="dropdown-header">Notificaciones</h2>
+                        <ul class="dropdown-list" id="notifications-list">
+                            <li>Notificación 1</li>
+                            <li>Notificación 2</li>
+                            <li>Notificación 3</li>
+                        </ul>                               
+                        <div class="dropdown-footer">
+                            <a href="" id="load-more-notifications" class="btn btn-link btn-sm">Ver más</a>
+                        </div>
+                    </div>
+                </div>
 
-                              {% if user.rol in 'Servidor,Admin' %}
-                                  <a href="" class="nav-link"><i class="fas fa-cogs"></i> Prestadores</a>
-                              {% endif %}
-                            
-                          {% endif %}
-                        
-                      <a href="{% url 'nosotros' %}" class="nav-link"><i class="fas fa-info-circle"></i> Nosotros</a>
-                      
-
-                      {% if user.is_authenticated %}
-
-                      {% if user.rol in 'Servidor,Admin' %}
-
-
-                      <a href="{% url 'servicios' %}" class="nav-link"><i class="fas fa-briefcase"></i> Servicios</a>
-                      {% endif %}
-
-                      <button id="theme-toggle" class="theme-toggle">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"></path>
-                          </svg>                        
-                      </button>
-
-                      
-                      <!--a href="{% url 'logout' %}" class="nav-link"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</a-->
+                <div class="message-icon nav-link">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="badge" id="cart-item-count">0</span>  <!-- Muestra el número de items en el carrito -->
+                
+                    <div class="dropdown" id="messages-dropdown">
+                        <h2 class="dropdown-header">Carrito de Compras</h2>
                        
-                      
-                      
-                      
-                      <div class="icon-container">
-                        <div class="notification-icon nav-link">
-                            <i class="fas fa-bell"></i>
-                            <span class="badge" id="notification-count"></span>
-                            <div class="dropdown" id="notifications-dropdown">
-                                <h2 class="dropdown-header">Notificaciones</h2>
-
-                                <ul class="dropdown-list" id="notifications-list">
-                                    <li>Notificación 1</li>
-                                    <li>Notificación 2</li>
-                                    <li>Notificación 3</li>
-                                </ul>                               
-                                <div class="dropdown-footer">
-                                    <a href="" id="load-more-notifications" class="btn btn-link btn-sm">Ver más</a>
-                                </div>
-                            </div>
-                        </div>
-
-
-                        <div class="message-icon nav-link">
-                            <i class="fas fa-shopping-cart"></i>
-                            <span class="badge" id="cart-item-count">0</span>  <!-- Muestra el número de items en el carrito -->
+                        <ul class="dropdown-list" id="cart-items-list"></ul>
                         
-                            <div class="dropdown" id="messages-dropdown">
-                                <h2 class="dropdown-header">Carrito de Compras</h2>
-                               
-                                <ul class="dropdown-list" id="cart-items-list"></ul>
-                                
-                                <div class="dropdown-footer">
-                                    {% if request.user.is_authenticated %}
-                                        <a href="{% url 'cart_detail' %}" id="view-cart" class="btn btn-link btn-sm">Ver carrito</a>
-                                        <a href="{% url 'cart_detail' %}" id="checkout" class="btn btn-primary btn-sm">Pagar</a>
-                                    {% else %}
-                                        <p class="text-muted text-center">Inicia sesión para ver tu carrito</p>
-                                        <a href="{% url 'login' %}" class="btn btn-primary btn-sm">Iniciar sesión</a>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                        
-                        
-                    </div>
-                    
-                    {% else %} 
-
-                    
-                    
-                    
-                     
-                    
-                      <a href="{% url 'login' %}" class="nav-link"><i class="fas fa-sign-in-alt"></i> Iniciar sesión o Registrarse</a>
-                      <div class="icon-container">
-
-
-                        <div class="message-icon nav-link">
-                            <i class="fas fa-shopping-cart"></i>
-                            <span class="badge" id="cart-item-count">0</span>  <!-- Muestra el número de items en el carrito -->
-                        
-                            <div class="dropdown" id="messages-dropdown">
-                                <h2 class="dropdown-header">Carrito de Compras</h2>
-                               
-                                <ul class="dropdown-list" id="cart-items-list"></ul>
-                                
-                                <div class="dropdown-footer">
-                                    {% if request.user.is_authenticated %}
-                                        <a href="{% url 'cart_detail' %}" id="view-cart" class="btn btn-link btn-sm">Ver carrito</a>
-                                        <a href="{% url 'cart_detail' %}" id="checkout" class="btn btn-primary btn-sm">Pagar</a>
-                                    {% else %}
-                                        <p class="text-muted text-center">Inicia sesión para ver tu carrito</p>
-                                        <a href="{% url 'login' %}" class="btn btn-primary btn-sm">Iniciar sesión</a>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                        
-                        
-                    </div>
-                    
-                    
-                       
-                        
-                        
-                    </div>
-                      {% endif %}
-                      
-                      {% if user.is_authenticated %}
-
-                      <div class="profile-wrapper">
-                        <button id="profile-btn" class="profile-button" aria-label="Abrir menú de perfil">
-                          {% if user.foto_perfil %}
-                            <img src="{{ user.foto_perfil.url|cloudinary_url:'w_100,h_100,c_fill,g_face,r_max' }}" alt="Foto de perfil" class="profile-image">
-                        {% else %}
-                            <img src="{% static 'img/placeholder.svg' %}" alt="Profile" class="profile-image">
+                        <div class="dropdown-footer">
+                            {% if request.user.is_authenticated %}
+                                <a href="{% url 'cart_detail' %}" id="view-cart" class="btn btn-link btn-sm">Ver carrito</a>
+                                <a href="{% url 'cart_detail' %}" id="checkout" class="btn btn-primary btn-sm">Pagar</a>
+                            {% else %}
+                                <p class="text-muted text-center">Inicia sesión para ver tu carrito</p>
+                                <a href="{% url 'login' %}" class="btn btn-primary btn-sm">Iniciar sesión</a>
                             {% endif %}
-                          
-                          </button>
-
-                          <div id="profile-dropdown" class="profile-dropdown">
-                              <div class="profile-header">
-                                  <p class="username">{{ user.first_name }}</p>
-                                  <p class="email">{{ user.email }}</p>
-                              </div>
-                              <div class="profile-menu">
-                                <a class="nav-link" href="{% url 'perfil' %}">
-                                    <i class="fas fa-user"></i> My Profile
-                                </a>
-                                <a class="nav-link" href="">
-                                  <i class="fas fa-cog"></i> Settings
-                              </a>
-                              {% if user.is_superuser %}
-                              <a class="nav-link" href="{% url 'admin_dashboard' %}">
-                                <i class="fas fa-user-shield"></i> Administrador
-                                
-                            </a>
-                              {% endif %}
-                              
-                              <a href="" class="nav-link">
-                                <i class="fas fa-history"></i> Historial</a>
-
-                                  <div class="divider"></div>
-                                  <a class="nav-link" href="#" onclick="document.getElementById('logout-form').submit();">
-                                    <i class="fas fa-sign-out-alt"></i> Logout
-                                </a>
-                                <form id="logout-form" action="{% url 'logout' %}" method="post" style="display: none;">
-                                    {% csrf_token %}
-                                </form>
-                          </div>
-                          <div class="profile-footer">
-                          
                         </div>
-                      </div>
-                          {% endif %}
-                      </div>
-                  </nav>
+                    </div>
+                </div>
+              </div>
+          {% else %}
+              <a href="{% url 'login' %}" class="nav-link"><i class="fas fa-sign-in-alt"></i> Iniciar sesión o Registrarse</a>
+              <div class="icon-container">
+                <div class="message-icon nav-link">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="badge" id="cart-item-count">0</span>  <!-- Muestra el número de items en el carrito -->
+                
+                    <div class="dropdown" id="messages-dropdown">
+                        <h2 class="dropdown-header">Carrito de Compras</h2>
+                       
+                        <ul class="dropdown-list" id="cart-items-list"></ul>
+                        
+                        <div class="dropdown-footer">
+                            {% if request.user.is_authenticated %}
+                                <a href="{% url 'cart_detail' %}" id="view-cart" class="btn btn-link btn-sm">Ver carrito</a>
+                                <a href="{% url 'cart_detail' %}" id="checkout" class="btn btn-primary btn-sm">Pagar</a>
+                            {% else %}
+                                <p class="text-muted text-center">Inicia sesión para ver tu carrito</p>
+                                <a href="{% url 'login' %}" class="btn btn-primary btn-sm">Iniciar sesión</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+              </div>
+          {% endif %}
+          
+          {% if user.is_authenticated %}
+              <div class="profile-wrapper">
+                <button id="profile-btn" class="profile-button" aria-label="Abrir menú de perfil">
+                  {% if user.foto_perfil %}
+                    <img src="{{ user.foto_perfil.url|cloudinary_url:'w_100,h_100,c_fill,g_face,r_max' }}" alt="Foto de perfil" class="profile-image">
+                  {% else %}
+                    <img src="{% static 'img/placeholder.svg' %}" alt="Profile" class="profile-image">
+                  {% endif %}
+                </button>
+
+                <div id="profile-dropdown" class="profile-dropdown">
+                    <div class="profile-header">
+                        <p class="username">{{ user.first_name }}</p>
+                        <p class="email">{{ user.email }}</p>
+                    </div>
+                    <div class="profile-menu">
+                      <a class="nav-link" href="{% url 'perfil' %}">
+                          <i class="fas fa-user"></i> My Profile
+                      </a>
+                      <a class="nav-link" href="">
+                        <i class="fas fa-cog"></i> Settings
+                      </a>
+                      {% if user.is_superuser %}
+                        <a class="nav-link" href="{% url 'admin_dashboard' %}">
+                          <i class="fas fa-user-shield"></i> Administrador
+                        </a>
+                      {% endif %}
+                      
+                      <a href="" class="nav-link">
+                        <i class="fas fa-history"></i> Historial</a>
+
+                      <div class="divider"></div>
+                      <a class="nav-link" href="#" onclick="document.getElementById('logout-form').submit();">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                      </a>
+                      <form id="logout-form" action="{% url 'logout' %}" method="post" style="display: none;">
+                          {% csrf_token %}
+                      </form>
+                    </div>
+                    <div class="profile-footer"></div>
+                </div>
+              </div>
+          {% endif %}
+      </nav>
     </div>
 </header>
 
+<!-- Mobile Navigation Bar (only visible on mobile) -->
+<div class="mobile-nav">
+  <a href="{% url 'home' %}" class="active">
+    <i class="fas fa-home"></i>
+    <span>Inicio</span>
+  </a>
+  <a href="{% url 'cliente_home' %}">
+    <i class="fas fa-store"></i>
+    <span>Productos</span>
+  </a>
+  <a href="{% url 'cart_detail' %}">
+    <i class="fas fa-shopping-cart"></i>
+    <span>Carrito</span>
+    <span class="badge" id="mobile-cart-count">0</span>
+  </a>
+  <a href="#" id="mobile-menu-btn">
+    <i class="fas fa-bars"></i>
+    <span>Menú</span>
+  </a>
+</div>
+
+<!-- Mobile Menu Modal -->
+<div class="menu-overlay" id="menu-overlay"></div>
+<div class="mobile-menu-modal" id="mobile-menu-modal">
+  <div class="mobile-menu-header">
+    <h2>Menú</h2>
+    <button class="close-menu-button" id="close-menu-button">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  
+  {% if user.is_authenticated %}
+  <div class="mobile-profile-section">
+    {% if user.foto_perfil %}
+      <img src="{{ user.foto_perfil.url|cloudinary_url:'w_100,h_100,c_fill,g_face,r_max' }}" alt="Foto de perfil" class="mobile-profile-image">
+    {% else %}
+      <img src="{% static 'img/placeholder.svg' %}" alt="Profile" class="mobile-profile-image">
+    {% endif %}
+    <div class="mobile-profile-info">
+      <p class="mobile-profile-name">{{ user.first_name }}</p>
+      <p class="mobile-profile-email">{{ user.email }}</p>
+    </div>
+  </div>
+  {% endif %}
+  
+  <div class="mobile-menu-content">
+    <a href="{% url 'home' %}" class="mobile-menu-item">
+      <i class="fas fa-home"></i> Inicio
+    </a>
+    <a href="{% url 'cliente_home' %}" class="mobile-menu-item">
+      <i class="fas fa-store"></i> Productos
+    </a>
+    <a href="{% url 'nosotros' %}" class="mobile-menu-item">
+      <i class="fas fa-info-circle"></i> Nosotros
+    </a>
+    
+    {% if user.is_authenticated %}
+      {% if user.rol in 'Servidor,Admin' %}
+        <a href="{% url 'servicios' %}" class="mobile-menu-item">
+          <i class="fas fa-briefcase"></i> Servicios
+        </a>
+      {% endif %}
+      
+      <a href="{% url 'perfil' %}" class="mobile-menu-item">
+        <i class="fas fa-user"></i> Mi Perfil
+      </a>
+      
+      {% if user.is_superuser %}
+        <a href="{% url 'admin_dashboard' %}" class="mobile-menu-item">
+          <i class="fas fa-user-shield"></i> Administrador
+        </a>
+      {% endif %}
+      
+      <a href="" class="mobile-menu-item">
+        <i class="fas fa-history"></i> Historial
+      </a>
+      
+      <a href="#" onclick="document.getElementById('logout-form').submit();" class="mobile-menu-item">
+        <i class="fas fa-sign-out-alt"></i> Cerrar sesión
+      </a>
+    {% else %}
+      <a href="{% url 'login' %}" class="mobile-menu-item">
+        <i class="fas fa-sign-in-alt"></i> Iniciar sesión
+      </a>
+    {% endif %}
+  </div>
+</div>
+
 <div class="overlay" id="overlay"></div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Mobile menu functionality
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const mobileMenuModal = document.getElementById('mobile-menu-modal');
+    const closeMenuButton = document.getElementById('close-menu-button');
+    const menuOverlay = document.getElementById('menu-overlay');
+    
+    // Open mobile menu
+    if (mobileMenuBtn) {
+      mobileMenuBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        mobileMenuModal.classList.add('open');
+        menuOverlay.classList.add('open');
+        document.body.style.overflow = 'hidden'; // Prevent scrolling
+      });
+    }
+    
+    // Close mobile menu
+    if (closeMenuButton) {
+      closeMenuButton.addEventListener('click', function() {
+        mobileMenuModal.classList.remove('open');
+        menuOverlay.classList.remove('open');
+        document.body.style.overflow = ''; // Re-enable scrolling
+      });
+    }
+    
+    if (menuOverlay) {
+      menuOverlay.addEventListener('click', function() {
+        mobileMenuModal.classList.remove('open');
+        menuOverlay.classList.remove('open');
+        document.body.style.overflow = ''; // Re-enable scrolling
+      });
+    }
+    
+    // Update cart count for mobile
+    const cartCount = document.getElementById('cart-item-count');
+    const mobileCartCount = document.getElementById('mobile-cart-count');
+    
+    // Sync cart count between desktop and mobile
+    if (cartCount && mobileCartCount) {
+      const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+          if (mutation.type === 'characterData' || mutation.type === 'childList') {
+            mobileCartCount.textContent = cartCount.textContent;
+          }
+        });
+      });
+      
+      observer.observe(cartCount, { 
+        characterData: true,
+        childList: true,
+        subtree: true
+      });
+      
+      // Initial sync
+      mobileCartCount.textContent = cartCount.textContent;
+    }
+  });
+</script>
 
 
     {% block extra_js %}
