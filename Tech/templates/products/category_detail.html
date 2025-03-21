@@ -34,18 +34,22 @@
 
 <div class="category-detail">
     <div class="category-header">
-        <div class="header-content">
-            {% if selected_category != 'all' and selected_category.name %}
-                <h1>{{ selected_category.name }}</h1>
-                {% if selected_category.description %}
-                    <p class="category-description">{{ selected_category.description }}</p>
+    <div class="header-content">
+        {% if selected_category != 'all' %}
+            {% for cat in all_categories %}
+                {% if cat.id|stringformat:'s' == selected_category %}
+                    <h1>{{ cat.name }}</h1>
+                    {% if cat.description %}
+                        <p class="category-description">{{ cat.description }}</p>
+                    {% endif %}
                 {% endif %}
-            {% else %}
-                <h1>Todos los productos</h1>
-                <p class="category-description">Explora nuestra colección completa de productos.</p>
-            {% endif %}
-        </div>
+            {% endfor %}
+        {% else %}
+            <h1>Todos los productos</h1>
+            <p class="category-description">Explora nuestra colección completa de productos.</p>
+        {% endif %}
     </div>
+</div>
 
     <div class="products-container">
         {% if products %}
