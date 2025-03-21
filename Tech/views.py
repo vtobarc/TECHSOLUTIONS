@@ -2827,7 +2827,25 @@ def manage_brands(request):
     brands = Brand.objects.all()
     return render(request, 'admin_dashboard/products/manage_brands.html', {'form': form, 'brands': brands})
 
+def edit_brand(request, brand_id):
+    brand = get_object_or_404(Brand, pk=brand_id)
+    if request.method == 'POST':
+        form = BrandForm(request.POST, request.FILES, instance=brand)
+        if form.is_valid():
+            form.save()
+            return redirect('manage_brands')  # Redirige a la página de administración de marcas
+    else:
+        form = BrandForm(instance=brand)
 
+    return render(request, 'admin_dashboard/products/manage_brands.html', {'form': form, 'brand': brand})
+
+def delete_brand(request, brand_id):
+    brand = get_object_or_404(Brand, pk=brand_id)
+    if request.method == 'POST':
+        brand.delete()
+        return redirect('manage_brands')  # Redirige a la misma página después de eliminar
+
+    return render(request, 'admin_dashboard/products/confirm_delete.html', {'brand': brand})
 def associate_certification(request, cert_id):
     # Obtén la certificación por su ID
     certification = get_object_or_404(Certification, id=cert_id)
