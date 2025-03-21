@@ -63,7 +63,12 @@ body.dark-mode {
   --accent-color: #4CAF50;
   --light-text: #777;
   --border-color: #ddd;
+  --button-primary: #000;
+  --button-secondary: #fff;
 }
+
+
+
   /* Estilos de nav-link en Dark Mode */
   body.dark-mode .nav-link a {
     color: var(--text-color);
