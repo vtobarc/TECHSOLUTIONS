@@ -50,8 +50,13 @@
                 <td><a href="{{ brand.website }}" target="_blank">{{ brand.website }}</a></td>
                 <td>
                     <!-- Acciones: Editar o Eliminar -->
-                    <a href="#" class="btn btn-warning btn-sm">Editar</a>
-                    <a href="#" class="btn btn-danger btn-sm">Eliminar</a>
+                      <!-- Acciones: Editar o Eliminar -->
+                    <a href="{% url 'edit_brand' brand.id %}" class="btn btn-warning btn-sm">Editar</a>
+                    <form method="POST" action="{% url 'delete_brand' brand.id %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                    </form>
+                  
                 </td>
             </tr>
             {% empty %}
