@@ -924,36 +924,47 @@
 </div>
 
 <script>
-    
     document.addEventListener('DOMContentLoaded', function() {
         // Cargar el resumen del pedido
         loadOrderSummary();
     
         // Seleccionar método de pago
         const paymentMethods = document.querySelectorAll('.payment-method');
+        const paymentDetails = document.querySelectorAll('.payment-details');
+        
+        // Ocultar todos los detalles de pago inicialmente
+        paymentDetails.forEach(detail => {
+            detail.style.display = 'none';
+        });
+        
         paymentMethods.forEach(method => {
             method.addEventListener('click', function() {
                 // Quitar selección anterior
-                paymentMethods.forEach(m => m.classList.remove('border-blue-500', 'bg-blue-50'));
+                paymentMethods.forEach(m => m.classList.remove('border-blue-500', 'bg-blue-50', 'selected'));
+                
                 // Añadir selección actual
-                this.classList.add('border-blue-500', 'bg-blue-50');
+                this.classList.add('border-blue-500', 'bg-blue-50', 'selected');
                 
                 // Ocultar todos los detalles de pago
-                document.querySelectorAll('.payment-details').forEach(detail => {
-                    detail.classList.add('hidden');
+                paymentDetails.forEach(detail => {
+                    detail.style.display = 'none';
                 });
                 
                 // Mostrar detalles según el método seleccionado
                 const selectedMethod = this.getAttribute('data-method');
+                
                 if (selectedMethod === 'transfer') {
-                    document.getElementById('transfer-details').classList.remove('hidden');
+                    document.getElementById('transfer-details').style.display = 'block';
                 } else if (selectedMethod === 'credit' || selectedMethod === 'debit') {
-                    document.getElementById('card-details').classList.remove('hidden');
+                    document.getElementById('card-details').style.display = 'block';
                 } else if (selectedMethod === 'store') {
-                    document.getElementById('store-details').classList.remove('hidden');
+                    document.getElementById('store-details').style.display = 'block';
                 }
             });
         });
+        
+        // Seleccionar transferencia bancaria por defecto
+        document.querySelector('.payment-method[data-method="transfer"]').click();
     
         // Opciones de envío
         const shippingOptions = document.querySelectorAll('input[name="shipping"]');
