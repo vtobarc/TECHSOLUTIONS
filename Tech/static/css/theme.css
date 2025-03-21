@@ -59,7 +59,11 @@ body.dark-mode {
     --card-background: #ffffff;
 
 }
-
+:root {
+  --accent-color: #4CAF50;
+  --light-text: #777;
+  --border-color: #ddd;
+}
   /* Estilos de nav-link en Dark Mode */
   body.dark-mode .nav-link a {
     color: var(--text-color);
