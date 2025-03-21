@@ -185,17 +185,7 @@ class Company(models.Model):
     industry = models.CharField(max_length=255, blank=True, null=True)  # Sector empresarial
     services = models.TextField(blank=True, null=True)  # Lista de servicios ofrecidos
 
-    # Información bancaria
-    bank_name = models.CharField(max_length=255, blank=True, null=True)  
-    bank_account_number = models.CharField(max_length=50, blank=True, null=True)  
-    bank_account_type = models.CharField(
-        max_length=50,
-        choices=[('corriente', 'Cuenta Corriente'), ('ahorro', 'Cuenta de Ahorro')],
-        blank=True,
-        null=True
-    )  
-    swift_code = models.CharField(max_length=20, blank=True, null=True)  
-    tax_id = models.CharField(max_length=20, blank=True, null=True)  
+    
 
     # Relación ManyToMany con el modelo de certificaciones
     certifications = models.ManyToManyField('Certification', related_name='companies', blank=True)
@@ -208,18 +198,7 @@ class Company(models.Model):
     def __str__(self):
         return self.name
 
-class Branch(models.Model):
-    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="branches")  
-    name = models.CharField(max_length=255)  # Nombre de la sucursal
-    address = models.TextField()  # Dirección
-    city = models.CharField(max_length=100)  # Ciudad
-    phone = models.CharField(max_length=20, blank=True, null=True)  # Teléfono de la sucursal
-    opening_hours = models.CharField(max_length=255, blank=True, null=True)  # Horario
-    latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)  # Coordenadas
-    longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)  
 
-    def __str__(self):
-        return f"{self.name} - {self.city}"
 
 class Certification(models.Model):
     name_certification = models.CharField(max_length=255)
