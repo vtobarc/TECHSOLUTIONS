@@ -123,13 +123,10 @@
           <div class="filter-option {% if selected_category == 'all' %}active{% endif %}" data-value="all">
             <i class="fas fa-th-large"></i> Todas las categorías
           </div>
-                 
           {% for category in all_categories %}
-              <li class="filter-option {% if selected_category == category.id|stringformat:'s' %}active{% endif %}" data-value="{{ category.id }}">
-                  <a href="{% url 'category_detail' category.id %}">
-                      {{ category.name }}
-                  </a>
-              </li>
+            <div class="filter-option {% if selected_category == category.id|stringformat:'s' %}active{% endif %}" data-value="{{ category.id }}">
+              {{ category.name }}
+            </div>
           {% endfor %}
 
         </div>
