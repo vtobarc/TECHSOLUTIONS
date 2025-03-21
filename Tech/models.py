@@ -164,6 +164,7 @@ class Company(models.Model):
     legal_representative = models.CharField(max_length=255, blank=True, null=True)  
     capital = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)  
     employees_count = models.PositiveIntegerField(blank=True, null=True)  
+    account_number = models.CharField(max_length=20, blank=True, null=True)
 
     # Redes sociales
     facebook = models.URLField(blank=True, null=True)
