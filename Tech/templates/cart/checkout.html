@@ -4,574 +4,1118 @@
 {% block title %}Finalizar Compra - VISACU{% endblock %}
 
 {% block extra_css %}
-<style>
-    .checkout-container {
-        max-width: 1200px;
-        margin: 40px auto;
-        padding: 0 20px;
-        display: grid;
-        grid-template-columns: 1fr 400px;
-        gap: 30px;
-    }
-    
-    .checkout-title {
-        font-size: 2rem;
-        margin-bottom: 30px;
-        color: #333;
-        grid-column: span 2;
-    }
-    
-    .checkout-form {
-        background-color: #f9f9f9;
-        padding: 30px;
-        border-radius: 8px;
-    }
-    
-    .form-section {
-        margin-bottom: 30px;
-    }
-    
-    .form-section h2 {
-        font-size: 1.4rem;
-        margin-bottom: 20px;
-        padding-bottom: 10px;
-        border-bottom: 1px solid #e0e0e0;
-    }
-    
-    .form-group {
-        margin-bottom: 20px;
-    }
-    
-    .form-group label {
-        display: block;
-        margin-bottom: 8px;
-        font-weight: 500;
-    }
-    
-    .form-control {
-        width: 100%;
-        padding: 12px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        font-size: 1rem;
-    }
-    
-    .form-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 15px;
-    }
-    
-    .payment-methods {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-        gap: 15px;
-        margin-top: 15px;
-    }
-    
-    .payment-method {
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        padding: 15px;
-        text-align: center;
-        cursor: pointer;
-        transition: all 0.2s;
-    }
-    
-    .payment-method:hover {
-        border-color: #0056b3;
-    }
-    
-    .payment-method.selected {
-        border-color: #0056b3;
-        background-color: rgba(0, 86, 179, 0.05);
-    }
-    
-    .payment-method i {
-        font-size: 2rem;
-        margin-bottom: 10px;
-        color: #333;
-    }
-    
-    .order-summary {
-        background-color: #f9f9f9;
-        padding: 30px;
-        border-radius: 8px;
-        align-self: start;
-    }
-    
-    .order-summary h2 {
-        font-size: 1.4rem;
-        margin-bottom: 20px;
-        padding-bottom: 10px;
-        border-bottom: 1px solid #e0e0e0;
-    }
-    
-    .order-items {
-        margin-bottom: 20px;
-    }
-    
-    .order-item {
-        display: flex;
-        margin-bottom: 15px;
-        padding-bottom: 15px;
-        border-bottom: 1px solid #e0e0e0;
-    }
-    
-    .order-item:last-child {
-        border-bottom: none;
-    }
-    
-    .order-item-image {
-        width: 60px;
-        height: 60px;
-        object-fit: cover;
-        border-radius: 4px;
-        margin-right: 15px;
-    }
-    
-    .order-item-details {
-        flex: 1;
-    }
-    
-    .order-item-name {
-        font-weight: 500;
-        margin-bottom: 5px;
-    }
-    
-    .order-item-price {
-        color: #666;
-        font-size: 0.9rem;
-    }
-    
-    .order-item-quantity {
-        color: #666;
-        font-size: 0.9rem;
-    }
-    
-    .order-item-total {
-        font-weight: 500;
-        color: #0056b3;
-        text-align: right;
-    }
-    
-    .order-summary-row {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 10px;
-    }
-    
-    .order-summary-row.total {
-        font-size: 1.2rem;
-        font-weight: 600;
-        padding-top: 10px;
-        border-top: 1px solid #e0e0e0;
-        margin-top: 10px;
-    }
-    
-    .place-order-btn {
-        display: block;
-        width: 100%;
-        padding: 15px;
-        background-color: #0056b3;
-        color: white;
-        text-align: center;
-        border: none;
-        border-radius: 4px;
-        font-size: 1.1rem;
-        font-weight: 500;
-        cursor: pointer;
-        margin-top: 20px;
-        transition: background-color 0.2s;
-    }
-    
-    .place-order-btn:hover {
-        background-color: #003d82;
-    }
-    
-    .back-to-cart {
-        display: block;
-        text-align: center;
-        margin-top: 20px;
-        color: #0056b3;
-        text-decoration: none;
-    }
-    
-    .back-to-cart:hover {
-        text-decoration: underline;
-    }
-    
-    .order-success {
-        text-align: center;
-        padding: 50px 20px;
-        background-color: #f9f9f9;
-        border-radius: 8px;
-        grid-column: span 2;
-        display: none;
-    }
-    
-    .order-success i {
-        font-size: 4rem;
-        color: #28a745;
-        margin-bottom: 20px;
-    }
-    
-    .order-success h2 {
-        font-size: 2rem;
-        margin-bottom: 20px;
-    }
-    
-    .order-success p {
-        font-size: 1.1rem;
-        margin-bottom: 30px;
-        color: #666;
-    }
-    
-    .order-success .btn {
-        display: inline-block;
-        padding: 12px 25px;
-        background-color: #0056b3;
-        color: white;
-        text-decoration: none;
-        border-radius: 4px;
-        font-weight: 500;
-        transition: background-color 0.2s;
-    }
-    
-    .order-success .btn:hover {
-        background-color: #003d82;
-    }
-    
-    @media (max-width: 992px) {
-        .checkout-container {
-            grid-template-columns: 1fr;
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Reset y estilos generales */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
         
-        .checkout-title {
-            grid-column: 1;
+        body {
+            font-family: 'Inter', sans-serif;
+            color: #333;
+            background-color: #f5f5f5;
+            line-height: 1.6;
         }
         
-        .order-success {
-            grid-column: 1;
+        a {
+            text-decoration: none;
+            color: inherit;
         }
-    }
-</style>
+        
+        /* Header y navegación */
+        .header {
+            background-color: #1b3027;
+            color: white;
+            padding: 15px 40px;
+        }
+        
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .logo {
+            font-size: 28px;
+            font-weight: 500;
+            letter-spacing: 2px;
+            text-align: center;
+        }
+        
+        .cart-icon {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .cart-icon i {
+            font-size: 18px;
+        }
+        
+        /* Título de la página */
+        .page-title {
+            background-color: #0f2231;
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        /* Contenedor principal */
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        
+        /* Grid layout */
+        .checkout-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+        }
+        
+        @media (max-width: 992px) {
+            .checkout-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Estilos del formulario */
+        .checkout-form {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+        
+        .form-section {
+            padding: 30px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .form-section:last-child {
+            border-bottom: none;
+        }
+        
+        .form-section h2 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 15px;
+            transition: border-color 0.2s;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #1b3027;
+        }
+        
+        .form-control.error {
+            border-color: #e53e3e;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .form-check {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .form-check input {
+            margin-right: 10px;
+        }
+        
+        /* Métodos de pago */
+        .payment-methods {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        @media (min-width: 768px) {
+            .payment-methods {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        
+        .payment-method {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .payment-method:hover {
+            border-color: #1b3027;
+            background-color: rgba(27, 48, 39, 0.05);
+        }
+        
+        .payment-method.selected {
+            border-color: #1b3027;
+            background-color: rgba(27, 48, 39, 0.05);
+        }
+        
+        .payment-method i {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #1b3027;
+        }
+        
+        /* Detalles de pago */
+        .payment-details {
+            display: none;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+            padding: 20px;
+            margin-top: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .payment-details.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .payment-details p {
+            margin-bottom: 8px;
+        }
+        
+        .payment-details .store-locations {
+            margin-top: 15px;
+        }
+        
+        .payment-details .store-location {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .payment-details .store-location:last-child {
+            border-bottom: none;
+        }
+        
+        .payment-details .card-form {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+        
+        .payment-details .card-form .form-control {
+            background-color: #f0f0f0;
+        }
+        
+        /* Resumen del pedido */
+        .order-summary {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 30px;
+            position: sticky;
+            top: 20px;
+        }
+        
+        .order-summary h2 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            text-align: center;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .order-items {
+            margin-bottom: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .order-item {
+            display: flex;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .order-item:last-child {
+            border-bottom: none;
+        }
+        
+        .order-item-image {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-right: 15px;
+        }
+        
+        .order-item-details {
+            flex: 1;
+        }
+        
+        .order-item-name {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+        
+        .order-item-meta {
+            display: flex;
+            justify-content: space-between;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        /* Opciones de envío */
+        .shipping-options {
+            margin: 20px 0;
+        }
+        
+        .shipping-option {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .shipping-option input {
+            margin-right: 10px;
+        }
+        
+        .shipping-option label {
+            font-size: 14px;
+        }
+        
+        /* Totales */
+        .order-summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        .order-summary-row.total {
+            font-size: 18px;
+            font-weight: 600;
+            padding-top: 15px;
+            margin-top: 15px;
+            border-top: 1px solid #eee;
+        }
+        
+        .tax-note {
+            text-align: right;
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        /* Botón de realizar pedido */
+        .place-order-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background-color: #1b3027;
+            color: white;
+            text-align: center;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: background-color 0.2s;
+        }
+        
+        .place-order-btn:hover {
+            background-color: #2a4a3e;
+        }
+        
+        .back-to-cart {
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+            color: #1b3027;
+            font-size: 14px;
+        }
+        
+        .back-to-cart:hover {
+            text-decoration: underline;
+        }
+        
+        /* Cupón */
+        .coupon-section {
+            margin-bottom: 20px;
+        }
+        
+        .coupon-toggle {
+            color: #1b3027;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        .coupon-toggle:hover {
+            text-decoration: underline;
+        }
+        
+        .coupon-form {
+            display: none;
+            margin-top: 15px;
+        }
+        
+        .coupon-form.active {
+            display: flex;
+        }
+        
+        .coupon-input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px 0 0 4px;
+            font-size: 14px;
+        }
+        
+        .coupon-btn {
+            padding: 10px 15px;
+            background-color: #1b3027;
+            color: white;
+            border: none;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        /* Modal de éxito */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+        
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            transform: translateY(20px);
+            transition: transform 0.3s;
+        }
+        
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+        }
+        
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background-color: #ebf7ee;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            position: relative;
+        }
+        
+        .success-icon svg {
+            width: 40px;
+            height: 40px;
+            color: #28a745;
+        }
+        
+        /* Animación del checkmark */
+        .checkmark {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: block;
+            stroke-width: 3;
+            stroke: #28a745;
+            stroke-miterlimit: 10;
+            box-shadow: inset 0px 0px 0px #28a745;
+            animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
+        }
+        
+        .checkmark__circle {
+            stroke-dasharray: 166;
+            stroke-dashoffset: 166;
+            stroke-width: 3;
+            stroke-miterlimit: 10;
+            stroke: #28a745;
+            fill: none;
+            animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+        }
+        
+        .checkmark__check {
+            transform-origin: 50% 50%;
+            stroke-dasharray: 48;
+            stroke-dashoffset: 48;
+            animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+        }
+        
+        @keyframes stroke {
+            100% {
+                stroke-dashoffset: 0;
+            }
+        }
+        
+        @keyframes scale {
+            0%, 100% {
+                transform: none;
+            }
+            50% {
+                transform: scale3d(1.1, 1.1, 1);
+            }
+        }
+        
+        @keyframes fill {
+            100% {
+                box-shadow: inset 0px 0px 0px 30px #ebf7ee;
+            }
+        }
+        
+        .modal-title {
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+        
+        .order-number {
+            font-weight: 600;
+        }
+        
+        .modal-message {
+            color: #666;
+            margin-bottom: 25px;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+        
+        @media (max-width: 576px) {
+            .modal-buttons {
+                flex-direction: column;
+            }
+        }
+        
+        .btn {
+            padding: 12px 20px;
+            border-radius: 4px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            font-size: 14px;
+        }
+        
+        .btn-primary {
+            background-color: #1b3027;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2a4a3e;
+        }
+        
+        .btn-secondary {
+            background-color: #eee;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #ddd;
+        }
+        
+        /* Footer */
+        .footer {
+            background-color: #1b3027;
+            color: white;
+            padding: 40px 0;
+            margin-top: 60px;
+        }
+        
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        .footer-logo {
+            font-size: 28px;
+            font-weight: 500;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+        }
+        
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .social-icons a {
+            color: white;
+            font-size: 20px;
+        }
+        
+        .footer-text {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+    </style>
 {% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-8">
-    <div class="mb-8">
-        <h1 class="text-3xl font-bold text-center">Finalizar Compra</h1>
+
+    <!-- Título de la página -->
+    <div class="page-title">
+        <h1>Finalizar Compra</h1>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <!-- Formulario de Checkout -->
-        <div class="lg:col-span-2">
-            <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                <!-- Información de Contacto -->
-                <div class="p-6 border-b border-gray-200">
-                    <h2 class="text-xl font-bold mb-4">Información de Contacto</h2>
-                    <div class="space-y-4">
-                        <div>
-                            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Correo Electrónico</label>
-                            <input type="email" id="email" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" required>
-                        </div>
-                        <div>
-                            <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
-                            <input type="tel" id="phone" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" required>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Dirección de Envío -->
-                <div class="p-6 border-b border-gray-200">
-                    <h2 class="text-xl font-bold mb-4">Dirección de Envío</h2>
-                    <div class="space-y-4">
-                        <div>
-                            <label for="fullname" class="block text-sm font-medium text-gray-700 mb-1">Nombre Completo</label>
-                            <input type="text" id="fullname" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" required>
-                        </div>
-                        <div>
-                            <label for="address" class="block text-sm font-medium text-gray-700 mb-1">Dirección</label>
-                            <input type="text" id="address" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" required>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label for="city" class="block text-sm font-medium text-gray-700 mb-1">Ciudad</label>
-                                <input type="text" id="city" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" required>
-                            </div>
-                            <div>
-                                <label for="postal" class="block text-sm font-medium text-gray-700 mb-1">Código Postal</label>
-                                <input type="text" id="postal" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" required>
-                            </div>
-                        </div>
-                        <div>
-                            <label for="state" class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
-                            <input type="text" id="state" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" required>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Método de Pago -->
-                <div class="p-6">
-                    <h2 class="text-xl font-bold mb-4">Método de Pago</h2>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div class="payment-method border border-gray-300 rounded-md p-4 text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors" data-method="credit">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mx-auto mb-2 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                            </svg>
-                            <span class="text-sm">Tarjeta de Crédito</span>
-                        </div>
-                        <div class="payment-method border border-gray-300 rounded-md p-4 text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors" data-method="debit">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mx-auto mb-2 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                            </svg>
-                            <span class="text-sm">Tarjeta de Débito</span>
-                        </div>
-                        <div class="payment-method border border-gray-300 rounded-md p-4 text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors" data-method="paypal">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mx-auto mb-2 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2z" />
-                            </svg>
-                            <span class="text-sm">PayPal</span>
-                        </div>
-                        <div class="payment-method border border-gray-300 rounded-md p-4 text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors" data-method="oxxo">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mx-auto mb-2 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                            </svg>
-                            <span class="text-sm">Tienda Fisicas</span>
-                        </div>
-                    </div>
-                </div>
+    <!-- Contenido principal -->
+    <div class="container">
+        <!-- Sección de cupón -->
+        <div class="coupon-section">
+            <p class="coupon-toggle">¿Tienes un cupón? Haz clic aquí para introducir tu código</p>
+            <div class="coupon-form">
+                <input type="text" class="coupon-input" placeholder="Código de cupón">
+                <button class="coupon-btn">Aplicar cupón</button>
             </div>
         </div>
 
-        <!-- Resumen del Pedido -->
-        <div class="lg:col-span-1">
-            <div class="bg-white rounded-lg shadow-md p-6 sticky top-6">
-                <h2 class="text-xl font-bold mb-4">Resumen del Pedido</h2>
+        <!-- Grid de checkout -->
+        <div class="checkout-grid">
+            <!-- Formulario de checkout -->
+            <div class="checkout-form">
+                <!-- Información de Contacto -->
+                <div class="form-section">
+                    <h2>INFORMACIÓN DE CONTACTO</h2>
+                    <div class="form-group">
+                        <label for="email">Correo Electrónico <span style="color: #e53e3e;">*</span></label>
+                        <input type="email" id="email" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="telefono">Teléfono <span style="color: #e53e3e;">*</span></label>
+                        <input type="tel" id="telefono" class="form-control" required>
+                    </div>
+                </div>
                 
-                <div id="orderItems" class="space-y-4 mb-6 max-h-80 overflow-y-auto">
+                <!-- Dirección de Envío -->
+                <div class="form-section">
+                    <h2>DIRECCIÓN DE ENVÍO</h2>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="nombre">Nombre <span style="color: #e53e3e;">*</span></label>
+                            <input type="text" id="nombre" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="apellidos">Apellidos <span style="color: #e53e3e;">*</span></label>
+                            <input type="text" id="apellidos" class="form-control" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="direccion">Dirección <span style="color: #e53e3e;">*</span></label>
+                        <input type="text" id="direccion" class="form-control" placeholder="Ciudadela, número de casa, urbanización" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="ciudad">Ciudad <span style="color: #e53e3e;">*</span></label>
+                            <input type="text" id="ciudad" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="codigo-postal">Código Postal <span style="color: #e53e3e;">*</span></label>
+                            <input type="text" id="codigo-postal" class="form-control" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="provincia">Provincia <span style="color: #e53e3e;">*</span></label>
+                        <input type="text" id="provincia" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="pais">País <span style="color: #e53e3e;">*</span></label>
+                        <input type="text" id="pais" class="form-control" value="Ecuador" disabled>
+                    </div>
+                    
+                    <div class="form-check">
+                        <input type="checkbox" id="direccion-diferente">
+                        <label for="direccion-diferente">¿ENVIAR A UNA DIRECCIÓN DIFERENTE?</label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="notas">Notas del pedido (opcional)</label>
+                        <textarea id="notas" class="form-control" rows="4" placeholder="Notas sobre tu pedido, por ejemplo, notas especiales para la entrega."></textarea>
+                    </div>
+                </div>
+                
+                <!-- Método de pago -->
+                <div class="form-section">
+                    <h2>MÉTODO DE PAGO</h2>
+                    
+                    <div class="payment-methods">
+                        <div class="payment-method" data-method="credit">
+                            <i class="fas fa-credit-card"></i>
+                            <span>Tarjeta de Crédito</span>
+                        </div>
+                        <div class="payment-method" data-method="debit">
+                            <i class="fas fa-credit-card"></i>
+                            <span>Tarjeta de Débito</span>
+                        </div>
+                        <div class="payment-method" data-method="transfer">
+                            <i class="fas fa-university"></i>
+                            <span>Transferencia Bancaria</span>
+                        </div>
+                        <div class="payment-method" data-method="store">
+                            <i class="fas fa-store"></i>
+                            <span>Tiendas Físicas</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Detalles de transferencia bancaria -->
+                    <div id="transfer-details" class="payment-details">
+                        <p>Haz tu pago directamente en nuestra cuenta bancaria:</p>
+                        <p><strong>Kuler SAS</strong></p>
+                        <p>Banco Guayaquil</p>
+                        <p>Cuenta corriente: 001914310</p>
+                        <p>RUC: 0993360473001</p>
+                        <p style="margin-top: 15px;">Una vez realizado el depósito o transferencia comuníquese al correo: servicioalcliente@kuler.com.ec o a nuestro WhatsApp +593983003001</p>
+                    </div>
+                    
+                    <!-- Detalles de tarjeta de débito/crédito (deshabilitado) -->
+                    <div id="card-details" class="payment-details">
+                        <div class="card-form">
+                            <div class="form-group">
+                                <label for="card-number">Número de tarjeta</label>
+                                <input type="text" id="card-number" class="form-control" placeholder="1234 5678 9012 3456" disabled>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="card-expiry">Fecha de expiración</label>
+                                    <input type="text" id="card-expiry" class="form-control" placeholder="MM/AA" disabled>
+                                </div>
+                                <div class="form-group">
+                                    <label for="card-cvc">CVC</label>
+                                    <input type="text" id="card-cvc" class="form-control" placeholder="123" disabled>
+                                </div>
+                            </div>
+                            <p style="margin-top: 15px; color: #e53e3e;">* Pago con tarjeta temporalmente deshabilitado. Por favor, seleccione otro método de pago.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Detalles de tiendas físicas -->
+                    <div id="store-details" class="payment-details">
+                        <p>Puede realizar su pago en cualquiera de nuestras tiendas físicas:</p>
+                        <div class="store-locations">
+                            <div class="store-location">
+                                <p><strong>KÜLER Samborondón</strong></p>
+                                <p>Plaza Lagos Town Center, Local 12</p>
+                                <p>Horario: Lunes a Sábado 10:00 - 20:00, Domingo 11:00 - 19:00</p>
+                            </div>
+                            <div class="store-location">
+                                <p><strong>KÜLER Guayaquil</strong></p>
+                                <p>Mall del Sol, Planta Baja, Local 42</p>
+                                <p>Horario: Lunes a Domingo 10:00 - 21:00</p>
+                            </div>
+                            <div class="store-location">
+                                <p><strong>KÜLER Quito</strong></p>
+                                <p>Quicentro Shopping, Segundo Piso, Local 215</p>
+                                <p>Horario: Lunes a Domingo 10:00 - 20:00</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-check" style="margin-top: 20px;">
+                        <input type="checkbox" id="terminos" required>
+                        <label for="terminos">He leído y estoy de acuerdo con los <a href="#" style="color: #1b3027; text-decoration: underline;">Términos y condiciones</a> de la web.</label>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Resumen del pedido -->
+            <div class="order-summary">
+                <h2>TU PEDIDO</h2>
+                
+                <div id="orderItems" class="order-items">
                     <!-- Los items se cargarán dinámicamente con JavaScript -->
                 </div>
                 
-                <div class="space-y-2 mb-6">
-                    <div class="flex justify-between text-sm">
-                        <span class="text-gray-600">Subtotal</span>
-                        <span id="orderSubtotal" class="font-medium">$0.00</span>
+                <div class="order-summary-row">
+                    <span>Subtotal</span>
+                    <span id="subtotal">$0.00</span>
+                </div>
+                
+                <div class="shipping-options">
+                    <h3 style="font-size: 16px; margin-bottom: 10px;">Envío</h3>
+                    
+                    <div class="shipping-option">
+                        <input type="radio" id="shipping-1" name="shipping" value="4.00" checked>
+                        <label for="shipping-1">Samborondón (hasta km. 8) y Durán: $4.00</label>
                     </div>
-                    <div class="flex justify-between text-sm">
-                        <span class="text-gray-600">Envío</span>
-                        <span id="orderShipping" class="font-medium">$0.00</span>
+                    
+                    <div class="shipping-option">
+                        <input type="radio" id="shipping-2" name="shipping" value="5.00">
+                        <label for="shipping-2">La Aurora y Mocolí: $5.00</label>
                     </div>
-                    <div class="flex justify-between text-sm">
-                        <span class="text-gray-600">IVA (15%)</span>
-                        <span id="orderTax" class="font-medium">$0.00</span>
+                    
+                    <div class="shipping-option">
+                        <input type="radio" id="shipping-3" name="shipping" value="5.00">
+                        <label for="shipping-3">Urdesa y Alborada: $5.00</label>
                     </div>
-                    <div class="border-t pt-2 mt-2">
-                        <div class="flex justify-between">
-                            <span class="font-bold">Total</span>
-                            <span id="orderTotal" class="font-bold">$0.00</span>
-                        </div>
+                    
+                    <div class="shipping-option">
+                        <input type="radio" id="shipping-4" name="shipping" value="5.50">
+                        <label for="shipping-4">Los Ceibos y Vía a Daule: $5.50</label>
+                    </div>
+                    
+                    <div class="shipping-option">
+                        <input type="radio" id="shipping-5" name="shipping" value="6.00">
+                        <label for="shipping-5">Vía a La Costa: $6.00</label>
+                    </div>
+                    
+                    <div class="shipping-option">
+                        <input type="radio" id="shipping-6" name="shipping" value="6.00">
+                        <label for="shipping-6">Envíos Nacionales (Servientrega): $6.00</label>
+                    </div>
+                    
+                    <div class="shipping-option">
+                        <input type="radio" id="shipping-7" name="shipping" value="13.00">
+                        <label for="shipping-7">Servient  name="shipping" value="13.00">
+                        <label for="shipping-7">Servientrega (KÜLER Helería): $13.00</label>
                     </div>
                 </div>
                 
-                <button id="placeOrderBtn" class="w-full bg-blue-600 text-white py-3 px-4 rounded-md font-medium hover:bg-blue-700 transition-colors">
-                    Realizar Pedido
-                </button>
+                <div class="order-summary-row">
+                    <span>IVA (12%)</span>
+                    <span id="tax-amount">$0.48</span>
+                </div>
                 
-                <a href="{% url 'cart_detail' %}" class="block text-center text-blue-600 mt-4 hover:underline">
-                    Volver al carrito
-                </a>
+                <div class="order-summary-row total">
+                    <span>TOTAL</span>
+                    <span id="total-amount">$8.48</span>
+                </div>
+                
+                <div class="tax-note">
+                    (Incluye <span id="tax-note">$0.48</span> de IVA)
+                </div>
+                
+                <button id="place-order-btn" class="place-order-btn">Realizar el pedido</button>
+                
+                <a href="#" class="back-to-cart">Volver al carrito</a>
             </div>
         </div>
     </div>
 
-    <!-- Mensaje de Éxito (oculto por defecto) -->
-    <div id="orderSuccess" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg shadow-xl p-8 max-w-md w-full mx-4">
-            <div class="text-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-green-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-logo">KÜLER</div>
+            <div class="social-icons">
+                <a href="#"><i class="fab fa-facebook-f"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+                <a href="#"><i class="fab fa-whatsapp"></i></a>
+            </div>
+            <div class="footer-text">
+                Desarrollado por Santdev E-Commerce
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal de éxito -->
+    <div class="modal-overlay" id="success-modal">
+        <div class="modal-content">
+            <div class="success-icon">
+                <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                    <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
+                    <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
                 </svg>
-                <h2 class="text-2xl font-bold mb-2">¡Pedido Realizado con Éxito!</h2>
-                <p class="mb-2">Tu número de pedido es: <strong id="orderNumber">VIS-12345</strong></p>
-                <p class="text-gray-600 mb-6">Hemos enviado un correo electrónico con los detalles de tu compra.</p>
-                <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                    <a href="{% url 'cliente_home' %}" class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
-                        Continuar Comprando
-                    </a>
-                    <button id="closeSuccessBtn" class="px-6 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors">
-                        Cerrar
-                    </button>
-                </div>
+            </div>
+            <h2 class="modal-title">¡Pedido Realizado con Éxito!</h2>
+            <p>Tu número de pedido es: <span class="order-number" id="order-number">KÜLER-12345</span></p>
+            <p class="modal-message">Hemos enviado un correo electrónico con los detalles de tu compra.</p>
+            <div class="modal-buttons">
+                <a href="#" class="btn btn-primary">Continuar Comprando</a>
+                <button id="close-modal-btn" class="btn btn-secondary">Cerrar</button>
             </div>
         </div>
     </div>
-</div>
 
-<script>
-    
-    document.addEventListener('DOMContentLoaded', function() {
-        // Cargar el resumen del pedido
-        loadOrderSummary();
-    
-        // Seleccionar método de pago
-        const paymentMethods = document.querySelectorAll('.payment-method');
-        paymentMethods.forEach(method => {
-            method.addEventListener('click', function() {
-                // Quitar selección anterior
-                paymentMethods.forEach(m => m.classList.remove('border-blue-500', 'bg-blue-50'));
-                // Añadir selección actual
-                this.classList.add('border-blue-500', 'bg-blue-50');
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Variables
+            const couponToggle = document.querySelector('.coupon-toggle');
+            const couponForm = document.querySelector('.coupon-form');
+            const shippingOptions = document.querySelectorAll('input[name="shipping"]');
+            const paymentMethods = document.querySelectorAll('.payment-method');
+            const placeOrderBtn = document.getElementById('place-order-btn');
+            const successModal = document.getElementById('success-modal');
+            const closeModalBtn = document.getElementById('close-modal-btn');
+            const cityInput = document.getElementById('ciudad');
+            
+            // Datos del carrito (simulados)
+            const cartData = {
+                items: [
+                    {
+                        id: 1,
+                        name: "KÜLER Sorbetes - Metálico",
+                        price: 4.00,
+                        quantity: 1,
+                        image: "https://via.placeholder.com/60"
+                    },
+                    {
+                        id: 2,
+                        name: "KÜLER Botella Térmica",
+                        price: 15.00,
+                        quantity: 1,
+                        image: "https://via.placeholder.com/60"
+                    }
+                ]
+            };
+            
+            // Cargar los items del carrito
+            loadCartItems();
+            
+            // Mostrar/ocultar formulario de cupón
+            couponToggle.addEventListener('click', function() {
+                couponForm.classList.toggle('active');
             });
-        });
-    
-        // Botón de realizar pedido
-        const placeOrderBtn = document.getElementById('placeOrderBtn');
-        placeOrderBtn.addEventListener('click', placeOrder);
-    
-        // Botón de cerrar mensaje de éxito
-        const closeSuccessBtn = document.getElementById('closeSuccessBtn');
-        closeSuccessBtn.addEventListener('click', function() {
-            document.getElementById('orderSuccess').classList.add('hidden');
-        });
-    });
-    
-    function loadOrderSummary() {
-        // Obtener datos del carrito desde la sesión de Django
-        fetch('{% url "cart_data" %}')
-            .then(response => response.json())
-            .then(data => {
+            
+            // Actualizar totales al cambiar opción de envío
+            shippingOptions.forEach(function(option) {
+                option.addEventListener('change', updateTotals);
+            });
+            
+            // Actualizar envío al cambiar ciudad
+            cityInput.addEventListener('change', function() {
+                const city = this.value.trim().toLowerCase();
+                
+                // Seleccionar opción de envío según la ciudad
+                if (city === 'samborondón' || city === 'samborondon' || city === 'durán' || city === 'duran') {
+                    document.getElementById('shipping-1').checked = true;
+                } else if (city === 'la aurora' || city === 'mocolí' || city === 'mocoli') {
+                    document.getElementById('shipping-2').checked = true;
+                } else if (city === 'urdesa' || city === 'alborada') {
+                    document.getElementById('shipping-3').checked = true;
+                } else if (city === 'los ceibos' || city === 'vía a daule' || city === 'via a daule') {
+                    document.getElementById('shipping-4').checked = true;
+                } else if (city === 'vía a la costa' || city === 'via a la costa') {
+                    document.getElementById('shipping-5').checked = true;
+                }
+                
+                updateTotals();
+            });
+            
+            // Seleccionar método de pago y mostrar detalles correspondientes
+            paymentMethods.forEach(function(method) {
+                method.addEventListener('click', function() {
+                    // Quitar selección anterior
+                    paymentMethods.forEach(m => m.classList.remove('selected'));
+                    
+                    // Añadir selección actual
+                    this.classList.add('selected');
+                    
+                    // Ocultar todos los detalles de pago
+                    document.querySelectorAll('.payment-details').forEach(detail => {
+                        detail.classList.remove('active');
+                    });
+                    
+                    // Mostrar detalles según el método seleccionado
+                    const selectedMethod = this.getAttribute('data-method');
+                    
+                    if (selectedMethod === 'transfer') {
+                        document.getElementById('transfer-details').classList.add('active');
+                    } else if (selectedMethod === 'credit' || selectedMethod === 'debit') {
+                        document.getElementById('card-details').classList.add('active');
+                    } else if (selectedMethod === 'store') {
+                        document.getElementById('store-details').classList.add('active');
+                    }
+                });
+            });
+            
+            // Seleccionar transferencia bancaria por defecto
+            document.querySelector('.payment-method[data-method="transfer"]').click();
+            
+            // Realizar pedido
+            placeOrderBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Validar formulario
+                const requiredFields = ['nombre', 'apellidos', 'direccion', 'ciudad', 'codigo-postal', 'provincia', 'email', 'telefono'];
+                let isValid = true;
+                
+                requiredFields.forEach(field => {
+                    const input = document.getElementById(field);
+                    if (!input.value.trim()) {
+                        input.classList.add('error');
+                        isValid = false;
+                    } else {
+                        input.classList.remove('error');
+                    }
+                });
+                
+                // Verificar si se seleccionó un método de pago
+                const selectedPayment = document.querySelector('.payment-method.selected');
+                if (!selectedPayment) {
+                    alert('Por favor selecciona un método de pago');
+                    return;
+                }
+                
+                // Verificar términos y condiciones
+                const terminos = document.getElementById('terminos');
+                if (!terminos.checked) {
+                    alert('Debes aceptar los términos y condiciones para continuar');
+                    return;
+                }
+                
+                if (!isValid) {
+                    alert('Por favor completa todos los campos requeridos');
+                    return;
+                }
+                
+                // Generar número de pedido aleatorio
+                const orderNumber = 'KÜLER-' + Math.floor(100000 + Math.random() * 900000);
+                document.getElementById('order-number').textContent = orderNumber;
+                
+                // Mostrar modal de éxito
+                successModal.classList.add('active');
+            });
+            
+            // Cerrar modal
+            closeModalBtn.addEventListener('click', function() {
+                successModal.classList.remove('active');
+            });
+            
+            // Función para cargar los items del carrito
+            function loadCartItems() {
                 const orderItems = document.getElementById('orderItems');
                 orderItems.innerHTML = '';
-    
-                let subtotal = 0;
-    
-                // Mostrar cada item del carrito
-                data.cart_items.forEach(item => {
-                    const itemTotal = item.price * item.quantity;
-                    subtotal += itemTotal;
-    
+                
+                cartData.items.forEach(item => {
                     const itemElement = document.createElement('div');
-                    itemElement.className = 'flex items-center pb-4 border-b border-gray-200';
+                    itemElement.className = 'order-item';
                     itemElement.innerHTML = `
-                        <div class="w-16 h-16 flex-shrink-0 mr-4">
-                            <img src="${item.main_image || 'https://placehold.co/100x100'}" alt="${item.name}" class="w-full h-full object-cover rounded-md">
-                        </div>
-                        <div class="flex-1">
-                            <h3 class="font-medium text-sm">${item.name}</h3>
-                            <div class="flex justify-between mt-1">
-                                <span class="text-gray-500 text-xs">${item.quantity} x $${item.price.toFixed(2)}</span>
-                                <span class="font-medium text-sm">$${(item.price * item.quantity).toFixed(2)}</span>
+                        <img src="${item.image}" alt="${item.name}" class="order-item-image">
+                        <div class="order-item-details">
+                            <div class="order-item-name">${item.name}</div>
+                            <div class="order-item-meta">
+                                <span>${item.quantity} × $${item.price.toFixed(2)}</span>
+                                <span>$${(item.price * item.quantity).toFixed(2)}</span>
                             </div>
                         </div>
                     `;
                     orderItems.appendChild(itemElement);
                 });
-    
-                // Obtener la ciudad ingresada
-                const city = document.getElementById('city').value.trim().toLowerCase();
-    
-                // Definir el costo de envío basado en la ciudad
-                let shipping = 5;  // Valor predeterminado para otros lugares
-                if (city === 'Guayaquil') {
-                    shipping = 5;  // Si la ciudad es Guayaquil, el costo es 5
+                
+                updateTotals();
+            }
+            
+            // Función para actualizar totales
+            function updateTotals() {
+                let subtotal = 0;
+                
+                // Calcular subtotal
+                cartData.items.forEach(item => {
+                    subtotal += item.price * item.quantity;
+                });
+                
+                // Obtener el costo de envío seleccionado
+                let shipping = 4.00; // Valor predeterminado
+                const selectedShipping = document.querySelector('input[name="shipping"]:checked');
+                
+                if (selectedShipping) {
+                    shipping = parseFloat(selectedShipping.value);
                 }
-    
-                const tax = subtotal * 0.15; // 15% de IVA
+                
+                // Calcular IVA y total
+                const tax = subtotal * 0.15; // 12% de IVA
                 const total = subtotal + shipping + tax;
-    
-                // Actualizar los totales en el DOM
-                document.getElementById('orderSubtotal').textContent = `$${subtotal.toFixed(2)}`;
-                document.getElementById('orderShipping').textContent = shipping === 0 ? 'Gratis' : `$${shipping.toFixed(2)}`;
-                document.getElementById('orderTax').textContent = `$${tax.toFixed(2)}`;
-                document.getElementById('orderTotal').textContent = `$${total.toFixed(2)}`;
-            })
-            .catch(error => {
-                console.error('Error al cargar el resumen del pedido:', error);
-            });
-    }
-    
-    function placeOrder() {
-        // Validar formulario
-        const requiredFields = ['email', 'phone', 'fullname', 'address', 'city', 'postal', 'state'];
-        let isValid = true;
-    
-        requiredFields.forEach(field => {
-            const input = document.getElementById(field);
-            if (!input.value.trim()) {
-                input.classList.add('border-red-500');
-                isValid = false;
-            } else {
-                input.classList.remove('border-red-500');
+                
+                // Actualizar el DOM
+                document.getElementById('subtotal').textContent = '$' + subtotal.toFixed(2);
+                document.getElementById('tax-amount').textContent = '$' + tax.toFixed(2);
+                document.getElementById('tax-note').textContent = '$' + tax.toFixed(2);
+                document.getElementById('total-amount').textContent = '$' + total.toFixed(2);
             }
         });
-    
-        // Verificar si se seleccionó un método de pago
-        const selectedPayment = document.querySelector('.payment-method.border-blue-500');
-        if (!selectedPayment) {
-            alert('Por favor selecciona un método de pago');
-            return;
-        }
-    
-        if (!isValid) {
-            alert('Por favor completa todos los campos requeridos');
-            return;
-        }
-    
-        // Generar número de pedido aleatorio
-        const orderNumber = 'TECH-' + Math.floor(100000 + Math.random() * 900000);
-        document.getElementById('orderNumber').textContent = orderNumber;
-    
-        // Mostrar mensaje de éxito
-        document.getElementById('orderSuccess').classList.remove('hidden');
-    
-        // Aquí se enviaría el pedido al servidor
-         fetch('{% url "process_order" %}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
-            },
-            body: JSON.stringify({
-                email: document.getElementById('email').value,
-                phone: document.getElementById('phone').value,
-                fullname: document.getElementById('fullname').value,
-                address: document.getElementById('address').value,
-              city: document.getElementById('city').value,
-                postal: document.getElementById('postal').value,
-                state: document.getElementById('state').value,
-                 payment_method: selectedPayment.dataset.method,
-               order_number: orderNumber
-            })
-         })
-         
-        .then(response => response.json())
-       .then(data => {
-            // Limpiar carrito después de procesar el pedido
-           window.location.href = '{% url "order_success" %}';
-         })
-         .catch(error => {
-            console.error('Error al procesar el pedido:', error);
-         });
-    }
-    
-    // Función para obtener el valor de una cookie
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-    
-</script>
+    </script>
+
 {% endblock %}
 
