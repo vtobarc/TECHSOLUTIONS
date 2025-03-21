@@ -703,12 +703,7 @@
                 <div class="p-6">
                     <h2 class="text-xl font-bold mb-4">Método de Pago</h2>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div class="payment-method border border-gray-300 rounded-md p-4 text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors" data-method="credit">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mx-auto mb-2 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-            </svg>
-            <span class="text-sm">Tarjeta de Crédito</span>
-            </div>
+                       
             <div class="payment-method border border-gray-300 rounded-md p-4 text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors" data-method="debit">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mx-auto mb-2 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
@@ -732,11 +727,11 @@
 <!-- Detalles de pago - Transferencia Bancaria -->
     <div id="transfer-details" class="payment-details mt-4 p-4 bg-gray-50 rounded-md hidden">
         <p>Haz tu pago directamente en nuestra cuenta bancaria:</p>
-        <p class="font-medium mt-2">TECHVANGUARD SAS</p>
+        <p class="font-medium mt-2">{{ company.name }}</p>
         <p>Banco Guayaquil</p>
-        <p>Cuenta corriente: 001914310</p>
-        <p>RUC: 0993360473001</p>
-        <p class="mt-4 text-sm">Una vez realizado el depósito o transferencia comuníquese al correo: servicioalcliente@techvanguard.com.ec</p>
+        <p>Cuenta corriente: 000000000</p>
+        <p>RUC: {{ company.ruc }}</p>
+        <p class="mt-4 text-sm">Una vez realizado el depósito o transferencia comuníquese al correo: {{ company.email }}</p>
     </div>
     
     <!-- Detalles de pago - Tarjetas -->
@@ -765,17 +760,17 @@
         <p>Puede realizar su pago en cualquiera de nuestras tiendas físicas:</p>
         <div class="mt-4 space-y-4">
             <div class="pb-3 border-b border-gray-200">
-                <p class="font-medium">TECHVANGUARD Samborondón</p>
+                <p class="font-medium">{{ company.name }} Samborondón</p>
                 <p class="text-sm">Plaza Lagos Town Center, Local 12</p>
                 <p class="text-sm">Horario: Lunes a Sábado 10:00 - 20:00, Domingo 11:00 - 19:00</p>
             </div>
             <div class="pb-3 border-b border-gray-200">
-                <p class="font-medium">TECHVANGUARD Guayaquil</p>
+                <p class="font-medium">{{ company.name }} Guayaquil</p>
                 <p class="text-sm">Mall del Sol, Planta Baja, Local 42</p>
                 <p class="text-sm">Horario: Lunes a Domingo 10:00 - 21:00</p>
             </div>
             <div>
-                <p class="font-medium">TECHVANGUARD Quito</p>
+                <p class="font-medium">{{ company.name }} Quito</p>
                 <p class="text-sm">Quicentro Shopping, Segundo Piso, Local 215</p>
                 <p class="text-sm">Horario: Lunes a Domingo 10:00 - 20:00</p>
             </div>
