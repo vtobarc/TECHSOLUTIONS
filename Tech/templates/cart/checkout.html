@@ -684,320 +684,738 @@
 
 
 {% block content %}
-<div class="container mx-auto px-4 py-8">
-    <div class="mb-8">
-        <h1 class="text-3xl font-bold text-center">Finalizar Compra</h1>
+  
+
+    <!-- Título de la página -->
+    <div class="page-title">
+        <h1>Finalizar Compra</h1>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <!-- Formulario de Checkout -->
-        <div class="lg:col-span-2">
-            <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                <!-- Información de Contacto -->
-                <div class="p-6 border-b border-gray-200">
-                    <h2 class="text-xl font-bold mb-4">Información de Contacto</h2>
-                    <div class="space-y-4">
-                        <div>
-                            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Correo Electrónico</label>
-                            <input type="email" id="email" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" required>
-                        </div>
-                        <div>
-                            <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
-                            <input type="tel" id="phone" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" required>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Dirección de Envío -->
-                <div class="p-6 border-b border-gray-200">
-                    <h2 class="text-xl font-bold mb-4">Dirección de Envío</h2>
-                    <div class="space-y-4">
-                        <div>
-                            <label for="fullname" class="block text-sm font-medium text-gray-700 mb-1">Nombre Completo</label>
-                            <input type="text" id="fullname" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" required>
-                        </div>
-                        <div>
-                            <label for="address" class="block text-sm font-medium text-gray-700 mb-1">Dirección</label>
-                            <input type="text" id="address" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" required>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label for="city" class="block text-sm font-medium text-gray-700 mb-1">Ciudad</label>
-                                <input type="text" id="city" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" required>
-                            </div>
-                            <div>
-                                <label for="postal" class="block text-sm font-medium text-gray-700 mb-1">Código Postal</label>
-                                <input type="text" id="postal" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" required>
-                            </div>
-                        </div>
-                        <div>
-                            <label for="state" class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
-                            <input type="text" id="state" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" required>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Método de Pago -->
-                <div class="p-6">
-                    <h2 class="text-xl font-bold mb-4">Método de Pago</h2>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div class="payment-method border border-gray-300 rounded-md p-4 text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors" data-method="credit">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mx-auto mb-2 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                            </svg>
-                            <span class="text-sm">Tarjeta de Crédito</span>
-                        </div>
-                        <div class="payment-method border border-gray-300 rounded-md p-4 text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors" data-method="debit">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mx-auto mb-2 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                            </svg>
-                            <span class="text-sm">Tarjeta de Débito</span>
-                        </div>
-                        <div class="payment-method border border-gray-300 rounded-md p-4 text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors" data-method="paypal">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mx-auto mb-2 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2z" />
-                            </svg>
-                            <span class="text-sm">PayPal</span>
-                        </div>
-                        <div class="payment-method border border-gray-300 rounded-md p-4 text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors" data-method="oxxo">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mx-auto mb-2 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                            </svg>
-                            <span class="text-sm">Tienda Fisicas</span>
-                        </div>
-                    </div>
-                </div>
+    <!-- Contenido principal -->
+    <div class="container">
+        <!-- Sección de cupón -->
+        <div class="coupon-section">
+            <p class="coupon-toggle">¿Tienes un cupón? Haz clic aquí para introducir tu código</p>
+            <div class="coupon-form">
+                <input type="text" class="coupon-input" placeholder="Código de cupón">
+                <button class="coupon-btn">Aplicar cupón</button>
             </div>
         </div>
 
-        <!-- Resumen del Pedido -->
-        <div class="lg:col-span-1">
-            <div class="bg-white rounded-lg shadow-md p-6 sticky top-6">
-                <h2 class="text-xl font-bold mb-4">Resumen del Pedido</h2>
+        <!-- Grid de checkout -->
+        <div class="checkout-grid">
+            <!-- Formulario de checkout -->
+            <div class="checkout-form">
+                <!-- Información de Contacto -->
+                <div class="form-section">
+                    <h2>INFORMACIÓN DE CONTACTO</h2>
+                    <div class="form-group">
+                        <label for="email">Correo Electrónico <span style="color: #e53e3e;">*</span></label>
+                        <input type="email" id="email" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="telefono">Teléfono <span style="color: #e53e3e;">*</span></label>
+                        <input type="tel" id="telefono" class="form-control" required>
+                    </div>
+                </div>
                 
-                <div id="orderItems" class="space-y-4 mb-6 max-h-80 overflow-y-auto">
+                <!-- Dirección de Envío -->
+                <div class="form-section">
+                    <h2>DIRECCIÓN DE ENVÍO</h2>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="nombre">Nombre <span style="color: #e53e3e;">*</span></label>
+                            <input type="text" id="nombre" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="apellidos">Apellidos <span style="color: #e53e3e;">*</span></label>
+                            <input type="text" id="apellidos" class="form-control" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="direccion">Dirección <span style="color: #e53e3e;">*</span></label>
+                        <input type="text" id="direccion" class="form-control" placeholder="Ciudadela, número de casa, urbanización" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="ciudad">Ciudad <span style="color: #e53e3e;">*</span></label>
+                            <input type="text" id="ciudad" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="codigo-postal">Código Postal <span style="color: #e53e3e;">*</span></label>
+                            <input type="text" id="codigo-postal" class="form-control" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="provincia">Provincia <span style="color: #e53e3e;">*</span></label>
+                        <input type="text" id="provincia" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="pais">País <span style="color: #e53e3e;">*</span></label>
+                        <input type="text" id="pais" class="form-control" value="Ecuador" disabled>
+                    </div>
+                    
+                    <div class="form-check">
+                        <input type="checkbox" id="direccion-diferente">
+                        <label for="direccion-diferente">¿ENVIAR A UNA DIRECCIÓN DIFERENTE?</label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="notas">Notas del pedido (opcional)</label>
+                        <textarea id="notas" class="form-control" rows="4" placeholder="Notas sobre tu pedido, por ejemplo, notas especiales para la entrega."></textarea>
+                    </div>
+                </div>
+                
+                <!-- Método de pago -->
+                <div class="form-section">
+                    <h2>MÉTODO DE PAGO</h2>
+                    
+                    <div class="payment-methods">
+                        <div class="payment-method" data-method="credit">
+                            <i class="fas fa-credit-card"></i>
+                            <span>Tarjeta de Crédito</span>
+                        </div>
+                        <div class="payment-method" data-method="debit">
+                            <i class="fas fa-credit-card"></i>
+                            <span>Tarjeta de Débito</span>
+                        </div>
+                        <div class="payment-method" data-method="transfer">
+                            <i class="fas fa-university"></i>
+                            <span>Transferencia Bancaria</span>
+                        </div>
+                        <div class="payment-method" data-method="store">
+                            <i class="fas fa-store"></i>
+                            <span>Tiendas Físicas</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Detalles de transferencia bancaria -->
+                        <div id="transfer-details" class="payment-details">
+                            <p>Haz tu pago directamente en nuestra cuenta bancaria:</p>
+                            <p><strong>{{ company.name }}</strong></p>
+                            <p>{{ company.bank_name }}</p>
+                            <p>Cuenta {{ company.bank_account_type|title }}: {{ company.bank_account_number }}</p>
+                            {% if company.swift_code %}
+                                <p>Código SWIFT: {{ company.swift_code }}</p>
+                            {% endif %}
+                            <p>RUC / Tax ID: {{ company.tax_id }}</p>
+                            <p style="margin-top: 15px;">
+                                Una vez realizado el depósito o transferencia comuníquese al correo: 
+                                {{ company.email }} o a nuestro WhatsApp {{ company.phone }}
+                            </p>
+                        </div>
+
+                    
+                    <!-- Detalles de tarjeta de débito/crédito (deshabilitado) -->
+                    <div id="card-details" class="payment-details">
+                        <div class="card-form">
+                            <div class="form-group">
+                                <label for="card-number">Número de tarjeta</label>
+                                <input type="text" id="card-number" class="form-control" placeholder="1234 5678 9012 3456" disabled>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="card-expiry">Fecha de expiración</label>
+                                    <input type="text" id="card-expiry" class="form-control" placeholder="MM/AA" disabled>
+                                </div>
+                                <div class="form-group">
+                                    <label for="card-cvc">CVC</label>
+                                    <input type="text" id="card-cvc" class="form-control" placeholder="123" disabled>
+                                </div>
+                            </div>
+                            <p style="margin-top: 15px; color: #e53e3e;">* Pago con tarjeta temporalmente deshabilitado. Por favor, seleccione otro método de pago.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Detalles de tiendas físicas -->
+                    <div id="store-details" class="payment-details">
+                        <p>Puede realizar su pago en cualquiera de nuestras tiendas físicas:</p>
+                        <div class="store-locations">
+                            <div class="store-location">
+                                <p><strong>Samborondón</strong></p>
+                                <p>Plaza Lagos Town Center, Local 12</p>
+                                <p>Horario: Lunes a Sábado 10:00 - 20:00, Domingo 11:00 - 19:00</p>
+                            </div>
+                            <div class="store-location">
+                                <p><strong>Guayaquil</strong></p>
+                                <p>Mall del Sol, Planta Baja, Local 42</p>
+                                <p>Horario: Lunes a Domingo 10:00 - 21:00</p>
+                            </div>
+                            <div class="store-location">
+                                <p><strong>Quito</strong></p>
+                                <p>Quicentro Shopping, Segundo Piso, Local 215</p>
+                                <p>Horario: Lunes a Domingo 10:00 - 20:00</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-check" style="margin-top: 20px;">
+                        <input type="checkbox" id="terminos" required>
+                        <label for="terminos">He leído y estoy de acuerdo con los <a href="#" style="color: #1b3027; text-decoration: underline;">Términos y condiciones</a> de la web.</label>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Resumen del pedido -->
+            <div class="order-summary">
+                <h2>TU PEDIDO</h2>
+                
+                <div id="orderItems" class="order-items">
                     <!-- Los items se cargarán dinámicamente con JavaScript -->
                 </div>
                 
-                <div class="space-y-2 mb-6">
-                    <div class="flex justify-between text-sm">
-                        <span class="text-gray-600">Subtotal</span>
-                        <span id="orderSubtotal" class="font-medium">$0.00</span>
+                <div class="order-summary-row">
+                    <span>Subtotal</span>
+                    <span id="subtotal">$0.00</span>
+                </div>
+                
+                <div class="shipping-options">
+                    <h3 style="font-size: 16px; margin-bottom: 10px;">Envío</h3>
+                    
+                    <div class="shipping-option">
+                        <input type="radio" id="shipping-1" name="shipping" value="4.00" checked>
+                        <label for="shipping-1">Samborondón (hasta km. 8) y Durán: $4.00</label>
                     </div>
-                    <div class="flex justify-between text-sm">
-                        <span class="text-gray-600">Envío</span>
-                        <span id="orderShipping" class="font-medium">$0.00</span>
+                    
+                    <div class="shipping-option">
+                        <input type="radio" id="shipping-2" name="shipping" value="5.00">
+                        <label for="shipping-2">La Aurora y Mocolí: $5.00</label>
                     </div>
-                    <div class="flex justify-between text-sm">
-                        <span class="text-gray-600">IVA (15%)</span>
-                        <span id="orderTax" class="font-medium">$0.00</span>
+                    
+                    <div class="shipping-option">
+                        <input type="radio" id="shipping-3" name="shipping" value="5.00">
+                        <label for="shipping-3">Urdesa y Alborada: $5.00</label>
                     </div>
-                    <div class="border-t pt-2 mt-2">
-                        <div class="flex justify-between">
-                            <span class="font-bold">Total</span>
-                            <span id="orderTotal" class="font-bold">$0.00</span>
-                        </div>
+                    
+                    <div class="shipping-option">
+                        <input type="radio" id="shipping-4" name="shipping" value="5.50">
+                        <label for="shipping-4">Los Ceibos y Vía a Daule: $5.50</label>
+                    </div>
+                    
+                    <div class="shipping-option">
+                        <input type="radio" id="shipping-5" name="shipping" value="6.00">
+                        <label for="shipping-5">Vía a La Costa: $6.00</label>
+                    </div>
+                    
+                    <div class="shipping-option">
+                        <input type="radio" id="shipping-6" name="shipping" value="6.00">
+                        <label for="shipping-6">Envíos Nacionales (Servientrega): $6.00</label>
+                    </div>
+                    
+                    <div class="shipping-option">
+                        <input type="radio" id="shipping-7" name="shipping" value="13.00">
+                        <label for="shipping-7">Servientrega (Helería): $13.00</label>
                     </div>
                 </div>
                 
-                <button id="placeOrderBtn" class="w-full bg-blue-600 text-white py-3 px-4 rounded-md font-medium hover:bg-blue-700 transition-colors">
-                    Realizar Pedido
-                </button>
+                <div class="order-summary-row">
+                    <span>IVA (15%)</span>
+                    <span id="tax-amount">$0.48</span>
+                </div>
                 
-                <a href="{% url 'cart_detail' %}" class="block text-center text-blue-600 mt-4 hover:underline">
-                    Volver al carrito
-                </a>
+                <div class="order-summary-row total">
+                    <span>TOTAL</span>
+                    <span id="total-amount">$8.48</span>
+                </div>
+                
+                <div class="tax-note">
+                    (Incluye <span id="tax-note">$0.48</span> de IVA)
+                </div>
+                
+                <button id="place-order-btn" class="place-order-btn">Realizar el pedido</button>
+                
+                <a href="#" class="back-to-cart">Volver al carrito</a>
             </div>
         </div>
     </div>
 
-    <!-- Mensaje de Éxito (oculto por defecto) -->
-    <div id="orderSuccess" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg shadow-xl p-8 max-w-md w-full mx-4">
-            <div class="text-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-green-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+    <!-- Modal de éxito -->
+    <div class="modal-overlay" id="success-modal">
+        <div class="modal-content">
+            <div class="success-icon">
+                <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                    <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
+                    <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
                 </svg>
-                <h2 class="text-2xl font-bold mb-2">¡Pedido Realizado con Éxito!</h2>
-                <p class="mb-2">Tu número de pedido es: <strong id="orderNumber">VIS-12345</strong></p>
-                <p class="text-gray-600 mb-6">Hemos enviado un correo electrónico con los detalles de tu compra.</p>
-                <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                    <a href="{% url 'cliente_home' %}" class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
-                        Continuar Comprando
-                    </a>
-                    <button id="closeSuccessBtn" class="px-6 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors">
-                        Cerrar
-                    </button>
-                </div>
+            </div>
+            <h2 class="modal-title">¡Pedido Realizado con Éxito!</h2>
+            <p>Tu número de pedido es: <span class="order-number" id="order-number">TECH-12345</span></p>
+            
+            <div class="order-details" id="order-details">
+                <p><strong>Fecha:</strong> <span id="order-date"></span></p>
+                <p><strong>Cliente:</strong> <span id="order-customer"></span></p>
+                <p><strong>Dirección de envío:</strong> <span id="order-address"></span></p>
+                <p><strong>Método de pago:</strong> <span id="order-payment"></span></p>
+                <p><strong>Total:</strong> <span id="order-total"></span></p>
+            </div>
+            
+            <p class="modal-message">Hemos enviado un correo electrónico con los detalles de tu compra.</p>
+            <div class="modal-buttons">
+                <a href="#" class="btn btn-primary">Continuar Comprando</a>
+                <button id="close-modal-btn" class="btn btn-secondary">Cerrar</button>
             </div>
         </div>
     </div>
-</div>
 
-<script>
-    
-    document.addEventListener('DOMContentLoaded', function() {
-        // Cargar el resumen del pedido
-        loadOrderSummary();
-    
-        // Seleccionar método de pago
-        const paymentMethods = document.querySelectorAll('.payment-method');
-        paymentMethods.forEach(method => {
-            method.addEventListener('click', function() {
-                // Quitar selección anterior
-                paymentMethods.forEach(m => m.classList.remove('border-blue-500', 'bg-blue-50'));
-                // Añadir selección actual
-                this.classList.add('border-blue-500', 'bg-blue-50');
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Variables
+            const couponToggle = document.querySelector('.coupon-toggle');
+            const couponForm = document.querySelector('.coupon-form');
+            const shippingOptions = document.querySelectorAll('input[name="shipping"]');
+            const paymentMethods = document.querySelectorAll('.payment-method');
+            const placeOrderBtn = document.getElementById('place-order-btn');
+            const successModal = document.getElementById('success-modal');
+            const closeModalBtn = document.getElementById('close-modal-btn');
+            const cityInput = document.getElementById('ciudad');
+            
+            // Cargar el resumen del pedido
+            loadOrderSummary();
+            
+            // Mostrar/ocultar formulario de cupón
+            couponToggle.addEventListener('click', function() {
+                couponForm.classList.toggle('active');
             });
-        });
-    
-        // Botón de realizar pedido
-        const placeOrderBtn = document.getElementById('placeOrderBtn');
-        placeOrderBtn.addEventListener('click', placeOrder);
-    
-        // Botón de cerrar mensaje de éxito
-        const closeSuccessBtn = document.getElementById('closeSuccessBtn');
-        closeSuccessBtn.addEventListener('click', function() {
-            document.getElementById('orderSuccess').classList.add('hidden');
-        });
-    });
-    
-    function loadOrderSummary() {
-        // Obtener datos del carrito desde la sesión de Django
-        fetch('{% url "cart_data" %}')
-            .then(response => response.json())
-            .then(data => {
-                const orderItems = document.getElementById('orderItems');
-                orderItems.innerHTML = '';
-    
-                let subtotal = 0;
-    
-                // Mostrar cada item del carrito
-                data.cart_items.forEach(item => {
-                    const itemTotal = item.price * item.quantity;
-                    subtotal += itemTotal;
-    
-                    const itemElement = document.createElement('div');
-                    itemElement.className = 'flex items-center pb-4 border-b border-gray-200';
-                    itemElement.innerHTML = `
-                        <div class="w-16 h-16 flex-shrink-0 mr-4">
-                            <img src="${item.main_image || 'https://placehold.co/100x100'}" alt="${item.name}" class="w-full h-full object-cover rounded-md">
-                        </div>
-                        <div class="flex-1">
-                            <h3 class="font-medium text-sm">${item.name}</h3>
-                            <div class="flex justify-between mt-1">
-                                <span class="text-gray-500 text-xs">${item.quantity} x $${item.price.toFixed(2)}</span>
-                                <span class="font-medium text-sm">$${(item.price * item.quantity).toFixed(2)}</span>
-                            </div>
-                        </div>
-                    `;
-                    orderItems.appendChild(itemElement);
+            
+            // Actualizar totales al cambiar opción de envío
+            shippingOptions.forEach(function(option) {
+                option.addEventListener('change', updateTotals);
+            });
+            
+            // Actualizar envío al cambiar ciudad
+            cityInput.addEventListener('change', function() {
+                const city = this.value.trim().toLowerCase();
+                
+                // Seleccionar opción de envío según la ciudad
+                if (city === 'samborondón' || city === 'samborondon' || city === 'durán' || city === 'duran') {
+                    document.getElementById('shipping-1').checked = true;
+                } else if (city === 'la aurora' || city === 'mocolí' || city === 'mocoli') {
+                    document.getElementById('shipping-2').checked = true;
+                } else if (city === 'urdesa' || city === 'alborada') {
+                    document.getElementById('shipping-3').checked = true;
+                } else if (city === 'los ceibos' || city === 'vía a daule' || city === 'via a daule') {
+                    document.getElementById('shipping-4').checked = true;
+                } else if (city === 'vía a la costa' || city === 'via a la costa') {
+                    document.getElementById('shipping-5').checked = true;
+                }
+                
+                updateTotals();
+            });
+            
+            // Seleccionar método de pago y mostrar detalles correspondientes
+            paymentMethods.forEach(function(method) {
+                method.addEventListener('click', function() {
+                    // Quitar selección anterior
+                    paymentMethods.forEach(m => m.classList.remove('selected'));
+                    
+                    // Añadir selección actual
+                    this.classList.add('selected');
+                    
+                    // Ocultar todos los detalles de pago
+                    document.querySelectorAll('.payment-details').forEach(detail => {
+                        detail.classList.remove('active');
+                    });
+                    
+                    // Mostrar detalles según el método seleccionado
+                    const selectedMethod = this.getAttribute('data-method');
+                    
+                    if (selectedMethod === 'transfer') {
+                        document.getElementById('transfer-details').classList.add('active');
+                    } else if (selectedMethod === 'credit' || selectedMethod === 'debit') {
+                        document.getElementById('card-details').classList.add('active');
+                    } else if (selectedMethod === 'store') {
+                        document.getElementById('store-details').classList.add('active');
+                    }
                 });
-    
-                // Obtener la ciudad ingresada
-                const city = document.getElementById('city').value.trim().toLowerCase();
-    
-                // Definir el costo de envío basado en la ciudad
-                let shipping = 5;  // Valor predeterminado para otros lugares
-                if (city === 'Guayaquil') {
-                    shipping = 5;  // Si la ciudad es Guayaquil, el costo es 5
-                }
-    
-                const tax = subtotal * 0.15; // 15% de IVA
-                const total = subtotal + shipping + tax;
-    
-                // Actualizar los totales en el DOM
-                document.getElementById('orderSubtotal').textContent = `$${subtotal.toFixed(2)}`;
-                document.getElementById('orderShipping').textContent = shipping === 0 ? 'Gratis' : `$${shipping.toFixed(2)}`;
-                document.getElementById('orderTax').textContent = `$${tax.toFixed(2)}`;
-                document.getElementById('orderTotal').textContent = `$${total.toFixed(2)}`;
-            })
-            .catch(error => {
-                console.error('Error al cargar el resumen del pedido:', error);
             });
-    }
-    
-    function placeOrder() {
-        // Validar formulario
-        const requiredFields = ['email', 'phone', 'fullname', 'address', 'city', 'postal', 'state'];
-        let isValid = true;
-    
-        requiredFields.forEach(field => {
-            const input = document.getElementById(field);
-            if (!input.value.trim()) {
-                input.classList.add('border-red-500');
-                isValid = false;
-            } else {
-                input.classList.remove('border-red-500');
+            
+            // Seleccionar transferencia bancaria por defecto
+            document.querySelector('.payment-method[data-method="transfer"]').click();
+            
+            // Realizar pedido
+            placeOrderBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Validar formulario
+                const requiredFields = ['nombre', 'apellidos', 'direccion', 'ciudad', 'codigo-postal', 'provincia', 'email', 'telefono'];
+                let isValid = true;
+                
+                requiredFields.forEach(field => {
+                    const input = document.getElementById(field);
+                    if (!input.value.trim()) {
+                        input.classList.add('error');
+                        isValid = false;
+                    } else {
+                        input.classList.remove('error');
+                    }
+                });
+                
+                // Verificar si se seleccionó un método de pago
+                const selectedPayment = document.querySelector('.payment-method.selected');
+                if (!selectedPayment) {
+                    alert('Por favor selecciona un método de pago');
+                    return;
+                }
+                
+                // Verificar términos y condiciones
+                const terminos = document.getElementById('terminos');
+                if (!terminos.checked) {
+                    alert('Debes aceptar los términos y condiciones para continuar');
+                    return;
+                }
+                
+                if (!isValid) {
+                    alert('Por favor completa todos los campos requeridos');
+                    return;
+                }
+                
+                // Mostrar indicador de carga
+                placeOrderBtn.classList.add('loading');
+                placeOrderBtn.innerHTML = '<span class="spinner"></span> Procesando...';
+                
+                // Recopilar datos del formulario
+                const orderData = {
+                    email: document.getElementById('email').value,
+                    phone: document.getElementById('telefono').value,
+                    fullname: document.getElementById('nombre').value + ' ' + document.getElementById('apellidos').value,
+                    address: document.getElementById('direccion').value,
+                    city: document.getElementById('ciudad').value,
+                    postal_code: document.getElementById('codigo-postal').value,
+                    state: document.getElementById('provincia').value,
+                    payment_method: selectedPayment.getAttribute('data-method'),
+                    notes: document.getElementById('notas').value,
+                    shipping: parseFloat(document.querySelector('input[name="shipping"]:checked').value)
+                };
+                
+                // Enviar pedido al servidor
+                processOrder(orderData);
+            });
+            
+            // Cerrar modal
+            closeModalBtn.addEventListener('click', function() {
+                successModal.classList.remove('active');
+            });
+            
+            // Función para cargar el resumen del pedido
+            function loadOrderSummary() {
+                // Obtener datos del carrito desde el servidor
+                fetchCartData()
+                    .then(data => {
+                        // Actualizar contador del carrito en el header
+                        updateCartHeader(data);
+                        
+                        const orderItems = document.getElementById('orderItems');
+                        orderItems.innerHTML = '';
+                        
+                        let subtotal = 0;
+                        
+                        // Mostrar cada item del carrito
+                        if (data.cart_items) {
+                            // Si la estructura es como en el ejemplo de Django
+                            data.cart_items.forEach(item => {
+                                const itemTotal = item.price * item.quantity;
+                                subtotal += itemTotal;
+                                
+                                const itemElement = document.createElement('div');
+                                itemElement.className = 'order-item';
+                                itemElement.innerHTML = `
+                                    <img src="${item.main_image || 'https://placehold.co/100x100'}" alt="${item.name}" class="order-item-image">
+                                    <div class="order-item-details">
+                                        <div class="order-item-name">${item.name}</div>
+                                        <div class="order-item-meta">
+                                            <span>${item.quantity} × $${parseFloat(item.price).toFixed(2)}</span>
+                                            <span>$${(item.price * item.quantity).toFixed(2)}</span>
+                                        </div>
+                                    </div>
+                                `;
+                                orderItems.appendChild(itemElement);
+                            });
+                        } else if (data.items) {
+                            // Si la estructura es como en el ejemplo anterior
+                            Object.entries(data.items).forEach(([productId, item]) => {
+                                const itemTotal = item.price * item.quantity;
+                                subtotal += itemTotal;
+                                
+                                const itemElement = document.createElement('div');
+                                itemElement.className = 'order-item';
+                                itemElement.innerHTML = `
+                                    <img src="${item.main_image || 'https://placehold.co/100x100'}" alt="${item.name}" class="order-item-image">
+                                    <div class="order-item-details">
+                                        <div class="order-item-name">${item.name}</div>
+                                        <div class="order-item-meta">
+                                            <span>${item.quantity} × $${parseFloat(item.price).toFixed(2)}</span>
+                                            <span>$${(item.price * item.quantity).toFixed(2)}</span>
+                                        </div>
+                                    </div>
+                                `;
+                                orderItems.appendChild(itemElement);
+                            });
+                        }
+                        
+                        // Obtener la ciudad ingresada
+                        const city = document.getElementById('ciudad').value.trim().toLowerCase();
+                        
+                        // Definir el costo de envío basado en la ciudad
+                        let shipping = 4.00;  // Valor predeterminado
+                        if (city === 'samborondón' || city === 'samborondon' || city === 'durán' || city === 'duran') {
+                            shipping = 4.00;
+                        } else if (city === 'la aurora' || city === 'mocolí' || city === 'mocoli') {
+                            shipping = 5.00;
+                        } else if (city === 'urdesa' || city === 'alborada') {
+                            shipping = 5.00;
+                        } else if (city === 'los ceibos' || city === 'vía a daule' || city === 'via a daule') {
+                            shipping = 5.50;
+                        } else if (city === 'vía a la costa' || city === 'via a la costa') {
+                            shipping = 6.00;
+                        }
+                        
+                        const tax = subtotal * 0.12; // 12% de IVA
+                        const total = subtotal + shipping + tax;
+                        
+                        // Actualizar los totales en el DOM
+                        document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
+                        document.getElementById('tax-amount').textContent = `$${tax.toFixed(2)}`;
+                        document.getElementById('tax-note').textContent = `$${tax.toFixed(2)}`;
+                        document.getElementById('total-amount').textContent = `$${total.toFixed(2)}`;
+                    })
+                    .catch(error => {
+                        console.error('Error al cargar el resumen del pedido:', error);
+                    });
+            }
+            
+            // Función para actualizar el contador del carrito en el header
+            function updateCartHeader(data) {
+                let totalItems = 0;
+                let totalPrice = 0;
+                
+                // Calcular total de items y precio
+                if (data.cart_items) {
+                    data.cart_items.forEach(item => {
+                        totalItems += item.quantity;
+                        totalPrice += item.price * item.quantity;
+                    });
+                } else if (data.items) {
+                    Object.values(data.items).forEach(item => {
+                        totalItems += item.quantity;
+                        totalPrice += item.price * item.quantity;
+                    });
+                }
+                
+                // Actualizar el DOM
+                document.getElementById('cart-count').textContent = totalItems;
+                document.getElementById('cart-total').textContent = totalPrice.toFixed(2);
+            }
+            
+            // Función para actualizar totales
+            function updateTotals() {
+                fetchCartData()
+                    .then(data => {
+                        let subtotal = 0;
+                        
+                        // Calcular subtotal
+                        if (data.cart_items) {
+                            data.cart_items.forEach(item => {
+                                subtotal += item.price * item.quantity;
+                            });
+                        } else if (data.items) {
+                            Object.values(data.items).forEach(item => {
+                                subtotal += item.price * item.quantity;
+                            });
+                        }
+                        
+                        // Obtener el costo de envío seleccionado
+                        let shipping = 4.00; // Valor predeterminado
+                        const selectedShipping = document.querySelector('input[name="shipping"]:checked');
+                        
+                        if (selectedShipping) {
+                            shipping = parseFloat(selectedShipping.value);
+                        }
+                        
+                        // Calcular IVA y total
+                        const tax = subtotal * 0.15; // 12% de IVA
+                        const total = subtotal + shipping + tax;
+                        
+                        // Actualizar el DOM
+                        document.getElementById('subtotal').textContent = '$' + subtotal.toFixed(2);
+                        document.getElementById('tax-amount').textContent = '$' + tax.toFixed(2);
+                        document.getElementById('tax-note').textContent = '$' + tax.toFixed(2);
+                        document.getElementById('total-amount').textContent = '$' + total.toFixed(2);
+                    })
+                    .catch(error => {
+                        console.error('Error al actualizar totales:', error);
+                    });
+            }
+            
+            // Función para procesar el pedido
+            function processOrder(orderData) {
+                // Obtener datos del carrito
+                fetchCartData()
+                    .then(data => {
+                        let subtotal = 0;
+                        let items = [];
+                        
+                        // Calcular subtotal y preparar items
+                        if (data.cart_items) {
+                            data.cart_items.forEach(item => {
+                                subtotal += item.price * item.quantity;
+                                items.push(item);
+                            });
+                        } else if (data.items) {
+                            Object.values(data.items).forEach(item => {
+                                subtotal += item.price * item.quantity;
+                                items.push(item);
+                            });
+                        }
+                        
+                        // Calcular IVA y total
+                        const tax = subtotal * 0.12; // 12% de IVA
+                        const total = subtotal + orderData.shipping + tax;
+                        
+                        // Preparar datos para enviar al servidor
+                        const orderToSubmit = {
+                            ...orderData,
+                            total: total,
+                            items: items,
+                            tax: tax
+                        };
+                        
+                        // Enviar pedido al servidor
+                        fetch('/process_order/', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': getCookie('csrftoken')
+                            },
+                            body: JSON.stringify(orderToSubmit)
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Error en la respuesta del servidor');
+                            }
+                            return response.json();
+                        })
+                        .then(responseData => {
+                            // Generar número de pedido (en un entorno real vendría del servidor)
+                            const orderNumber = responseData.order_number || 'TECH-' + Math.floor(100000 + Math.random() * 900000);
+                            
+                            // Actualizar detalles del pedido en el modal
+                            document.getElementById('order-number').textContent = orderNumber;
+                            document.getElementById('order-date').textContent = new Date().toLocaleDateString();
+                            document.getElementById('order-customer').textContent = orderData.fullname;
+                            document.getElementById('order-address').textContent = `${orderData.address}, ${orderData.city}, ${orderData.state}`;
+                            
+                            // Mostrar método de pago en formato legible
+                            let paymentMethodText = '';
+                            switch(orderData.payment_method) {
+                                case 'credit':
+                                    paymentMethodText = 'Tarjeta de Crédito';
+                                    break;
+                                case 'debit':
+                                    paymentMethodText = 'Tarjeta de Débito';
+                                    break;
+                                case 'transfer':
+                                    paymentMethodText = 'Transferencia Bancaria';
+                                    break;
+                                case 'store':
+                                    paymentMethodText = 'Pago en Tienda Física';
+                                    break;
+                                default:
+                                    paymentMethodText = orderData.payment_method;
+                            }
+                            document.getElementById('order-payment').textContent = paymentMethodText;
+                            document.getElementById('order-total').textContent = `$${total.toFixed(2)}`;
+                            
+                            // Quitar indicador de carga
+                            placeOrderBtn.classList.remove('loading');
+                            placeOrderBtn.innerHTML = 'Realizar el pedido';
+                            
+                            // Mostrar modal de éxito
+                            successModal.classList.add('active');
+                        })
+                        .catch(error => {
+                            console.error('Error al procesar el pedido:', error);
+                            alert('Error al procesar el pedido. Por favor, inténtalo de nuevo.');
+                            
+                            // Quitar indicador de carga
+                            placeOrderBtn.classList.remove('loading');
+                            placeOrderBtn.innerHTML = 'Realizar el pedido';
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error al obtener datos del carrito:', error);
+                        alert('Error al obtener datos del carrito. Por favor, inténtalo de nuevo.');
+                        
+                        // Quitar indicador de carga
+                        placeOrderBtn.classList.remove('loading');
+                        placeOrderBtn.innerHTML = 'Realizar el pedido';
+                    });
+            }
+            
+            // Función para obtener cookies (necesario para CSRF en Django)
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+            
+            // Función para obtener datos del carrito desde el servidor
+            function fetchCartData() {
+                return fetch('/cart_data/')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Error al obtener datos del carrito');
+                        }
+                        return response.json();
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        // Fallback a datos de ejemplo en caso de error
+                        return {
+                            cart_items: [
+                                {
+                                    id: 1,
+                                    name: "KÜLER Sorbetes - Metálico",
+                                    price: 4.00,
+                                    quantity: 1,
+                                    subtotal: 4.00,
+                                    main_image: "https://via.placeholder.com/60"
+                                },
+                                {
+                                    id: 2,
+                                    name: "KÜLER Botella Térmica",
+                                    price: 15.00,
+                                    quantity: 1,
+                                    subtotal: 15.00,
+                                    main_image: "https://via.placeholder.com/60"
+                                },
+                                {
+                                    id: 3,
+                                    name: "KÜLER Set Ecológico",
+                                    price: 12.50,
+                                    quantity: 2,
+                                    subtotal: 25.00,
+                                    main_image: "https://via.placeholder.com/60"
+                                }
+                            ]
+                        };
+                    });
             }
         });
-    
-        // Verificar si se seleccionó un método de pago
-        const selectedPayment = document.querySelector('.payment-method.border-blue-500');
-        if (!selectedPayment) {
-            alert('Por favor selecciona un método de pago');
-            return;
-        }
-    
-        if (!isValid) {
-            alert('Por favor completa todos los campos requeridos');
-            return;
-        }
-    
-        // Generar número de pedido aleatorio
-        const orderNumber = 'TECH-' + Math.floor(100000 + Math.random() * 900000);
-        document.getElementById('orderNumber').textContent = orderNumber;
-    
-        // Mostrar mensaje de éxito
-        document.getElementById('orderSuccess').classList.remove('hidden');
-    
-        // Aquí se enviaría el pedido al servidor
-         fetch('{% url "process_order" %}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
-            },
-            body: JSON.stringify({
-                email: document.getElementById('email').value,
-                phone: document.getElementById('phone').value,
-                fullname: document.getElementById('fullname').value,
-                address: document.getElementById('address').value,
-              city: document.getElementById('city').value,
-                postal: document.getElementById('postal').value,
-                state: document.getElementById('state').value,
-                 payment_method: selectedPayment.dataset.method,
-               order_number: orderNumber
-            })
-         })
-         
-        .then(response => response.json())
-       .then(data => {
-            // Limpiar carrito después de procesar el pedido
-           window.location.href = '{% url "order_success" %}';
-         })
-         .catch(error => {
-            console.error('Error al procesar el pedido:', error);
-         });
-    }
-    
-    // Función para obtener el valor de una cookie
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-    
-</script>
+    </script>
 
 {% endblock %}
 
