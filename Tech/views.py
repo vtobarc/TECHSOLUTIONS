@@ -1363,7 +1363,7 @@ def apply_filters_and_sorting(products, request):
     selected_brand_id = request.GET.get('brand')
 
     # Filtrar por categoría si se especifica
-    if selected_category_id and selected_category_id != 'all':
+    if selected_category_id:
         products = products.filter(category_id=selected_category_id)
     
     # Filtrar por marca si se especifica
@@ -1434,11 +1434,11 @@ def cliente_home(request, product_id=None):
         price_range = float(price_range)
         
     # Seleccionar la categoría activa
-    if selected_category_id and selected_category_id != 'all':
+    if selected_category_id:
         selected_category = get_object_or_404(Category, id=selected_category_id)
     else:
         selected_category = all_categories.first()  # Si no hay selección, toma la primera categoría
-        selected_category_id = 'all'
+        selected_category_id = selected_category.id if selected_category else None
 
     # Si es una solicitud AJAX, devolver JSON con productos
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -1479,12 +1479,15 @@ def category_detail(request, category_id, product_id=None):
     category = get_object_or_404(Category, id=category_id)
     selected_category = category
 
+    if selected_category_id and selected_category_id != 'all':
+        selected_category = get_object_or_404(Category, id=selected_category_id)
+
     if product_id:
         product = get_object_or_404(Product, id=product_id, is_available=True)
 
         if product.category.id != category_id:
             return redirect('category_detail', category_id=product.category.id, product_id=product.id)
-
+            
         # Obtener las imágenes de la galería
         gallery_images = product.get_gallery_images()
         main_image = product.get_main_image()
