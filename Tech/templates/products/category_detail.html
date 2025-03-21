@@ -1,4 +1,3 @@
-<!--category_detail.html-->
 {% extends 'products/base_productos.html' %}
 {% load static %}
 {% block title %}TechVanguard_Categorias{% endblock %}
@@ -9,14 +8,176 @@
 <link rel="stylesheet" href="{% static 'css/category.css' %}">
 <link rel="stylesheet" href="{% static 'css/mobile-category.css' %}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<style>
+  /* Estilos adicionales para los filtros */
+  .filter-option {
+    display: inline-block;
+    padding: 8px 12px;
+    margin: 4px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 14px;
+  }
+  
+  .filter-option.active {
+    background-color: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
+  }
+  
+  .filter-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  
+  .filter-modal.open {
+    display: flex;
+  }
+  
+  .filter-modal-content {
+    background-color: white;
+    border-radius: 12px 12px 0 0;
+    width: 100%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 20px;
+    animation: slideUp 0.3s ease-out;
+  }
+  
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+  
+  .filter-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 15px;
+  }
+  
+  .filter-section {
+    margin-bottom: 20px;
+  }
+  
+  .filter-section h3 {
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+  
+  .price-display {
+    font-weight: 600;
+    margin-left: 10px;
+  }
+  
+  .price-slider {
+    width: 100%;
+    margin: 10px 0;
+  }
+  
+  .price-range {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 5px;
+    font-size: 14px;
+    color: #666;
+  }
+  
+  .filter-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  
+  .btn-primary {
+    background-color: #3b82f6;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    flex: 1;
+    font-weight: 500;
+  }
+  
+  .btn-secondary {
+    background-color: #f3f4f6;
+    color: #374151;
+    border: 1px solid #d1d5db;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    flex: 1;
+    font-weight: 500;
+  }
+  
+  /* Estilos para las tarjetas de productos */
+  .product-card {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .discount-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background-color: #ef4444;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 9999px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  
+  .product-code {
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 4px;
+  }
+  
+  /* Mejoras para móvil */
+  @media (max-width: 768px) {
+    .filter-modal-content {
+      border-radius: 12px 12px 0 0;
+      max-height: 80vh;
+    }
+    
+    .filter-option {
+      font-size: 13px;
+      padding: 6px 10px;
+    }
+  }
+</style>
 {% endblock %}
+
 {% block main_content %}
 
 <!-- Mobile Header (only visible on mobile) -->
 <div class="mobile-header">
-
   <div class="search-container">
-    <input type="text" placeholder="Buscar productos..." class="search-input">
+    <form method="GET" action="{% if is_cliente_home %}{% url 'cliente_home' %}{% else %}{% url 'category_detail' category.id %}{% endif %}">
+      <input type="text" name="search" placeholder="Buscar productos..." class="search-input" value="{{ search_query }}">
+      <input type="hidden" name="category" value="{{ selected_category }}">
+      <input type="hidden" name="brand" value="{{ selected_brand }}">
+      <input type="hidden" name="sort_by" value="{{ sort_by }}">
+      <input type="hidden" name="price_range" value="{{ price_range }}">
+      <button type="submit" class="search-button">
+        <i class="fas fa-search"></i>
+      </button>
+    </form>
     <button class="filter-button" id="filter-button">
       <i class="fas fa-filter"></i>
     </button>
@@ -26,12 +187,14 @@
 <div class="category-detail">
     <div class="category-header">
         <div class="header-content">
-            <h1>{{ selected_category.name }}</h1>
-            {% if selected_category.description %}
-            <p class="category-description">{{ selected_category.description }}</p>
+            {% if selected_category != 'all' and selected_category.name %}
+                <h1>{{ selected_category.name }}</h1>
+                {% if selected_category.description %}
+                    <p class="category-description">{{ selected_category.description }}</p>
+                {% endif %}
             {% else %}
-            <h1>General</h1>
-            <p class="category-description">Aquí puedes ver todos los productos de esta categoría.</p>
+                <h1>Todos los productos</h1>
+                <p class="category-description">Explora nuestra colección completa de productos.</p>
             {% endif %}
         </div>
     </div>
@@ -54,10 +217,14 @@
                             <span class="stock-badge {% if product.stock > 0 %}in-stock{% else %}out-stock{% endif %}">
                                 {% if product.stock > 0 %}En Stock{% else %}Agotado{% endif %}
                             </span>
+                            {% if product.discount > 0 %}
+                                <span class="discount-badge">{{ product.discount }}% OFF</span>
+                            {% endif %}
                         </div>
                         <div class="product-info">
                             <h3>{{ product.name }}</h3>
                             <h3>${{ product.price }} + IVA</h3>
+                            <p class="product-code">Código: {{ product.code }}</p>
                            
                             <div class="product-details">
                                 {% if is_cliente_home %}
@@ -72,7 +239,7 @@
                                 
                                 <form action="{% url 'add_to_cart' product_id=product.id %}" method="POST">
                                     {% csrf_token %}
-                                    <button type="submit" class="add-to-cart-btn">                
+                                    <button type="submit" class="add-to-cart-btn" {% if product.stock <= 0 %}disabled{% endif %}>                
                                         <i class="fas fa-shopping-cart"></i>
                                         Añadir
                                     </button>
@@ -84,151 +251,195 @@
             </div>
         {% else %}
             <div class="no-products">
-                <p>No hay productos disponibles en esta categoría.</p>
+                <p>No hay productos disponibles con los filtros seleccionados.</p>
             </div>
         {% endif %}
     </div>
 </div>
 
-
-
 <!-- Filter Modal -->
 <div class="filter-modal" id="filter-modal">
-  <div class="filter-modal-header">
-    <h2>Filtros</h2>
-    <button class="close-button" id="close-filter">
-      <i class="fas fa-times"></i>
-    </button>
-  </div>
   <div class="filter-modal-content">
-   <div class="filter-section categories-section">
+    <div class="filter-modal-header">
+      <h2>Filtros</h2>
+      <button class="close-button" id="close-filter">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <form id="filter-form" method="GET" action="{% if is_cliente_home %}{% url 'cliente_home' %}{% else %}{% url 'category_detail' category.id %}{% endif %}">
+      <!-- Categorías -->
+      <div class="filter-section categories-section">
         <h3>Categorías:</h3>
-        <div class="category-grid">
-          <a href="{% url 'cliente_home' %}" class="filter-option {% if not selected_category %}active{% endif %}">
+        <div class="category-options">
+          <div class="filter-option {% if selected_category == 'all' %}active{% endif %}" data-value="all">
             <i class="fas fa-th-large"></i> Todas las categorías
-          </a>
-          {% for category in all_categories %}
-            <a href="{% url 'category_detail' category.id %}" class="filter-option {% if selected_category_id == category.id|stringformat:'s' %}active{% endif %}">
-              {{ category.name }}
-            </a>
+          </div>
+          {% for cat in all_categories %}
+            <div class="filter-option {% if selected_category == cat.id|stringformat:'s' %}active{% endif %}" data-value="{{ cat.id }}">
+              {{ cat.name }}
+            </div>
           {% endfor %}
         </div>
-    </div>
-
-
-    
-    <div class="filter-section">
-      <h3>Ordenar por:</h3>
-      <select name="sort_by" class="form-control">
-        <option value="relevance" {% if sort_by == 'relevance' %}selected{% endif %}>Relevancia</option>
-        <option value="price-asc" {% if sort_by == 'price-asc' %}selected{% endif %}>Precio: Menor a Mayor</option>
-        <option value="price-desc" {% if sort_by == 'price-desc' %}selected{% endif %}>Precio: Mayor a Menor</option>
-        <option value="name-asc" {% if sort_by == 'name-asc' %}selected{% endif %}>Nombre: A-Z</option>
-        <option value="name-desc" {% if sort_by == 'name-desc' %}selected{% endif %}>Nombre: Z-A</option>
-      </select>
-    </div>
-    
-    <div class="filter-section">
-      <h3>Marca:</h3>
-      <select name="brand" id="brand" class="form-control">
-        <option value="">Todas las marcas</option>
-        {% for brand in all_brands %}
-          <option value="{{ brand.id }}" {% if brand.id == selected_brand %}selected{% endif %}>
-            {{ brand.name }}
-          </option>
-        {% endfor %}
-      </select>
-    </div>
-    
-    <div class="filter-section">
-      <h3>Precio:</h3>
-      <input type="range" id="price-slider" min="0" max="100" class="price-slider">
-      <div class="price-range">
-        <span>$0</span>
-        <span>$100</span>
+        <input type="hidden" name="category" id="category-input" value="{{ selected_category }}">
       </div>
-    </div>
-    
-    <div class="filter-buttons">
-      <button class="btn-secondary" id="cancel-filter">Cancelar</button>
-      <button class="btn-primary" id="apply-filter">Aplicar Filtros</button>
-    </div>
+      
+      <!-- Ordenamiento -->
+      <div class="filter-section">
+        <h3>Ordenar por:</h3>
+        <div class="sort-options">
+          <div class="filter-option {% if sort_by == 'relevance' %}active{% endif %}" data-value="relevance">
+            Relevancia
+          </div>
+          <div class="filter-option {% if sort_by == 'price-asc' %}active{% endif %}" data-value="price-asc">
+            Precio: Menor a Mayor
+          </div>
+          <div class="filter-option {% if sort_by == 'price-desc' %}active{% endif %}" data-value="price-desc">
+            Precio: Mayor a Menor
+          </div>
+          <div class="filter-option {% if sort_by == 'name-asc' %}active{% endif %}" data-value="name-asc">
+            Nombre: A-Z
+          </div>
+          <div class="filter-option {% if sort_by == 'name-desc' %}active{% endif %}" data-value="name-desc">
+            Nombre: Z-A
+          </div>
+        </div>
+        <input type="hidden" name="sort_by" id="sort-by-input" value="{{ sort_by }}">
+      </div>
+      
+      <!-- Marcas -->
+      <div class="filter-section">
+        <h3>Marca:</h3>
+        <div class="brand-options">
+          <div class="filter-option {% if selected_brand == 'all' %}active{% endif %}" data-value="all">
+            Todas las marcas
+          </div>
+          {% for brand in all_brands %}
+            <div class="filter-option {% if selected_brand == brand.id|stringformat:'s' %}active{% endif %}" data-value="{{ brand.id }}">
+              {{ brand.name }}
+            </div>
+          {% endfor %}
+        </div>
+        <input type="hidden" name="brand" id="brand-input" value="{{ selected_brand }}">
+      </div>
+      
+      <!-- Precio -->
+      <div class="filter-section">
+        <h3>Precio máximo: <span class="price-display">$<span id="price-display">{{ price_range }}</span></span></h3>
+        <input 
+          type="range" 
+          id="price-slider" 
+          name="price_range"
+          min="0" 
+          max="{{ max_price }}" 
+          step="100" 
+          value="{{ price_range }}"
+          class="price-slider"
+        >
+        <div class="price-range">
+          <span>$0</span>
+          <span>${{ max_price }}</span>
+        </div>
+      </div>
+      
+      <!-- Búsqueda (oculto, se mantiene el valor) -->
+      {% if search_query %}
+        <input type="hidden" name="search" value="{{ search_query }}">
+      {% endif %}
+      
+      <!-- Botones de acción -->
+      <div class="filter-buttons">
+        <button type="button" class="btn-secondary" id="cancel-filter">Cancelar</button>
+        <button type="submit" class="btn-primary">Aplicar Filtros</button>
+      </div>
+    </form>
   </div>
 </div>
 
-
-
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    // Show/hide filter modal
+    // Elementos del DOM
     const filterButton = document.getElementById('filter-button');
     const filterModal = document.getElementById('filter-modal');
     const closeFilter = document.getElementById('close-filter');
     const cancelFilter = document.getElementById('cancel-filter');
+    const priceSlider = document.getElementById('price-slider');
+    const priceDisplay = document.getElementById('price-display');
     
+    // Inputs ocultos para los filtros
+    const categoryInput = document.getElementById('category-input');
+    const sortByInput = document.getElementById('sort-by-input');
+    const brandInput = document.getElementById('brand-input');
+    
+    // Opciones de filtro
+    const categoryOptions = document.querySelectorAll('.category-options .filter-option');
+    const sortOptions = document.querySelectorAll('.sort-options .filter-option');
+    const brandOptions = document.querySelectorAll('.brand-options .filter-option');
+    
+    // Mostrar/ocultar modal de filtros
     if (filterButton) {
       filterButton.addEventListener('click', function() {
         filterModal.classList.add('open');
+        document.body.style.overflow = 'hidden';
       });
     }
     
     if (closeFilter) {
       closeFilter.addEventListener('click', function() {
         filterModal.classList.remove('open');
+        document.body.style.overflow = 'auto';
       });
     }
     
     if (cancelFilter) {
       cancelFilter.addEventListener('click', function() {
         filterModal.classList.remove('open');
+        document.body.style.overflow = 'auto';
       });
     }
     
-    // Show/hide menu modal
-    const menuButton = document.getElementById('menu-button');
-    const menuLink = document.getElementById('menu-link');
-    const menuModal = document.getElementById('menu-modal');
-    const closeMenu = document.getElementById('close-menu');
-    
-    if (menuButton) {
-      menuButton.addEventListener('click', function() {
-        menuModal.classList.add('open');
+    // Actualizar el valor mostrado del precio
+    if (priceSlider && priceDisplay) {
+      priceSlider.addEventListener('input', function() {
+        priceDisplay.textContent = this.value;
       });
     }
     
-    if (menuLink) {
-      menuLink.addEventListener('click', function(e) {
-        e.preventDefault();
-        menuModal.classList.add('open');
+    // Manejar selección de categorías
+    categoryOptions.forEach(option => {
+      option.addEventListener('click', function() {
+        // Quitar clase activa de todas las opciones
+        categoryOptions.forEach(opt => opt.classList.remove('active'));
+        // Añadir clase activa a la opción seleccionada
+        this.classList.add('active');
+        // Actualizar el input oculto
+        categoryInput.value = this.dataset.value;
       });
-    }
+    });
     
-    if (closeMenu) {
-      closeMenu.addEventListener('click', function() {
-        menuModal.classList.remove('open');
+    // Manejar selección de ordenamiento
+    sortOptions.forEach(option => {
+      option.addEventListener('click', function() {
+        // Quitar clase activa de todas las opciones
+        sortOptions.forEach(opt => opt.classList.remove('active'));
+        // Añadir clase activa a la opción seleccionada
+        this.classList.add('active');
+        // Actualizar el input oculto
+        sortByInput.value = this.dataset.value;
       });
-    }
+    });
     
-    // Apply filters
-    const applyFilter = document.getElementById('apply-filter');
-    if (applyFilter) {
-      applyFilter.addEventListener('click', function() {
-        // Get filter values
-        const sortBy = document.querySelector('select[name="sort_by"]').value;
-        const brand = document.querySelector('select[name="brand"]').value;
-        const priceSlider = document.getElementById('price-slider');
-        const maxPrice = priceSlider ? priceSlider.value : 100;
-        
-        // Build URL with filter parameters
-        let url = new URL(window.location.href);
-        url.searchParams.set('sort_by', sortBy);
-        if (brand) url.searchParams.set('brand', brand);
-        url.searchParams.set('max_price', maxPrice);
-        
-        // Redirect to filtered URL
-        window.location.href = url.toString();
+    // Manejar selección de marcas
+    brandOptions.forEach(option => {
+      option.addEventListener('click', function() {
+        // Quitar clase activa de todas las opciones
+        brandOptions.forEach(opt => opt.classList.remove('active'));
+        // Añadir clase activa a la opción seleccionada
+        this.classList.add('active');
+        // Actualizar el input oculto
+        brandInput.value = this.dataset.value;
       });
-    }
+    });
   });
 </script>
 {% endblock %}
