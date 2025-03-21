@@ -1,4 +1,69 @@
 /* Mobile Product Detail CSS - For screens 768px and below */
+/* Estilos para el botón de filtro activo */
+  .filter-button.active {
+    background-color: #4f46e5;
+    color: white;
+  }
+  
+  /* Animación para el modal de filtros */
+  .filter-modal {
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+  
+  .filter-modal.open {
+    opacity: 1;
+    visibility: visible;
+  }
+  
+  /* Mejoras en la visualización de filtros */
+  .filter-option {
+    transition: background-color 0.2s ease;
+  }
+  
+  .filter-option:hover {
+    background-color: #f3f4f6;
+  }
+  
+  .filter-option.active {
+    background-color: #4f46e5;
+    color: white;
+  }
+
+  /* Estilos para el mensaje de no productos */
+  .no-products {
+    padding: 3rem;
+    text-align: center;
+    background-color: #f9fafb;
+    border-radius: 0.5rem;
+  }
+  
+  /* Estilos para el slider de precio */
+  .price-slider {
+    width: 100%;
+    height: 8px;
+    -webkit-appearance: none;
+    background: #e5e7eb;
+    border-radius: 4px;
+    outline: none;
+  }
+  
+  .price-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #4f46e5;
+    cursor: pointer;
+  }
+  
+  .price-slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #4f46e5;
+    cursor: pointer;
+    border: none;
+  }
 
 @media (max-width: 768px) {
   /* Hide desktop sidebar/filter */
