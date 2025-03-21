@@ -724,15 +724,16 @@
             </div>
                     </div>
 
-<!-- Detalles de pago - Transferencia Bancaria -->
-    <div id="transfer-details" class="payment-details mt-4 p-4 bg-gray-50 rounded-md hidden">
-        <p>Haz tu pago directamente en nuestra cuenta bancaria:</p>
-        <p class="font-medium mt-2">{{ company.name }}</p>
-        <p>Banco Guayaquil</p>
-        <p>Cuenta corriente: 000000000</p>
-        <p>RUC: {{ company.ruc }}</p>
-        <p class="mt-4 text-sm">Una vez realizado el depósito o transferencia comuníquese al correo: {{ company.email }}</p>
-    </div>
+        <!-- Detalles de pago - Transferencia Bancaria -->
+        <div id="transfer-details" class="payment-details mt-4 p-4 bg-gray-50 rounded-md hidden">
+            <p>Haz tu pago directamente en nuestra cuenta bancaria:</p>
+            <p class="font-medium mt-2">{{ company.name }}</p>
+            <p>Banco Guayaquil</p>
+            <p>Cuenta corriente: {{ company.account_number }}</p> <!-- Mostrar el número de cuenta bancaria -->
+            <p>RUC: {{ company.ruc }}</p>
+            <p class="mt-4 text-sm">Una vez realizado el depósito o transferencia comuníquese al correo: {{ company.email }}</p>
+        </div>
+
     
     <!-- Detalles de pago - Tarjetas -->
     <div id="card-details" class="payment-details mt-4 p-4 bg-gray-50 rounded-md hidden">
