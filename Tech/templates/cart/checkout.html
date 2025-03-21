@@ -684,6 +684,7 @@
 
 
 {% block content %}
+
     <!-- Título de la página -->
     <div class="page-title">
         <h1>Finalizar Compra</h1>
@@ -937,7 +938,7 @@
                 </svg>
             </div>
             <h2 class="modal-title">¡Pedido Realizado con Éxito!</h2>
-            <p>Tu número de pedido es: <span class="order-number" id="order-number">KÜLER-12345</span></p>
+            <p>Tu número de pedido es: <span class="order-number" id="order-number">TECH-12345</span></p>
             
             <div class="order-details" id="order-details">
                 <p><strong>Fecha:</strong> <span id="order-date"></span></p>
@@ -1096,17 +1097,19 @@
             
             // Función para cargar el resumen del pedido
             function loadOrderSummary() {
-                // Simulamos la obtención de datos del carrito desde un API
-                // En un entorno real, esto sería una llamada fetch a un endpoint
+                // Obtener datos del carrito desde el servidor
                 fetchCartData()
                     .then(data => {
+                        // Actualizar contador del carrito en el header
+                        updateCartHeader(data);
+                        
                         const orderItems = document.getElementById('orderItems');
                         orderItems.innerHTML = '';
                         
                         let subtotal = 0;
                         
                         // Mostrar cada item del carrito
-                        data.cart_items.forEach(item => {
+                        Object.entries(data.items).forEach(([productId, item]) => {
                             const itemTotal = item.price * item.quantity;
                             subtotal += itemTotal;
                             
@@ -1117,7 +1120,7 @@
                                 <div class="order-item-details">
                                     <div class="order-item-name">${item.name}</div>
                                     <div class="order-item-meta">
-                                        <span>${item.quantity} × $${item.price.toFixed(2)}</span>
+                                        <span>${item.quantity} × $${parseFloat(item.price).toFixed(2)}</span>
                                         <span>$${(item.price * item.quantity).toFixed(2)}</span>
                                     </div>
                                 </div>
@@ -1142,7 +1145,7 @@
                             shipping = 6.00;
                         }
                         
-                        const tax = subtotal * 0.12; // 12% de IVA
+                        const tax = subtotal * 0.15; // 12% de IVA
                         const total = subtotal + shipping + tax;
                         
                         // Actualizar los totales en el DOM
@@ -1156,6 +1159,22 @@
                     });
             }
             
+            // Función para actualizar el contador del carrito en el header
+            function updateCartHeader(data) {
+                let totalItems = 0;
+                let totalPrice = 0;
+                
+                // Calcular total de items y precio
+                Object.values(data.items).forEach(item => {
+                    totalItems += item.quantity;
+                    totalPrice += item.price * item.quantity;
+                });
+                
+                // Actualizar el DOM
+                document.getElementById('cart-count').textContent = totalItems;
+                document.getElementById('cart-total').textContent = totalPrice.toFixed(2);
+            }
+            
             // Función para actualizar totales
             function updateTotals() {
                 fetchCartData()
@@ -1163,7 +1182,7 @@
                         let subtotal = 0;
                         
                         // Calcular subtotal
-                        data.cart_items.forEach(item => {
+                        Object.values(data.items).forEach(item => {
                             subtotal += item.price * item.quantity;
                         });
                         
@@ -1176,7 +1195,7 @@
                         }
                         
                         // Calcular IVA y total
-                        const tax = subtotal * 0.12; // 12% de IVA
+                        const tax = subtotal * 0.15; // 12% de IVA
                         const total = subtotal + shipping + tax;
                         
                         // Actualizar el DOM
@@ -1198,27 +1217,40 @@
                         let subtotal = 0;
                         
                         // Calcular subtotal
-                        data.cart_items.forEach(item => {
+                        Object.values(data.items).forEach(item => {
                             subtotal += item.price * item.quantity;
                         });
                         
                         // Calcular IVA y total
-                        const tax = subtotal * 0.12; // 12% de IVA
+                        const tax = subtotal * 0.15; // 12% de IVA
                         const total = subtotal + orderData.shipping + tax;
                         
                         // Preparar datos para enviar al servidor
                         const orderToSubmit = {
                             ...orderData,
                             total: total,
-                            items: data.cart_items,
+                            items: data.items,
                             tax: tax
                         };
                         
-                        // Simular envío al servidor
-                        // En un entorno real, esto sería un fetch a un endpoint real
-                        setTimeout(() => {
-                            // Generar número de pedido aleatorio
-                            const orderNumber = 'KÜLER-' + Math.floor(100000 + Math.random() * 900000);
+                        // Enviar pedido al servidor
+                        fetch('/process_order/', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': getCookie('csrftoken')
+                            },
+                            body: JSON.stringify(orderToSubmit)
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Error en la respuesta del servidor');
+                            }
+                            return response.json();
+                        })
+                        .then(responseData => {
+                            // Generar número de pedido (en un entorno real vendría del servidor)
+                            const orderNumber = responseData.order_number || 'KÜLER-' + Math.floor(100000 + Math.random() * 900000);
                             
                             // Actualizar detalles del pedido en el modal
                             document.getElementById('order-number').textContent = orderNumber;
@@ -1253,47 +1285,23 @@
                             
                             // Mostrar modal de éxito
                             successModal.classList.add('active');
+                        })
+                        .catch(error => {
+                            console.error('Error al procesar el pedido:', error);
+                            alert('Error al procesar el pedido. Por favor, inténtalo de nuevo.');
                             
-                            // En un entorno real, aquí se enviaría el pedido al servidor
-                            console.log('Enviando pedido al servidor:', orderToSubmit);
-                            
-                            // Código comentado que se usaría en un entorno real con Django
-                            /*
-                            fetch('/process_order/', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRFToken': getCookie('csrftoken')
-                                },
-                                body: JSON.stringify(orderToSubmit)
-                            })
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.success) {
-                                    // Mostrar modal de éxito
-                                    document.getElementById('order-number').textContent = data.order_number;
-                                    successModal.classList.add('active');
-                                } else {
-                                    alert('Error al procesar el pedido: ' + data.error);
-                                }
-                            })
-                            .catch(error => {
-                                console.error('Error:', error);
-                                alert('Error al procesar el pedido. Por favor, inténtalo de nuevo.');
-                            })
-                            .finally(() => {
-                                // Quitar indicador de carga
-                                placeOrderBtn.classList.remove('loading');
-                                placeOrderBtn.innerHTML = 'Realizar el pedido';
-                            });
-                            */
-                        }, 2000); // Simular tiempo de procesamiento
+                            // Quitar indicador de carga
+                            placeOrderBtn.classList.remove('loading');
+                            placeOrderBtn.innerHTML = 'Realizar el pedido';
+                        });
                     })
                     .catch(error => {
-                        console.error('Error al procesar el pedido:', error);
+                        console.error('Error al obtener datos del carrito:', error);
+                        alert('Error al obtener datos del carrito. Por favor, inténtalo de nuevo.');
+                        
+                        // Quitar indicador de carga
                         placeOrderBtn.classList.remove('loading');
                         placeOrderBtn.innerHTML = 'Realizar el pedido';
-                        alert('Error al procesar el pedido. Por favor, inténtalo de nuevo.');
                     });
             }
             
@@ -1313,44 +1321,49 @@
                 return cookieValue;
             }
             
-            // Función para simular la obtención de datos del carrito
-            // En un entorno real, esto sería un fetch a un endpoint real
+            // Función para obtener datos del carrito desde el servidor
             function fetchCartData() {
-                return new Promise((resolve) => {
-                    // Simulamos una respuesta del servidor con datos de ejemplo
-                    setTimeout(() => {
-                        resolve({
-                            cart_items: [
-                                {
+                return fetch('/cart_data/')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Error al obtener datos del carrito');
+                        }
+                        return response.json();
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        // Fallback a datos de ejemplo en caso de error
+                        return {
+                            items: {
+                                "1": {
                                     id: 1,
-                                    name: "KÜLER Sorbetes - Metálico",
+                                    name: " Sorbetes - Metálico",
                                     price: 4.00,
                                     quantity: 1,
+                                    subtotal: 4.00,
                                     main_image: "https://via.placeholder.com/60"
                                 },
-                                {
+                                "2": {
                                     id: 2,
-                                    name: "KÜLER Botella Térmica",
+                                    name: "Botella Térmica",
                                     price: 15.00,
                                     quantity: 1,
+                                    subtotal: 15.00,
                                     main_image: "https://via.placeholder.com/60"
                                 },
-                                {
+                                "3": {
                                     id: 3,
-                                    name: "KÜLER Set Ecológico",
+                                    name: "Set Ecológico",
                                     price: 12.50,
                                     quantity: 2,
+                                    subtotal: 25.00,
                                     main_image: "https://via.placeholder.com/60"
                                 }
-                            ]
-                        });
-                    }, 300);
-                });
+                            }
+                        };
+                    });
             }
         });
     </script>
-
- 
-
 {% endblock %}
 
