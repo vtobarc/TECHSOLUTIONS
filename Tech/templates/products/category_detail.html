@@ -15,93 +15,7 @@
 <link rel="stylesheet" href="{% static 'css/mobile-category.css' %}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 <style>
-  .discount-badge {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    background-color: #ef4444;
-    color: white;
-    padding: 4px 8px;
-    border-radius: 9999px;
-    font-size: 12px;
-    font-weight: 600;
-  }
-  
-  /* Estilos para el botón de filtro activo */
-  .filter-button.active {
-    background-color: #4f46e5;
-    color: white;
-  }
-  
-  /* Animación para el modal de filtros */
-  .filter-modal {
-    transition: opacity 0.3s ease, visibility 0.3s ease;
-  }
-  
-  .filter-modal.open {
-    opacity: 1;
-    visibility: visible;
-  }
-  
-  /* Mejoras en la visualización de filtros */
-  .filter-option {
-    transition: background-color 0.2s ease;
-  }
-  
-  .filter-option:hover {
-    background-color: #f3f4f6;
-  }
-  
-  .filter-option.active {
-    background-color: #4f46e5;
-    color: white;
-  }
-  
-  /* Mejoras en la visualización de productos */
-  .product-card {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-  }
-  
-  .product-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  }
-  
-  /* Estilos para el mensaje de no productos */
-  .no-products {
-    padding: 3rem;
-    text-align: center;
-    background-color: #f9fafb;
-    border-radius: 0.5rem;
-  }
-  
-  /* Estilos para el slider de precio */
-  .price-slider {
-    width: 100%;
-    height: 8px;
-    -webkit-appearance: none;
-    background: #e5e7eb;
-    border-radius: 4px;
-    outline: none;
-  }
-  
-  .price-slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: #4f46e5;
-    cursor: pointer;
-  }
-  
-  .price-slider::-moz-range-thumb {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: #4f46e5;
-    cursor: pointer;
-    border: none;
-  }
+
 </style>
 {% endblock %}
 
@@ -294,7 +208,6 @@
       <!-- Botones de acción -->
       <div class="filter-buttons">
         <button type="button" class="btn-secondary" id="reset-filters-btn">Restablecer</button>
-        <button type="button" class="btn-secondary" id="cancel-filter">Cancelar</button>
         <button type="submit" class="btn-primary">Aplicar Filtros</button>
       </div>
     </form>
