@@ -134,9 +134,11 @@
         <h3>Categorías:</h3>
         <div class="category-options">
        
-          <div class="filter-option {% url 'cliente_home' %}">
+        <div class="category-options">
+          <div class="filter-option {% if selected_category == 'all' %}active{% endif %}" data-value="all">
             <i class="fas fa-th-large"></i> Todas las categorías
           </div>
+          
           {% for cat in all_categories %}
             <div class="filter-option {% if selected_category == cat.id|stringformat:'s' %}active{% endif %}" data-value="{{ cat.id }}">
               {{ cat.name }}
