@@ -1,132 +1,356 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block content %}
+{% block title %}Carrito - TechVanguard{% endblock %}
+
+{% block extra_css %}
 <style>
-    /* Carrito de Compras */
-h2 {
-    font-size: 2rem;
+  /* Common Styles */
+  body {
+    font-family: 'Inter', sans-serif;
+    color: #333;
+  }
+  
+  /* Navigation styles */
+  .top-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 40px;
+    background-color: #1b3027;
+    color: white;
+  }
+  
+  .nav-links {
+    display: flex;
+    gap: 30px;
+  }
+  
+  .nav-links a {
+    color: white;
+    text-decoration: none;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .logo {
+    font-size: 28px;
+    font-weight: 500;
+    letter-spacing: 2px;
+  }
+  
+  .cart-icon {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  
+  /* Cart Header */
+  .cart-header {
+    background-color: #0f2231;
+    color: white;
     text-align: center;
-    margin-bottom: 20px;
-}
-
-/* Estilos para la tabla */
-table {
+    padding: 20px 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  
+  /* Cart Content */
+  .cart-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+  }
+  
+  .cart-table {
     width: 100%;
     border-collapse: collapse;
-    margin-bottom: 20px;
-}
-
-th, td {
-    padding: 10px;
+    margin-bottom: 40px;
+  }
+  
+  .cart-table th {
+    text-align: left;
+    padding: 15px 20px;
+    border-bottom: 1px solid #eee;
+    font-weight: 500;
+    text-transform: uppercase;
+    font-size: 14px;
+  }
+  
+  .cart-table td {
+    padding: 20px;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .product-col {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+  
+  .product-img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+  }
+  
+  .product-name {
+    font-weight: 500;
+  }
+  
+  .quantity-selector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .quantity-btn {
+    width: 30px;
+    height: 30px;
+    background: none;
+    border: 1px solid #ddd;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  .quantity-input {
+    width: 40px;
+    height: 30px;
     text-align: center;
     border: 1px solid #ddd;
-}
-
-th {
-    background-color: #f4f4f4;
-    font-weight: bold;
-}
-
-/* Estilo para las imágenes de los productos */
-img {
-    border-radius: 8px;
-}
-
-/* Botones */
-.btn {
-    background-color: #007bff;
-    color: white;
+    margin: 0 5px;
+  }
+  
+  .remove-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #666;
+  }
+  
+  /* Cart Totals */
+  .cart-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
+  }
+  
+  .coupon-form {
+    display: flex;
+  }
+  
+  .coupon-input {
+    width: 200px;
     padding: 10px 15px;
-    text-decoration: none;
-    border-radius: 5px;
-    display: inline-block;
-    margin-top: 10px;
-}
-
-.btn:hover {
-    background-color: #0056b3;
-}
-
-/* Estilo para el total */
-h3 {
-    font-size: 1.5rem;
+    border: 1px solid #ddd;
+  }
+  
+  .btn {
+    padding: 10px 20px;
+    background-color: #1b3027;
+    color: white;
+    border: none;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+  }
+  
+  .btn-secondary {
+    background-color: #eee;
+    color: #333;
+  }
+  
+  .cart-totals {
+    width: 400px;
+    margin-left: auto;
+    border: 1px solid #eee;
+    padding: 30px;
+  }
+  
+  .cart-totals-title {
+    text-transform: uppercase;
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  
+  .total-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+  }
+  
+  .shipping-options {
+    margin: 20px 0;
+  }
+  
+  .shipping-option {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  
+  .shipping-option input {
+    margin-right: 10px;
+  }
+  
+  .total-final {
+    font-size: 20px;
+    font-weight: 500;
     margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+  }
+  
+  .checkout-btn {
+    display: block;
+    width: 100%;
+    padding: 15px;
+    background-color: #1b3027;
+    color: white;
     text-align: center;
-}
-
-/* Mensaje cuando el carrito está vacío */
-p {
+    border: none;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-size: 14px;
+    letter-spacing: 1px;
+    margin-top: 20px;
+  }
+  
+  /* Empty Cart */
+  .empty-cart {
     text-align: center;
-    font-size: 1.2rem;
-    color: #888;
-}
-
-/* Estilo para los enlaces */
-a {
-    color: inherit;
-    text-decoration: none;
-}
-
+    padding: 60px 0;
+  }
+  
+  .empty-cart svg {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 20px;
+    color: #999;
+  }
+  
+  .empty-cart h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  
+  .empty-cart p {
+    color: #666;
+    margin-bottom: 30px;
+  }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .cart-container {
+      padding: 0 15px;
+    }
+    
+    .cart-table thead {
+      display: none;
+    }
+    
+    .cart-table, .cart-table tbody, .cart-table tr, .cart-table td {
+      display: block;
+      width: 100%;
+    }
+    
+    .cart-table tr {
+      margin-bottom: 20px;
+      border: 1px solid #eee;
+    }
+    
+    .cart-table td {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      text-align: right;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .cart-table td:before {
+      content: attr(data-label);
+      font-weight: 500;
+      text-transform: uppercase;
+      font-size: 13px;
+    }
+    
+    .product-col {
+      justify-content: flex-end;
+    }
+    
+    .cart-actions {
+      flex-direction: column;
+      gap: 20px;
+    }
+    
+    .cart-totals {
+      width: 100%;
+    }
+  }
 </style>
-<div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold text-center mb-8">🛒 Carrito de Compras</h1>
+{% endblock %}
 
-    {% if cart %}
-    <div class="bg-white rounded-lg shadow-md overflow-hidden mb-8">
-        <div class="overflow-x-auto">
-            <table class="w-full">
-                <thead>
-                    <tr class="bg-gray-100">
-                        <th class="py-4 px-6 text-left">Producto</th>
-                        <th class="py-4 px-6 text-center">Precio</th>
-                        <th class="py-4 px-6 text-center">Cantidad</th>
-                        <th class="py-4 px-6 text-center">Subtotal</th>
-                        <th class="py-4 px-6 text-center">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for product_id, item in cart.items %}
-                    <tr class="border-b border-gray-200 hover:bg-gray-50 transition-colors">
-                        <td class="py-4 px-6">
-                            <div class="flex items-center">
-                                {% if item.main_image %}
-                                <img src="{{ item.main_image }}" alt="{{ item.name }}" class="w-16 h-16 object-cover rounded-md mr-4">
-                                {% else %}
-                                <img src="https://placehold.co/100x100" alt="Sin imagen" class="w-16 h-16 object-cover rounded-md mr-4">
-                                {% endif %}
-                                <span class="font-medium">{{ item.name }}</span>
-                            </div>
-                        </td>
-                        <td class="py-4 px-6 text-center">${{ item.price|floatformat:2 }}</td>
-                        <td class="py-4 px-6">
-                            <div class="flex items-center justify-center">
-                                <a href="{% url 'decrease_quantity' product_id=product_id %}" class="text-gray-500 hover:text-gray-700 px-2 py-1 rounded-md hover:bg-gray-100">
-                                    <span class="text-xl">-</span>
-                                </a>
-                                <span class="mx-2 w-8 text-center">{{ item.quantity }}</span>
-                                <a href="{% url 'add_to_cart' product_id=product_id %}" class="text-gray-500 hover:text-gray-700 px-2 py-1 rounded-md hover:bg-gray-100">
-                                    <span class="text-xl">+</span>
-                                </a>
-                            </div>
-                        </td>
-                        <td class="py-4 px-6 text-center font-medium">${{ item.subtotal|floatformat:2 }}</td>
-                        <td class="py-4 px-6 text-center">
-                            <a href="{% url 'remove_from_cart' product_id=product_id %}" class="inline-flex items-center justify-center px-4 py-2 bg-red-100 text-red-700 rounded-md hover:bg-red-200 transition-colors">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                </svg>
-                                Eliminar
-                            </a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
+{% block content %}
 
-    <div class="flex flex-col md:flex-row justify-between items-start gap-8 mb-8">
-        <div class="w-full md:w-1/2 lg:w-2/3">
+  
+  <div class="cart-icon">
+    <i class="fas fa-shopping-cart"></i>
+    <span>{{ total_price|floatformat:2 }}</span>
+  </div>
+
+
+<!-- Cart Header -->
+<div class="cart-header">
+  <h1>Carrito</h1>
+</div>
+
+<div class="cart-container">
+  {% if cart %}
+  <!-- Cart Table -->
+  <table class="cart-table">
+    <thead>
+      <tr>
+        <th>Producto</th>
+        <th>Precio</th>
+        <th>Cantidad</th>
+        <th>Subtotal</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for product_id, item in cart.items %}
+      <tr>
+        <td data-label="Producto" class="product-col">
+          {% if item.main_image %}
+          <img src="{{ item.main_image }}" alt="{{ item.name }}" class="product-img">
+          {% else %}
+          <img src="https://placehold.co/80x80" alt="Sin imagen" class="product-img">
+          {% endif %}
+          <div class="product-name">{{ item.name }}</div>
+        </td>
+        <td data-label="Precio">${{ item.price|floatformat:2 }}</td>
+        <td data-label="Cantidad">
+          <div class="quantity-selector">
+            <a href="{% url 'decrease_quantity' product_id=product_id %}" class="quantity-btn">-</a>
+            <span class="quantity-input">{{ item.quantity }}</span>
+            <a href="{% url 'add_to_cart' product_id=product_id %}" class="quantity-btn">+</a>
+          </div>
+        </td>
+        <td data-label="Subtotal" class="subtotal">${{ item.subtotal|floatformat:2 }}</td>
+        <td>
+          <a href="{% url 'remove_from_cart' product_id=product_id %}" class="remove-btn">
+            <i class="fas fa-times"></i>
+          </a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+   <div class="w-full md:w-1/2 lg:w-2/3">
             <div class="flex flex-wrap gap-4">
                 <a href="{% url 'clear_cart' %}" class="inline-flex items-center justify-center px-6 py-3 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -143,43 +367,153 @@ a {
             </div>
         </div>
         
-        <div class="w-full md:w-1/2 lg:w-1/3 bg-white rounded-lg shadow-md p-6">
-            <h2 class="text-xl font-bold mb-4">Resumen del Pedido</h2>
-            <div class="space-y-3 mb-4">
-                <div class="flex justify-between">
-                    <span class="text-gray-600">Subtotal</span>
-                    <span class="font-medium">${{ total_price|floatformat:2 }}</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-gray-600">IVA (15%)</span>
-                    <span class="font-medium">${{ iva_amount|floatformat:2 }}</span>
-                </div>
-                <div class="border-t pt-3 mt-3">
-                    <div class="flex justify-between">
-                        <span class="font-bold text-lg">Total</span>
-                        <span class="font-bold text-lg">${{ total_with_iva|floatformat:2 }}</span>
-                    </div>
-                </div>
-            </div>
-            <a href="{% url 'checkout' %}" class="block w-full text-center px-6 py-3 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors">
-                Realizar Compra
-            </a>
-        </div>
+  <!-- Cart Actions and Totals -->
+  <div class="cart-actions">
+    <div class="coupon-section">
+      <form class="coupon-form">
+        <input type="text" name="coupon_code" placeholder="Código de cupón" class="coupon-input">
+        <button type="submit" class="btn">Aplicar cupón</button>
+      </form>
     </div>
-    {% else %}
-    <div class="bg-white rounded-lg shadow-md p-8 text-center">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-        </svg>
-        <h2 class="text-2xl font-bold mb-2">Tu carrito está vacío</h2>
-        <p class="text-gray-600 mb-6">Parece que aún no has añadido productos a tu carrito.</p>
-        <a href="{% url 'category_detail' category_id=category.id %}" class="inline-flex items-center justify-center px-6 py-3 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-            </svg>
-            Ir a Comprar
-        </a>
+    
+    <button type="button" class="btn btn-secondary" id="update-cart-btn">Actualizar carrito</button>
+  </div>
+  
+  <div class="cart-totals">
+    <h2 class="cart-totals-title">Totales del carrito</h2>
+    
+    <div class="total-row">
+      <span>Subtotal</span>
+      <span>${{ total_price|floatformat:2 }}</span>
     </div>
-    {% endif %}
+    
+    <div class="shipping-options">
+      <h3>Envío</h3>
+      
+      <div class="shipping-option">
+        <input type="radio" id="shipping-1" name="shipping" value="samborondon" checked>
+        <label for="shipping-1">Samborondón (hasta km. 8) y Durán: $4.00</label>
+      </div>
+      
+      <div class="shipping-option">
+        <input type="radio" id="shipping-2" name="shipping" value="aurora">
+        <label for="shipping-2">La Aurora y Mocolí: $5.00</label>
+      </div>
+      
+      <div class="shipping-option">
+        <input type="radio" id="shipping-3" name="shipping" value="urdesa">
+        <label for="shipping-3">Urdesa y Alborada: $5.00</label>
+      </div>
+      
+      <div class="shipping-option">
+        <input type="radio" id="shipping-4" name="shipping" value="ceibos">
+        <label for="shipping-4">Los Ceibos y Vía a Daule: $5.50</label>
+      </div>
+      
+      <div class="shipping-option">
+        <input type="radio" id="shipping-5" name="shipping" value="costa">
+        <label for="shipping-5">Vía a La Costa: $6.00</label>
+      </div>
+      
+      <div class="shipping-option">
+        <input type="radio" id="shipping-6" name="shipping" value="nacional">
+        <label for="shipping-6">Envíos Nacionales (Servientrega): $6.00</label>
+      </div>
+      
+      <div class="shipping-option">
+        <input type="radio" id="shipping-7" name="shipping" value="heleria">
+        <label for="shipping-7">Servientrega (KÜLER Helería): $13.00</label>
+      </div>
+    </div>
+    
+    <div class="total-row">
+      <span>IVA (15%)</span>
+      <span>${{ iva_amount|floatformat:2 }}</span>
+    </div>
+    
+    <div class="total-row total-final">
+      <span>Total</span>
+      <span id="cart-total">${{ total_with_iva|floatformat:2 }}</span>
+    </div>
+    
+    <a href="{% url 'checkout' %}" class="checkout-btn">Finalizar compra</a>
+  </div>
+  
+  {% else %}
+  <!-- Empty Cart -->
+  <div class="empty-cart">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+    </svg>
+    <h2>Tu carrito está vacío</h2>
+    <p>Parece que aún no has añadido productos a tu carrito.</p>
+    <a href="{% url 'cliente_home' %}" class="btn">Ir a comprar</a>
+  </div>
+  {% endif %}
 </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Actualizar total al cambiar opción de envío
+    const shippingOptions = document.querySelectorAll('input[name="shipping"]');
+    const totalElement = document.getElementById('cart-total');
+    
+    if (shippingOptions.length > 0 && totalElement) {
+      const subtotal = {{ total_price|floatformat:2 }};
+      const iva = {{ iva_amount|floatformat:2 }};
+      
+      // Función para actualizar el total
+      function updateTotal() {
+        let shippingCost = 4.00; // Valor predeterminado
+        
+        // Obtener el costo de envío seleccionado
+        const selectedShipping = document.querySelector('input[name="shipping"]:checked');
+        
+        if (selectedShipping) {
+          switch (selectedShipping.value) {
+            case 'samborondon':
+              shippingCost = 4.00;
+              break;
+            case 'aurora':
+            case 'urdesa':
+              shippingCost = 5.00;
+              break;
+            case 'ceibos':
+              shippingCost = 5.50;
+              break;
+            case 'costa':
+            case 'nacional':
+              shippingCost = 6.00;
+              break;
+            case 'heleria':
+              shippingCost = 13.00;
+              break;
+          }
+        }
+        
+        // Calcular el total
+        const total = subtotal + iva + shippingCost;
+        
+        // Actualizar el DOM
+        totalElement.textContent = '$' + total.toFixed(2);
+      }
+      
+      // Añadir evento a las opciones de envío
+      shippingOptions.forEach(function(option) {
+        option.addEventListener('change', updateTotal);
+      });
+      
+      // Actualizar total al cargar la página
+      updateTotal();
+    }
+    
+    // Actualizar carrito
+    const updateCartBtn = document.getElementById('update-cart-btn');
+    if (updateCartBtn) {
+      updateCartBtn.addEventListener('click', function() {
+        location.reload();
+      });
+    }
+  });
+</script>
 {% endblock %}
