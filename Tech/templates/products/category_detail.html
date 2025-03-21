@@ -1,6 +1,12 @@
 {% extends 'products/base_productos.html' %}
 {% load static %}
-{% block title %}TechVanguard_Categorias{% endblock %}
+{% block title %}
+  {% if selected_category_obj %}
+    {{ selected_category_obj.name }} | TechVanguard
+  {% else %}
+    Todos los productos | TechVanguard
+  {% endif %}
+{% endblock %}
 
 {% block extra_css %}
 <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
@@ -8,10 +14,6 @@
 <link rel="stylesheet" href="{% static 'css/category.css' %}">
 <link rel="stylesheet" href="{% static 'css/mobile-category.css' %}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-
-{% endblock %}
-
-{% block main_content %}
 <style>
   .discount-badge {
     position: absolute;
@@ -24,8 +26,86 @@
     font-size: 12px;
     font-weight: 600;
   }
+  
+  /* Estilos para el botón de filtro activo */
+  .filter-button.active {
+    background-color: #4f46e5;
+    color: white;
+  }
+  
+  /* Animación para el modal de filtros */
+  .filter-modal {
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+  
+  .filter-modal.open {
+    opacity: 1;
+    visibility: visible;
+  }
+  
+  /* Mejoras en la visualización de filtros */
+  .filter-option {
+    transition: background-color 0.2s ease;
+  }
+  
+  .filter-option:hover {
+    background-color: #f3f4f6;
+  }
+  
+  .filter-option.active {
+    background-color: #4f46e5;
+    color: white;
+  }
+  
+  /* Mejoras en la visualización de productos */
+  .product-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Estilos para el mensaje de no productos */
+  .no-products {
+    padding: 3rem;
+    text-align: center;
+    background-color: #f9fafb;
+    border-radius: 0.5rem;
+  }
+  
+  /* Estilos para el slider de precio */
+  .price-slider {
+    width: 100%;
+    height: 8px;
+    -webkit-appearance: none;
+    background: #e5e7eb;
+    border-radius: 4px;
+    outline: none;
+  }
+  
+  .price-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #4f46e5;
+    cursor: pointer;
+  }
+  
+  .price-slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #4f46e5;
+    cursor: pointer;
+    border: none;
+  }
 </style>
+{% endblock %}
 
+{% block main_content %}
 <!-- Mobile Header (only visible on mobile) -->
 <div class="mobile-header">
   <div class="search-container">
@@ -41,85 +121,81 @@
     </form>
     <button class="filter-button" id="filter-button">
       <i class="fas fa-filter"></i>
+      <span class="filter-count" id="filter-count"></span>
     </button>
   </div>
 </div>
 
 <div class="category-detail">
-    <div class="category-header">
+  <div class="category-header">
     <div class="header-content">
-        {% if selected_category != 'all' %}
-            {% for cat in all_categories %}
-                {% if cat.id|stringformat:'s' == selected_category %}
-                    <h1>{{ cat.name }}</h1>
-                    {% if cat.description %}
-                        <p class="category-description">{{ cat.description }}</p>
-                    {% endif %}
-                {% endif %}
-            {% endfor %}
-        {% else %}
-            <h1>Todos los productos</h1>
-            <p class="category-description">Explora nuestra colección completa de productos.</p>
+      {% if selected_category_obj %}
+        <h1>{{ selected_category_obj.name }}</h1>
+        {% if selected_category_obj.description %}
+          <p class="category-description">{{ selected_category_obj.description }}</p>
         {% endif %}
+      {% else %}
+        <h1>Todos los productos</h1>
+        <p class="category-description">Explora nuestra colección completa de productos.</p>
+      {% endif %}
     </div>
-</div>
+  </div>
 
-    <div class="products-container">
-        {% if products %}
-            <div class="products-grid">
-                {% for product in products %}
-                    <div class="product-card">
-                        <div class="product-image">
-                            <a href="{% url 'product_detail' category_id=category.id product_id=product.id %}">
-                                {% if product.get_main_image %}
-                                    <img src="{{ product.get_main_image.url }}" alt="{{ product.name }}">
-                                {% elif product.image %}
-                                    <img src="{{ product.image.url }}" alt="{{ product.name }}">
-                                {% else %}
-                                    <img src="https://placehold.co/400x300" alt="Producto sin imagen">
-                                {% endif %}
-                            </a>
-                            <span class="stock-badge {% if product.stock > 0 %}in-stock{% else %}out-stock{% endif %}">
-                                {% if product.stock > 0 %}En Stock{% else %}Agotado{% endif %}
-                            </span>
-                            {% if product.discount > 0 %}
-                                <span class="discount-badge">{{ product.discount }}% OFF</span>
-                            {% endif %}
-                        </div>
-                        <div class="product-info">
-                            <h3>{{ product.name }}</h3>
-                            <h3>${{ product.price }} + IVA</h3>
-                            <p class="product-code">Código: {{ product.code }}</p>
-                           
-                            <div class="product-details">
-                                {% if is_cliente_home %}
-                                <a href="{% url 'cliente_product_detail' product_id=product.id %}" class="card-link">
-                                {% else %}
-                                <a href="{% url 'product_detail' category_id=category.id product_id=product.id %}" class="card-link">
-                                {% endif %}
-                                <button type="button" class="add-to-cart-btn">
-                                    <i class="fas fa-eye"></i> Ver
-                                </button>
-                                </a>
-                                
-                                <form action="{% url 'add_to_cart' product_id=product.id %}" method="POST">
-                                    {% csrf_token %}
-                                    <button type="submit" class="add-to-cart-btn" {% if product.stock <= 0 %}disabled{% endif %}>                
-                                        <i class="fas fa-shopping-cart"></i>
-                                        Añadir
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                {% endfor %}
+  <div class="products-container">
+    {% if products %}
+      <div class="products-grid">
+        {% for product in products %}
+          <div class="product-card">
+            <div class="product-image">
+              <a href="{% if is_cliente_home %}{% url 'cliente_product_detail' product_id=product.id %}{% else %}{% url 'product_detail' category_id=category.id product_id=product.id %}{% endif %}">
+                {% if product.get_main_image %}
+                  <img src="{{ product.get_main_image.url }}" alt="{{ product.name }}">
+                {% elif product.image %}
+                  <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                {% else %}
+                  <img src="https://placehold.co/400x300" alt="Producto sin imagen">
+                {% endif %}
+              </a>
+              <span class="stock-badge {% if product.stock > 0 %}in-stock{% else %}out-stock{% endif %}">
+                {% if product.stock > 0 %}En Stock{% else %}Agotado{% endif %}
+              </span>
+              {% if product.discount > 0 %}
+                <span class="discount-badge">{{ product.discount }}% OFF</span>
+              {% endif %}
             </div>
-        {% else %}
-            <div class="no-products">
-                <p>No hay productos disponibles con los filtros seleccionados.</p>
+            <div class="product-info">
+              <h3>{{ product.name }}</h3>
+              <h3>${{ product.price }} + IVA</h3>
+              <p class="product-code">Código: {{ product.code }}</p>
+              
+              <div class="product-details">
+                <a href="{% if is_cliente_home %}{% url 'cliente_product_detail' product_id=product.id %}{% else %}{% url 'product_detail' category_id=category.id product_id=product.id %}{% endif %}" class="card-link">
+                  <button type="button" class="add-to-cart-btn">
+                    <i class="fas fa-eye"></i> Ver
+                  </button>
+                </a>
+                
+                <form action="{% url 'add_to_cart' product_id=product.id %}" method="POST">
+                  {% csrf_token %}
+                  <button type="submit" class="add-to-cart-btn" {% if product.stock <= 0 %}disabled{% endif %}>                
+                    <i class="fas fa-shopping-cart"></i>
+                    Añadir
+                  </button>
+                </form>
+              </div>
             </div>
-        {% endif %}
-    </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="no-products">
+        <p>No hay productos disponibles con los filtros seleccionados.</p>
+        <button id="reset-filters" class="btn-primary mt-4">
+          <i class="fas fa-sync-alt mr-2"></i> Restablecer filtros
+        </button>
+      </div>
+    {% endif %}
+  </div>
 </div>
 
 <!-- Filter Modal -->
@@ -140,12 +216,11 @@
           <div class="filter-option {% if selected_category == 'all' %}active{% endif %}" data-value="all">
             <i class="fas fa-th-large"></i> Todas las categorías
           </div>
-          {% for category in all_categories %}
-            <div class="filter-option {% if selected_category == category.id|stringformat:'s' %}active{% endif %}" data-value="{{ category.id }}">
-              {{ category.name }}
+          {% for cat in all_categories %}
+            <div class="filter-option {% if selected_category == cat.id|stringformat:'s' %}active{% endif %}" data-value="{{ cat.id }}">
+              {{ cat.name }}
             </div>
           {% endfor %}
-
         </div>
         <input type="hidden" name="category" id="category-input" value="{{ selected_category }}">
       </div>
@@ -168,6 +243,9 @@
           </div>
           <div class="filter-option {% if sort_by == 'name-desc' %}active{% endif %}" data-value="name-desc">
             Nombre: Z-A
+          </div>
+          <div class="filter-option {% if sort_by == 'newest' %}active{% endif %}" data-value="newest">
+            Más recientes
           </div>
         </div>
         <input type="hidden" name="sort_by" id="sort-by-input" value="{{ sort_by }}">
@@ -215,6 +293,7 @@
       
       <!-- Botones de acción -->
       <div class="filter-buttons">
+        <button type="button" class="btn-secondary" id="reset-filters-btn">Restablecer</button>
         <button type="button" class="btn-secondary" id="cancel-filter">Cancelar</button>
         <button type="submit" class="btn-primary">Aplicar Filtros</button>
       </div>
@@ -231,6 +310,9 @@
     const cancelFilter = document.getElementById('cancel-filter');
     const priceSlider = document.getElementById('price-slider');
     const priceDisplay = document.getElementById('price-display');
+    const resetFiltersBtn = document.getElementById('reset-filters-btn');
+    const resetFilters = document.getElementById('reset-filters');
+    const filterCount = document.getElementById('filter-count');
     
     // Inputs ocultos para los filtros
     const categoryInput = document.getElementById('category-input');
@@ -241,6 +323,30 @@
     const categoryOptions = document.querySelectorAll('.category-options .filter-option');
     const sortOptions = document.querySelectorAll('.sort-options .filter-option');
     const brandOptions = document.querySelectorAll('.brand-options .filter-option');
+    
+    // Función para actualizar el contador de filtros activos
+    function updateFilterCount() {
+      let count = 0;
+      
+      // Contar filtros activos
+      if (categoryInput.value !== 'all') count++;
+      if (brandInput.value !== 'all') count++;
+      if (sortByInput.value !== 'relevance') count++;
+      if (priceSlider.value < priceSlider.max) count++;
+      
+      // Actualizar el contador
+      if (count > 0) {
+        filterCount.textContent = count;
+        filterCount.style.display = 'inline-block';
+        filterButton.classList.add('active');
+      } else {
+        filterCount.style.display = 'none';
+        filterButton.classList.remove('active');
+      }
+    }
+    
+    // Llamar a la función al cargar la página
+    updateFilterCount();
     
     // Mostrar/ocultar modal de filtros
     if (filterButton) {
@@ -306,6 +412,172 @@
         brandInput.value = this.dataset.value;
       });
     });
+    
+    // Función para restablecer todos los filtros
+    function resetAllFilters() {
+      // Restablecer categorías
+      categoryOptions.forEach(opt => opt.classList.remove('active'));
+      document.querySelector('.category-options .filter-option[data-value="all"]').classList.add('active');
+      categoryInput.value = 'all';
+      
+      // Restablecer ordenamiento
+      sortOptions.forEach(opt => opt.classList.remove('active'));
+      document.querySelector('.sort-options .filter-option[data-value="relevance"]').classList.add('active');
+      sortByInput.value = 'relevance';
+      
+      // Restablecer marcas
+      brandOptions.forEach(opt => opt.classList.remove('active'));
+      document.querySelector('.brand-options .filter-option[data-value="all"]').classList.add('active');
+      brandInput.value = 'all';
+      
+      // Restablecer precio
+      priceSlider.value = priceSlider.max;
+      priceDisplay.textContent = priceSlider.max;
+      
+      // Actualizar contador de filtros
+      updateFilterCount();
+    }
+    
+    // Manejar clic en el botón de restablecer filtros
+    if (resetFiltersBtn) {
+      resetFiltersBtn.addEventListener('click', function() {
+        resetAllFilters();
+      });
+    }
+    
+    // Manejar clic en el botón de restablecer filtros en la página de "No hay productos"
+    if (resetFilters) {
+      resetFilters.addEventListener('click', function() {
+        resetAllFilters();
+        // Enviar el formulario para aplicar los filtros restablecidos
+        document.getElementById('filter-form').submit();
+      });
+    }
+    
+    // Actualizar el contador de filtros cuando cambian los valores
+    priceSlider.addEventListener('change', updateFilterCount);
+    
+    // Función para cargar productos mediante AJAX
+    function loadProductsAjax() {
+      // Obtener los valores de los filtros
+      const category = categoryInput.value;
+      const brand = brandInput.value;
+      const sort = sortByInput.value;
+      const price = priceSlider.value;
+      const search = document.querySelector('input[name="search"]')?.value || '';
+      
+      // Construir la URL con los parámetros
+      const baseUrl = window.location.pathname;
+      const params = new URLSearchParams();
+      if (category !== 'all') params.append('category', category);
+      if (brand !== 'all') params.append('brand', brand);
+      if (sort !== 'relevance') params.append('sort_by', sort);
+      if (price < priceSlider.max) params.append('price_range', price);
+      if (search) params.append('search', search);
+      
+      const url = `${baseUrl}?${params.toString()}`;
+      
+      // Realizar la petición AJAX
+      const xhr = new XMLHttpRequest();
+      xhr.open('GET', url, true);
+      xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+      
+      xhr.onload = function() {
+        if (xhr.status === 200) {
+          const response = JSON.parse(xhr.responseText);
+          updateProductsGrid(response.products);
+        }
+      };
+      
+      xhr.send();
+    }
+    
+    // Función para actualizar la cuadrícula de productos
+    function updateProductsGrid(products) {
+      const productsGrid = document.querySelector('.products-grid');
+      
+      if (!productsGrid) return;
+      
+      if (products.length === 0) {
+        // Mostrar mensaje de no productos
+        productsGrid.innerHTML = `
+          <div class="no-products">
+            <p>No hay productos disponibles con los filtros seleccionados.</p>
+            <button id="reset-filters-ajax" class="btn-primary mt-4">
+              <i class="fas fa-sync-alt mr-2"></i> Restablecer filtros
+            </button>
+          </div>
+        `;
+        
+        // Agregar evento al botón de restablecer
+        const resetButton = document.getElementById('reset-filters-ajax');
+        if (resetButton) {
+          resetButton.addEventListener('click', function() {
+            resetAllFilters();
+            loadProductsAjax();
+          });
+        }
+      } else {
+        // Generar HTML para los productos
+        let html = '';
+        
+        products.forEach(product => {
+          html += `
+            <div class="product-card">
+              <div class="product-image">
+                <a href="${isClienteHome ? `/cliente/products/${product.id}` : `/category/${product.category_id}/product/${product.id}`}">
+                  <img src="${product.image || 'https://placehold.co/400x300'}" alt="${product.name}">
+                </a>
+                <span class="stock-badge ${product.stock > 0 ? 'in-stock' : 'out-stock'}">
+                  ${product.stock > 0 ? 'En Stock' : 'Agotado'}
+                </span>
+                ${product.discount > 0 ? `<span class="discount-badge">${product.discount}% OFF</span>` : ''}
+              </div>
+              <div class="product-info">
+                <h3>${product.name}</h3>
+                <h3>$${product.price} + IVA</h3>
+                <p class="product-code">Código: ${product.code}</p>
+                
+                <div class="product-details">
+                  <a href="${isClienteHome ? `/cliente/products/${product.id}` : `/category/${product.category_id}/product/${product.id}`}" class="card-link">
+                    <button type="button" class="add-to-cart-btn">
+                      <i class="fas fa-eye"></i> Ver
+                    </button>
+                  </a>
+                  
+                  <form action="/add-to-cart/${product.id}" method="POST">
+                    <input type="hidden" name="csrfmiddlewaretoken" value="${document.querySelector('[name=csrfmiddlewaretoken]').value}">
+                    <button type="submit" class="add-to-cart-btn" ${product.stock <= 0 ? 'disabled' : ''}>                
+                      <i class="fas fa-shopping-cart"></i>
+                      Añadir
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+        
+        productsGrid.innerHTML = html;
+      }
+    }
+    
+    // Variable para determinar si estamos en la página de cliente o categoría
+    const isClienteHome = {% if is_cliente_home %}true{% else %}false{% endif %};
+    
+    // Opcional: implementar carga AJAX al cambiar filtros
+    // Descomentar para habilitar
+    /*
+    const filterForm = document.getElementById('filter-form');
+    if (filterForm) {
+      filterForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        loadProductsAjax();
+        filterModal.classList.remove('open');
+        document.body.style.overflow = 'auto';
+      });
+    }
+    */
   });
 </script>
 {% endblock %}
