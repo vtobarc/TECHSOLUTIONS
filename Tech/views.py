@@ -1352,26 +1352,32 @@ def base_product(request, category_id=None):
 
     return render(request, "products/base_productos.html", context)
 
+from django.shortcuts import render, get_object_or_404, redirect
+from django.http import JsonResponse
+from .models import Category, Product, Brand
+
 def apply_filters_and_sorting(products, request):
     """Función auxiliar para aplicar filtros y ordenamiento"""
-    min_price = request.GET.get('min_price')
-    max_price = request.GET.get('max_price')
+    price_range = request.GET.get('price_range')
     sort_by = request.GET.get('sort_by', 'relevance')
     selected_category_id = request.GET.get('category')
-    selected_brand_id = request.GET.get('brand')  # Añadir el filtro de marca
+    selected_brand_id = request.GET.get('brand')
 
     # Filtrar por categoría si se especifica
-    if selected_category_id:
+    if selected_category_id and selected_category_id != 'all':
         products = products.filter(category_id=selected_category_id)
-     # Filtrar por marca si se especifica
-    if selected_brand_id:
+    
+    # Filtrar por marca si se especifica
+    if selected_brand_id and selected_brand_id != 'all':
         products = products.filter(brand_id=selected_brand_id)
         
-    # Filtrar por precio
-    if min_price:
-        products = products.filter(price__gte=float(min_price))
-    if max_price:
-        products = products.filter(price__lte=float(max_price))
+    # Filtrar por precio máximo
+    if price_range:
+        try:
+            price_range = float(price_range)
+            products = products.filter(price__lte=price_range)
+        except (ValueError, TypeError):
+            pass
 
     # Aplicar ordenamiento
     ordering_options = {
@@ -1383,7 +1389,46 @@ def apply_filters_and_sorting(products, request):
     if sort_by in ordering_options:
         products = products.order_by(ordering_options[sort_by])
 
-    return products, selected_category_id, selected_brand_id, sort_by
+    return products, selected_category_id, selected_brand_id, sort_by, price_range
+
+
+    
+def apply_filters_and_sorting(products, request):
+    """Función auxiliar para aplicar filtros y ordenamiento"""
+    price_range = request.GET.get('price_range')
+    sort_by = request.GET.get('sort_by', 'relevance')
+    selected_category_id = request.GET.get('category')
+    selected_brand_id = request.GET.get('brand')
+
+    # Filtrar por categoría si se especifica
+    if selected_category_id and selected_category_id != 'all':
+        products = products.filter(category_id=selected_category_id)
+    
+    # Filtrar por marca si se especifica
+    if selected_brand_id and selected_brand_id != 'all':
+        products = products.filter(brand_id=selected_brand_id)
+        
+    # Filtrar por precio máximo
+    if price_range:
+        try:
+            price_range = float(price_range)
+            products = products.filter(price__lte=price_range)
+        except (ValueError, TypeError):
+            pass
+
+    # Aplicar ordenamiento
+    ordering_options = {
+        'price-asc': 'price',
+        'price-desc': '-price',
+        'name-asc': 'name',
+        'name-desc': '-name'
+    }
+    if sort_by in ordering_options:
+        products = products.order_by(ordering_options[sort_by])
+
+    return products, selected_category_id, selected_brand_id, sort_by, price_range
+
+
     
 
 def cliente_home(request, product_id=None):
@@ -1393,7 +1438,7 @@ def cliente_home(request, product_id=None):
         category = product.category
         return redirect('category_detail', category_id=category.id, product_id=product.id)
     
-    # Obtener todas las categorías
+    # Obtener todas las categorías y marcas
     all_categories = Category.objects.all()
     all_brands = Brand.objects.all()
 
@@ -1403,7 +1448,7 @@ def cliente_home(request, product_id=None):
             'category': None,
             'products': [],
             'all_categories': [],
-            'all_brands': all_brands,  # Pasar las marcas al contexto
+            'all_brands': all_brands,
             'selected_category': None,
             'is_cliente_home': True
         })
@@ -1416,27 +1461,39 @@ def cliente_home(request, product_id=None):
     if search_query:
         products = products.filter(name__icontains=search_query)
     
+    # Calcular el precio máximo para el slider
+    max_price = products.order_by('-price').first().price if products.exists() else 1000
+    max_price = (int(max_price / 100) + 1) * 100  # Redondear hacia arriba al siguiente 100
+    
     # Aplicar filtros y ordenamiento
-    products, selected_category_id, selected_brand_id, sort_by = apply_filters_and_sorting(products, request)
+    products, selected_category_id, selected_brand_id, sort_by, price_range = apply_filters_and_sorting(products, request)
+    
+    # Si no se especificó un precio máximo, usar el máximo calculado
+    if not price_range:
+        price_range = max_price
+    else:
+        price_range = float(price_range)
         
     # Seleccionar la categoría activa
-    if selected_category_id:
+    if selected_category_id and selected_category_id != 'all':
         selected_category = get_object_or_404(Category, id=selected_category_id)
     else:
         selected_category = all_categories.first()  # Si no hay selección, toma la primera categoría
-        selected_category_id = selected_category.id if selected_category else None
+        selected_category_id = 'all'
 
     # Si es una solicitud AJAX, devolver JSON con productos
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         products_data = [{
             'id': product.id,
             'name': product.name,
+            'code': product.code,
             'description': product.description,
             'price': float(product.price),
-            'image': product.image.url if product.image else None,
+            'image': product.get_main_image().url if product.get_main_image() else None,
             'stock': product.stock,
             'category_id': product.category.id,
             'is_available': product.is_available,
+            'discount': float(product.discount),
         } for product in products]
         return JsonResponse({'products': products_data})
     
@@ -1445,25 +1502,27 @@ def cliente_home(request, product_id=None):
         'category': selected_category,
         'products': products,
         'all_categories': all_categories,
+        'all_brands': all_brands,
         'selected_category': selected_category_id,
-        'selected_brand': selected_brand_id,  # Pasar el ID de la marca seleccionada
+        'selected_brand': selected_brand_id,
         'sort_by': sort_by,
-        'min_price': request.GET.get('min_price', ''),
-        'max_price': request.GET.get('max_price', ''),
+        'price_range': price_range,
+        'max_price': max_price,
         'search_query': search_query,
         'is_cliente_home': True
     }
     
     return render(request, 'products/category_detail.html', context)
+    
+
+
+
 
 def category_detail(request, category_id, product_id=None):
     selected_category_id = request.GET.get('category', None)
-    selected_brand_id = request.GET.get('brand', None)  # Obtener el filtro de marca
+    selected_brand_id = request.GET.get('brand', None)
     category = get_object_or_404(Category, id=category_id)
     selected_category = category
-
-    if selected_category_id and selected_category_id != 'all':
-        selected_category = get_object_or_404(Category, id=selected_category_id)
 
     if product_id:
         product = get_object_or_404(Product, id=product_id, is_available=True)
@@ -1484,12 +1543,13 @@ def category_detail(request, category_id, product_id=None):
             'gallery_images': gallery_images,
             'main_image': main_image
         })
-# Filtrar los productos por categoría y marca si es necesario
-    products = Product.objects.filter(is_available=True, category=selected_category)
 
-    if selected_brand_id:
-        products = products.filter(brand_id=selected_brand_id)  # Filtrar por marca
-        
+    # Filtrar los productos por categoría
+    products = Product.objects.filter(is_available=True, category=category)
+    
+    # Calcular el precio máximo para el slider
+    max_price = products.order_by('-price').first().price if products.exists() else 1000
+    max_price = (int(max_price / 100) + 1) * 100  # Redondear hacia arriba al siguiente 100
     
     # Aplicar búsqueda por nombre si existe
     search_query = request.GET.get('search', '')
@@ -1497,12 +1557,20 @@ def category_detail(request, category_id, product_id=None):
         products = products.filter(name__icontains=search_query)
     
     # Aplicar filtros y ordenamiento
-    products, selected_category_id, selected_brand_id, sort_by = apply_filters_and_sorting(products, request)
+    products, selected_category_id, selected_brand_id, sort_by, price_range = apply_filters_and_sorting(products, request)
     
+    # Si no se especificó un precio máximo, usar el máximo calculado
+    if not price_range:
+        price_range = max_price
+    else:
+        price_range = float(price_range)
+    
+    # Si es una solicitud AJAX, devolver JSON con productos
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         products_data = [{
             'id': product.id,
             'name': product.name,
+            'code': product.code,
             'description': product.description,
             'price': float(product.price),
             'image': product.get_main_image().url if product.get_main_image() else None,
@@ -1510,67 +1578,31 @@ def category_detail(request, category_id, product_id=None):
             'stock': product.stock,
             'category_id': product.category.id,
             'is_available': product.is_available,
+            'discount': float(product.discount),
         } for product in products]
         return JsonResponse({'products': products_data})
+    
     # Obtener todas las marcas para el filtro en el template
     all_brands = Brand.objects.all()
     
     context = {
         'category': category,
-        'selected_category': selected_category,
-        'selected_brand': selected_brand_id,  # Pasar el ID de la marca seleccionada
+        'selected_category': selected_category_id if selected_category_id else 'all',
+        'selected_brand': selected_brand_id if selected_brand_id else 'all',
         'products': products,
-        'all_categories': Category.objects.exclude(id=category.id),
-        'all_brands': all_brands,  # Incluir todas las marcas
+        'all_categories': Category.objects.all(),
+        'all_brands': all_brands,
         'sort_by': sort_by,
-        'min_price': request.GET.get('min_price', ''),
-        'max_price': request.GET.get('max_price', ''),
+        'price_range': price_range,
+        'max_price': max_price,
         'search_query': search_query,
         'is_category_detail': True
     }
 
     return render(request, 'products/category_detail.html', context)
 
-def apply_filters_and_sorting(products, request):
-    # Obtener parámetros de filtro
-    sort_by = request.GET.get('sort_by', 'relevance')
-    min_price = request.GET.get('min_price', None)
-    max_price = request.GET.get('max_price', None)
-    selected_category_id = request.GET.get('category', None)
-    selected_brand_id = request.GET.get('brand')  # Añadir el filtro de marca
-    
-    # Filtrar por marca si se especifica
-    if selected_brand_id:
-        products = products.filter(brand_id=selected_brand_id)
-        
-    # Aplicar filtro de precio mínimo
-    if min_price:
-        try:
-            min_price = float(min_price)
-            products = products.filter(price__gte=min_price)
-        except (ValueError, TypeError):
-            pass
-    
-    # Aplicar filtro de precio máximo
-    if max_price:
-        try:
-            max_price = float(max_price)
-            products = products.filter(price__lte=max_price)
-        except (ValueError, TypeError):
-            pass
-    
-    # Aplicar ordenamiento
-    if sort_by == 'price-asc':
-        products = products.order_by('price')
-    elif sort_by == 'price-desc':
-        products = products.order_by('-price')
-    elif sort_by == 'name-asc':
-        products = products.order_by('name')
-    elif sort_by == 'name-desc':
-        products = products.order_by('-name')
-    # Para 'relevance' no aplicamos ordenamiento específico
-    
-    return products, selected_category_id, selected_brand_id, sort_by
+
+
 
 def add_to_cart(request, product_id):
     product = get_object_or_404(Product, id=product_id)
