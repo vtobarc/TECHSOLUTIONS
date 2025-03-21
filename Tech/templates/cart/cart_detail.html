@@ -379,41 +379,6 @@
       <span>${{ total_price|floatformat:2 }}</span>
     </div>
     
-    <div class="shipping-options">
-      <h3>Envío</h3>
-      
-      <div class="shipping-option">
-        <input type="radio" id="shipping-1" name="shipping" value="samborondon" checked>
-        <label for="shipping-1">Samborondón (hasta km. 8) y Durán: $4.00</label>
-      </div>
-      
-      <div class="shipping-option">
-        <input type="radio" id="shipping-2" name="shipping" value="aurora">
-        <label for="shipping-2">La Aurora y Mocolí: $5.00</label>
-      </div>
-      
-      <div class="shipping-option">
-        <input type="radio" id="shipping-3" name="shipping" value="urdesa">
-        <label for="shipping-3">Urdesa y Alborada: $5.00</label>
-      </div>
-      
-      <div class="shipping-option">
-        <input type="radio" id="shipping-4" name="shipping" value="ceibos">
-        <label for="shipping-4">Los Ceibos y Vía a Daule: $5.50</label>
-      </div>
-      
-      <div class="shipping-option">
-        <input type="radio" id="shipping-5" name="shipping" value="costa">
-        <label for="shipping-5">Vía a La Costa: $6.00</label>
-      </div>
-      
-      <div class="shipping-option">
-        <input type="radio" id="shipping-6" name="shipping" value="nacional">
-        <label for="shipping-6">Envíos Nacionales (Servientrega): $6.00</label>
-      </div>
-      
-    
-    </div>
     
     <div class="total-row">
       <span>IVA (15%)</span>
@@ -453,7 +418,7 @@
       
       // Función para actualizar el total
       function updateTotal() {
-        let shippingCost = 4.00; // Valor predeterminado
+        let shippingCost = 0.00; // Valor predeterminado
         
         // Obtener el costo de envío seleccionado
         const selectedShipping = document.querySelector('input[name="shipping"]:checked');
