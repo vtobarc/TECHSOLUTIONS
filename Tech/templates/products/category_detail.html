@@ -39,6 +39,12 @@
     </button>
   </div>
 </div>
+ {% if request.GET.search %}
+                    <div class="search-results">
+                        <p>Resultados para: <strong>"{{ request.GET.search }}"</strong></p>
+                        <a href="{{ request.path }}" class="clear-search">Limpiar búsqueda</a>
+                    </div>
+{% endif %}
 
 <div class="category-detail">
   <div class="category-header">
@@ -127,7 +133,8 @@
       <div class="filter-section categories-section">
         <h3>Categorías:</h3>
         <div class="category-options">
-          <div class="filter-option {% if selected_category == 'all' %}active{% endif %}" data-value="all">
+       
+          <div class="filter-option {% url 'cliente_home' %}">
             <i class="fas fa-th-large"></i> Todas las categorías
           </div>
           {% for cat in all_categories %}
