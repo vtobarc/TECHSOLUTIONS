@@ -4,7 +4,13 @@
 {% block title %}Finalizar Compra - VISACU{% endblock %}
 
 {% block extra_css %}
- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Finalizar Compra - VISACU{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         /* Reset y estilos generales */
@@ -560,6 +566,23 @@
             margin-bottom: 25px;
         }
         
+        .order-details {
+            text-align: left;
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        
+        .order-details p {
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .order-details strong {
+            font-weight: 600;
+        }
+        
         .modal-buttons {
             display: flex;
             gap: 15px;
@@ -637,11 +660,35 @@
             font-size: 14px;
             color: rgba(255, 255, 255, 0.7);
         }
+        
+        /* Spinner de carga */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .place-order-btn.loading {
+            pointer-events: none;
+            opacity: 0.8;
+        }
     </style>
 {% endblock %}
 
-{% block content %}
 
+
+
+{% block content %}
     <!-- Título de la página -->
     <div class="page-title">
         <h1>Finalizar Compra</h1>
@@ -858,7 +905,6 @@
                     
                     <div class="shipping-option">
                         <input type="radio" id="shipping-7" name="shipping" value="13.00">
-                        <label for="shipping-7">Servient  name="shipping" value="13.00">
                         <label for="shipping-7">Servientrega (KÜLER Helería): $13.00</label>
                     </div>
                 </div>
@@ -884,7 +930,8 @@
         </div>
     </div>
 
- 
+   
+
     <!-- Modal de éxito -->
     <div class="modal-overlay" id="success-modal">
         <div class="modal-content">
@@ -896,6 +943,15 @@
             </div>
             <h2 class="modal-title">¡Pedido Realizado con Éxito!</h2>
             <p>Tu número de pedido es: <span class="order-number" id="order-number">KÜLER-12345</span></p>
+            
+            <div class="order-details" id="order-details">
+                <p><strong>Fecha:</strong> <span id="order-date"></span></p>
+                <p><strong>Cliente:</strong> <span id="order-customer"></span></p>
+                <p><strong>Dirección de envío:</strong> <span id="order-address"></span></p>
+                <p><strong>Método de pago:</strong> <span id="order-payment"></span></p>
+                <p><strong>Total:</strong> <span id="order-total"></span></p>
+            </div>
+            
             <p class="modal-message">Hemos enviado un correo electrónico con los detalles de tu compra.</p>
             <div class="modal-buttons">
                 <a href="#" class="btn btn-primary">Continuar Comprando</a>
@@ -915,9 +971,9 @@
             const successModal = document.getElementById('success-modal');
             const closeModalBtn = document.getElementById('close-modal-btn');
             const cityInput = document.getElementById('ciudad');
-
-            // Cargar los items del carrito
-            loadCartItems();
+            
+            // Cargar el resumen del pedido
+            loadOrderSummary();
             
             // Mostrar/ocultar formulario de cupón
             couponToggle.addEventListener('click', function() {
@@ -1016,12 +1072,26 @@
                     return;
                 }
                 
-                // Generar número de pedido aleatorio
-                const orderNumber = 'KÜLER-' + Math.floor(100000 + Math.random() * 900000);
-                document.getElementById('order-number').textContent = orderNumber;
+                // Mostrar indicador de carga
+                placeOrderBtn.classList.add('loading');
+                placeOrderBtn.innerHTML = '<span class="spinner"></span> Procesando...';
                 
-                // Mostrar modal de éxito
-                successModal.classList.add('active');
+                // Recopilar datos del formulario
+                const orderData = {
+                    email: document.getElementById('email').value,
+                    phone: document.getElementById('telefono').value,
+                    fullname: document.getElementById('nombre').value + ' ' + document.getElementById('apellidos').value,
+                    address: document.getElementById('direccion').value,
+                    city: document.getElementById('ciudad').value,
+                    postal_code: document.getElementById('codigo-postal').value,
+                    state: document.getElementById('provincia').value,
+                    payment_method: selectedPayment.getAttribute('data-method'),
+                    notes: document.getElementById('notas').value,
+                    shipping: parseFloat(document.querySelector('input[name="shipping"]:checked').value)
+                };
+                
+                // Enviar pedido al servidor
+                processOrder(orderData);
             });
             
             // Cerrar modal
@@ -1029,59 +1099,263 @@
                 successModal.classList.remove('active');
             });
             
-            // Función para cargar los items del carrito
-            function loadCartItems() {
-                const orderItems = document.getElementById('orderItems');
-                orderItems.innerHTML = '';
-                
-                cartData.items.forEach(item => {
-                    const itemElement = document.createElement('div');
-                    itemElement.className = 'order-item';
-                    itemElement.innerHTML = `
-                        <img src="${item.image}" alt="${item.name}" class="order-item-image">
-                        <div class="order-item-details">
-                            <div class="order-item-name">${item.name}</div>
-                            <div class="order-item-meta">
-                                <span>${item.quantity} × $${item.price.toFixed(2)}</span>
-                                <span>$${(item.price * item.quantity).toFixed(2)}</span>
-                            </div>
-                        </div>
-                    `;
-                    orderItems.appendChild(itemElement);
-                });
-                
-                updateTotals();
+            // Función para cargar el resumen del pedido
+            function loadOrderSummary() {
+                // Simulamos la obtención de datos del carrito desde un API
+                // En un entorno real, esto sería una llamada fetch a un endpoint
+                fetchCartData()
+                    .then(data => {
+                        const orderItems = document.getElementById('orderItems');
+                        orderItems.innerHTML = '';
+                        
+                        let subtotal = 0;
+                        
+                        // Mostrar cada item del carrito
+                        data.cart_items.forEach(item => {
+                            const itemTotal = item.price * item.quantity;
+                            subtotal += itemTotal;
+                            
+                            const itemElement = document.createElement('div');
+                            itemElement.className = 'order-item';
+                            itemElement.innerHTML = `
+                                <img src="${item.main_image || 'https://placehold.co/100x100'}" alt="${item.name}" class="order-item-image">
+                                <div class="order-item-details">
+                                    <div class="order-item-name">${item.name}</div>
+                                    <div class="order-item-meta">
+                                        <span>${item.quantity} × $${item.price.toFixed(2)}</span>
+                                        <span>$${(item.price * item.quantity).toFixed(2)}</span>
+                                    </div>
+                                </div>
+                            `;
+                            orderItems.appendChild(itemElement);
+                        });
+                        
+                        // Obtener la ciudad ingresada
+                        const city = document.getElementById('ciudad').value.trim().toLowerCase();
+                        
+                        // Definir el costo de envío basado en la ciudad
+                        let shipping = 4.00;  // Valor predeterminado
+                        if (city === 'samborondón' || city === 'samborondon' || city === 'durán' || city === 'duran') {
+                            shipping = 4.00;
+                        } else if (city === 'la aurora' || city === 'mocolí' || city === 'mocoli') {
+                            shipping = 5.00;
+                        } else if (city === 'urdesa' || city === 'alborada') {
+                            shipping = 5.00;
+                        } else if (city === 'los ceibos' || city === 'vía a daule' || city === 'via a daule') {
+                            shipping = 5.50;
+                        } else if (city === 'vía a la costa' || city === 'via a la costa') {
+                            shipping = 6.00;
+                        }
+                        
+                        const tax = subtotal * 0.12; // 12% de IVA
+                        const total = subtotal + shipping + tax;
+                        
+                        // Actualizar los totales en el DOM
+                        document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
+                        document.getElementById('tax-amount').textContent = `$${tax.toFixed(2)}`;
+                        document.getElementById('tax-note').textContent = `$${tax.toFixed(2)}`;
+                        document.getElementById('total-amount').textContent = `$${total.toFixed(2)}`;
+                    })
+                    .catch(error => {
+                        console.error('Error al cargar el resumen del pedido:', error);
+                    });
             }
             
             // Función para actualizar totales
             function updateTotals() {
-                let subtotal = 0;
-                
-                // Calcular subtotal
-                cartData.items.forEach(item => {
-                    subtotal += item.price * item.quantity;
-                });
-                
-                // Obtener el costo de envío seleccionado
-                let shipping = 4.00; // Valor predeterminado
-                const selectedShipping = document.querySelector('input[name="shipping"]:checked');
-                
-                if (selectedShipping) {
-                    shipping = parseFloat(selectedShipping.value);
+                fetchCartData()
+                    .then(data => {
+                        let subtotal = 0;
+                        
+                        // Calcular subtotal
+                        data.cart_items.forEach(item => {
+                            subtotal += item.price * item.quantity;
+                        });
+                        
+                        // Obtener el costo de envío seleccionado
+                        let shipping = 4.00; // Valor predeterminado
+                        const selectedShipping = document.querySelector('input[name="shipping"]:checked');
+                        
+                        if (selectedShipping) {
+                            shipping = parseFloat(selectedShipping.value);
+                        }
+                        
+                        // Calcular IVA y total
+                        const tax = subtotal * 0.12; // 12% de IVA
+                        const total = subtotal + shipping + tax;
+                        
+                        // Actualizar el DOM
+                        document.getElementById('subtotal').textContent = '$' + subtotal.toFixed(2);
+                        document.getElementById('tax-amount').textContent = '$' + tax.toFixed(2);
+                        document.getElementById('tax-note').textContent = '$' + tax.toFixed(2);
+                        document.getElementById('total-amount').textContent = '$' + total.toFixed(2);
+                    })
+                    .catch(error => {
+                        console.error('Error al actualizar totales:', error);
+                    });
+            }
+            
+            // Función para procesar el pedido
+            function processOrder(orderData) {
+                // Obtener datos del carrito
+                fetchCartData()
+                    .then(data => {
+                        let subtotal = 0;
+                        
+                        // Calcular subtotal
+                        data.cart_items.forEach(item => {
+                            subtotal += item.price * item.quantity;
+                        });
+                        
+                        // Calcular IVA y total
+                        const tax = subtotal * 0.12; // 12% de IVA
+                        const total = subtotal + orderData.shipping + tax;
+                        
+                        // Preparar datos para enviar al servidor
+                        const orderToSubmit = {
+                            ...orderData,
+                            total: total,
+                            items: data.cart_items,
+                            tax: tax
+                        };
+                        
+                        // Simular envío al servidor
+                        // En un entorno real, esto sería un fetch a un endpoint real
+                        setTimeout(() => {
+                            // Generar número de pedido aleatorio
+                            const orderNumber = 'KÜLER-' + Math.floor(100000 + Math.random() * 900000);
+                            
+                            // Actualizar detalles del pedido en el modal
+                            document.getElementById('order-number').textContent = orderNumber;
+                            document.getElementById('order-date').textContent = new Date().toLocaleDateString();
+                            document.getElementById('order-customer').textContent = orderData.fullname;
+                            document.getElementById('order-address').textContent = `${orderData.address}, ${orderData.city}, ${orderData.state}`;
+                            
+                            // Mostrar método de pago en formato legible
+                            let paymentMethodText = '';
+                            switch(orderData.payment_method) {
+                                case 'credit':
+                                    paymentMethodText = 'Tarjeta de Crédito';
+                                    break;
+                                case 'debit':
+                                    paymentMethodText = 'Tarjeta de Débito';
+                                    break;
+                                case 'transfer':
+                                    paymentMethodText = 'Transferencia Bancaria';
+                                    break;
+                                case 'store':
+                                    paymentMethodText = 'Pago en Tienda Física';
+                                    break;
+                                default:
+                                    paymentMethodText = orderData.payment_method;
+                            }
+                            document.getElementById('order-payment').textContent = paymentMethodText;
+                            document.getElementById('order-total').textContent = `$${total.toFixed(2)}`;
+                            
+                            // Quitar indicador de carga
+                            placeOrderBtn.classList.remove('loading');
+                            placeOrderBtn.innerHTML = 'Realizar el pedido';
+                            
+                            // Mostrar modal de éxito
+                            successModal.classList.add('active');
+                            
+                            // En un entorno real, aquí se enviaría el pedido al servidor
+                            console.log('Enviando pedido al servidor:', orderToSubmit);
+                            
+                            // Código comentado que se usaría en un entorno real con Django
+                            /*
+                            fetch('/process_order/', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRFToken': getCookie('csrftoken')
+                                },
+                                body: JSON.stringify(orderToSubmit)
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    // Mostrar modal de éxito
+                                    document.getElementById('order-number').textContent = data.order_number;
+                                    successModal.classList.add('active');
+                                } else {
+                                    alert('Error al procesar el pedido: ' + data.error);
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                alert('Error al procesar el pedido. Por favor, inténtalo de nuevo.');
+                            })
+                            .finally(() => {
+                                // Quitar indicador de carga
+                                placeOrderBtn.classList.remove('loading');
+                                placeOrderBtn.innerHTML = 'Realizar el pedido';
+                            });
+                            */
+                        }, 2000); // Simular tiempo de procesamiento
+                    })
+                    .catch(error => {
+                        console.error('Error al procesar el pedido:', error);
+                        placeOrderBtn.classList.remove('loading');
+                        placeOrderBtn.innerHTML = 'Realizar el pedido';
+                        alert('Error al procesar el pedido. Por favor, inténtalo de nuevo.');
+                    });
+            }
+            
+            // Función para obtener cookies (necesario para CSRF en Django)
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
                 }
-                
-                // Calcular IVA y total
-                const tax = subtotal * 0.15; // 12% de IVA
-                const total = subtotal + shipping + tax;
-                
-                // Actualizar el DOM
-                document.getElementById('subtotal').textContent = '$' + subtotal.toFixed(2);
-                document.getElementById('tax-amount').textContent = '$' + tax.toFixed(2);
-                document.getElementById('tax-note').textContent = '$' + tax.toFixed(2);
-                document.getElementById('total-amount').textContent = '$' + total.toFixed(2);
+                return cookieValue;
+            }
+            
+            // Función para simular la obtención de datos del carrito
+            // En un entorno real, esto sería un fetch a un endpoint real
+            function fetchCartData() {
+                return new Promise((resolve) => {
+                    // Simulamos una respuesta del servidor con datos de ejemplo
+                    setTimeout(() => {
+                        resolve({
+                            cart_items: [
+                                {
+                                    id: 1,
+                                    name: "KÜLER Sorbetes - Metálico",
+                                    price: 4.00,
+                                    quantity: 1,
+                                    main_image: "https://via.placeholder.com/60"
+                                },
+                                {
+                                    id: 2,
+                                    name: "KÜLER Botella Térmica",
+                                    price: 15.00,
+                                    quantity: 1,
+                                    main_image: "https://via.placeholder.com/60"
+                                },
+                                {
+                                    id: 3,
+                                    name: "KÜLER Set Ecológico",
+                                    price: 12.50,
+                                    quantity: 2,
+                                    main_image: "https://via.placeholder.com/60"
+                                }
+                            ]
+                        });
+                    }, 300);
+                });
             }
         });
     </script>
+
+ 
 
 {% endblock %}
 
