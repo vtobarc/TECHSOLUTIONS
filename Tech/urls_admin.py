@@ -29,6 +29,8 @@ urlpatterns = [
     path('admin/product/form/<int:product_id>/', views.product_form, name='admin_product_edit'),
     path('admin/product/image/<int:image_id>/', views.handle_product_image, name='admin_product_image_handle'),
     path('brands/', views.manage_brands, name='manage_brands'),
+    path('edit/<int:brand_id>/', views.edit_brand, name='edit_brand'),
+    path('delete/<int:brand_id>/', views.delete_brand, name='delete_brand'),
 
     # Gestión de categorías
     path('admin-dashboard/categories/', views.category_list, name='admin_category_list'),
