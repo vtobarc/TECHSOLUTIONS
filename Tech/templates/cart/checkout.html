@@ -1102,319 +1102,168 @@
             });
             
             // Función para cargar el resumen del pedido
-            function loadOrderSummary() {
-                // Obtener datos del carrito desde el servidor
-                fetchCartData()
-                    .then(data => {
-                        // Actualizar contador del carrito en el header
-                        updateCartHeader(data);
-                        
-                        const orderItems = document.getElementById('orderItems');
-                        orderItems.innerHTML = '';
-                        
-                        let subtotal = 0;
-                        
-                        // Mostrar cada item del carrito
-                        if (data.cart_items) {
-                            // Si la estructura es como en el ejemplo de Django
-                            data.cart_items.forEach(item => {
-                                const itemTotal = item.price * item.quantity;
-                                subtotal += itemTotal;
-                                
-                                const itemElement = document.createElement('div');
-                                itemElement.className = 'order-item';
-                                itemElement.innerHTML = `
-                                    <img src="${item.main_image || 'https://placehold.co/100x100'}" alt="${item.name}" class="order-item-image">
-                                    <div class="order-item-details">
-                                        <div class="order-item-name">${item.name}</div>
-                                        <div class="order-item-meta">
-                                            <span>${item.quantity} × $${parseFloat(item.price).toFixed(2)}</span>
-                                            <span>$${(item.price * item.quantity).toFixed(2)}</span>
-                                        </div>
-                                    </div>
-                                `;
-                                orderItems.appendChild(itemElement);
-                            });
-                        } else if (data.items) {
-                            // Si la estructura es como en el ejemplo anterior
-                            Object.entries(data.items).forEach(([productId, item]) => {
-                                const itemTotal = item.price * item.quantity;
-                                subtotal += itemTotal;
-                                
-                                const itemElement = document.createElement('div');
-                                itemElement.className = 'order-item';
-                                itemElement.innerHTML = `
-                                    <img src="${item.main_image || 'https://placehold.co/100x100'}" alt="${item.name}" class="order-item-image">
-                                    <div class="order-item-details">
-                                        <div class="order-item-name">${item.name}</div>
-                                        <div class="order-item-meta">
-                                            <span>${item.quantity} × $${parseFloat(item.price).toFixed(2)}</span>
-                                            <span>$${(item.price * item.quantity).toFixed(2)}</span>
-                                        </div>
-                                    </div>
-                                `;
-                                orderItems.appendChild(itemElement);
-                            });
-                        }
-                        
-                        // Obtener la ciudad ingresada
-                        const city = document.getElementById('ciudad').value.trim().toLowerCase();
-                        
-                        // Definir el costo de envío basado en la ciudad
-                        let shipping = 4.00;  // Valor predeterminado
-                        if (city === 'samborondón' || city === 'samborondon' || city === 'durán' || city === 'duran') {
-                            shipping = 4.00;
-                        } else if (city === 'la aurora' || city === 'mocolí' || city === 'mocoli') {
-                            shipping = 5.00;
-                        } else if (city === 'urdesa' || city === 'alborada') {
-                            shipping = 5.00;
-                        } else if (city === 'los ceibos' || city === 'vía a daule' || city === 'via a daule') {
-                            shipping = 5.50;
-                        } else if (city === 'vía a la costa' || city === 'via a la costa') {
-                            shipping = 6.00;
-                        }
-                        
-                        const tax = subtotal * 0.12; // 12% de IVA
-                        const total = subtotal + shipping + tax;
-                        
-                        // Actualizar los totales en el DOM
-                        document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
-                        document.getElementById('tax-amount').textContent = `$${tax.toFixed(2)}`;
-                        document.getElementById('tax-note').textContent = `$${tax.toFixed(2)}`;
-                        document.getElementById('total-amount').textContent = `$${total.toFixed(2)}`;
-                    })
-                    .catch(error => {
-                        console.error('Error al cargar el resumen del pedido:', error);
-                    });
+function loadOrderSummary() {
+    // Obtener datos del carrito desde el servidor
+    fetchCartData()
+        .then(data => {
+            // Actualizar contador del carrito en el header si existe la función
+            if (typeof updateCartHeader === 'function') {
+                updateCartHeader(data);
             }
             
-            // Función para actualizar el contador del carrito en el header
-            function updateCartHeader(data) {
-                let totalItems = 0;
-                let totalPrice = 0;
-                
-                // Calcular total de items y precio
-                if (data.cart_items) {
-                    data.cart_items.forEach(item => {
-                        totalItems += item.quantity;
-                        totalPrice += item.price * item.quantity;
-                    });
-                } else if (data.items) {
-                    Object.values(data.items).forEach(item => {
-                        totalItems += item.quantity;
-                        totalPrice += item.price * item.quantity;
-                    });
-                }
-                
-                // Actualizar el DOM
-                document.getElementById('cart-count').textContent = totalItems;
-                document.getElementById('cart-total').textContent = totalPrice.toFixed(2);
+            const orderItems = document.getElementById('orderItems');
+            // Limpiar contenido existente
+            orderItems.innerHTML = '';
+            
+            let subtotal = 0;
+            
+            // Mostrar cada item del carrito
+            if (data.cart_items && data.cart_items.length > 0) {
+                // Si la estructura es como en el ejemplo de Django
+                data.cart_items.forEach(item => {
+                    const itemTotal = item.price * item.quantity;
+                    subtotal += itemTotal;
+                    
+                    const itemElement = document.createElement('div');
+                    itemElement.className = 'order-item';
+                    itemElement.innerHTML = `
+                        <img src="${item.main_image || 'https://placehold.co/100x100'}" alt="${item.name}" class="order-item-image">
+                        <div class="order-item-details">
+                            <div class="order-item-name">${item.name}</div>
+                            <div class="order-item-meta">
+                                <span>${item.quantity} × $${parseFloat(item.price).toFixed(2)}</span>
+                                <span>$${(item.price * item.quantity).toFixed(2)}</span>
+                            </div>
+                        </div>
+                    `;
+                    orderItems.appendChild(itemElement);
+                });
+            } else if (data.items && Object.keys(data.items).length > 0) {
+                // Si la estructura es como en el ejemplo anterior
+                Object.entries(data.items).forEach(([productId, item]) => {
+                    const itemTotal = item.price * item.quantity;
+                    subtotal += itemTotal;
+                    
+                    const itemElement = document.createElement('div');
+                    itemElement.className = 'order-item';
+                    itemElement.innerHTML = `
+                        <img src="${item.main_image || 'https://placehold.co/100x100'}" alt="${item.name}" class="order-item-image">
+                        <div class="order-item-details">
+                            <div class="order-item-name">${item.name}</div>
+                            <div class="order-item-meta">
+                                <span>${item.quantity} × $${parseFloat(item.price).toFixed(2)}</span>
+                                <span>$${(item.price * item.quantity).toFixed(2)}</span>
+                            </div>
+                        </div>
+                    `;
+                    orderItems.appendChild(itemElement);
+                });
+            } else {
+                // No hay productos en el carrito
+                orderItems.innerHTML = '<p>No hay productos en el carrito</p>';
             }
             
-            // Función para actualizar totales
-            function updateTotals() {
-                fetchCartData()
-                    .then(data => {
-                        let subtotal = 0;
-                        
-                        // Calcular subtotal
-                        if (data.cart_items) {
-                            data.cart_items.forEach(item => {
-                                subtotal += item.price * item.quantity;
-                            });
-                        } else if (data.items) {
-                            Object.values(data.items).forEach(item => {
-                                subtotal += item.price * item.quantity;
-                            });
-                        }
-                        
-                        // Obtener el costo de envío seleccionado
-                        let shipping = 4.00; // Valor predeterminado
-                        const selectedShipping = document.querySelector('input[name="shipping"]:checked');
-                        
-                        if (selectedShipping) {
-                            shipping = parseFloat(selectedShipping.value);
-                        }
-                        
-                        // Calcular IVA y total
-                        const tax = subtotal * 0.15; // 12% de IVA
-                        const total = subtotal + shipping + tax;
-                        
-                        // Actualizar el DOM
-                        document.getElementById('subtotal').textContent = '$' + subtotal.toFixed(2);
-                        document.getElementById('tax-amount').textContent = '$' + tax.toFixed(2);
-                        document.getElementById('tax-note').textContent = '$' + tax.toFixed(2);
-                        document.getElementById('total-amount').textContent = '$' + total.toFixed(2);
-                    })
-                    .catch(error => {
-                        console.error('Error al actualizar totales:', error);
-                    });
-            }
+            // Obtener la opción de envío seleccionada
+            const selectedShipping = document.querySelector('input[name="shipping"]:checked');
+            const shipping = selectedShipping ? parseFloat(selectedShipping.value) : 4.00;
             
-            // Función para procesar el pedido
-            function processOrder(orderData) {
-                // Obtener datos del carrito
-                fetchCartData()
-                    .then(data => {
-                        let subtotal = 0;
-                        let items = [];
-                        
-                        // Calcular subtotal y preparar items
-                        if (data.cart_items) {
-                            data.cart_items.forEach(item => {
-                                subtotal += item.price * item.quantity;
-                                items.push(item);
-                            });
-                        } else if (data.items) {
-                            Object.values(data.items).forEach(item => {
-                                subtotal += item.price * item.quantity;
-                                items.push(item);
-                            });
-                        }
-                        
-                        // Calcular IVA y total
-                        const tax = subtotal * 0.12; // 12% de IVA
-                        const total = subtotal + orderData.shipping + tax;
-                        
-                        // Preparar datos para enviar al servidor
-                        const orderToSubmit = {
-                            ...orderData,
-                            total: total,
-                            items: items,
-                            tax: tax
-                        };
-                        
-                        // Enviar pedido al servidor
-                        fetch('/process_order/', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRFToken': getCookie('csrftoken')
-                            },
-                            body: JSON.stringify(orderToSubmit)
-                        })
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error('Error en la respuesta del servidor');
-                            }
-                            return response.json();
-                        })
-                        .then(responseData => {
-                            // Generar número de pedido (en un entorno real vendría del servidor)
-                            const orderNumber = responseData.order_number || 'TECH-' + Math.floor(100000 + Math.random() * 900000);
-                            
-                            // Actualizar detalles del pedido en el modal
-                            document.getElementById('order-number').textContent = orderNumber;
-                            document.getElementById('order-date').textContent = new Date().toLocaleDateString();
-                            document.getElementById('order-customer').textContent = orderData.fullname;
-                            document.getElementById('order-address').textContent = `${orderData.address}, ${orderData.city}, ${orderData.state}`;
-                            
-                            // Mostrar método de pago en formato legible
-                            let paymentMethodText = '';
-                            switch(orderData.payment_method) {
-                                case 'credit':
-                                    paymentMethodText = 'Tarjeta de Crédito';
-                                    break;
-                                case 'debit':
-                                    paymentMethodText = 'Tarjeta de Débito';
-                                    break;
-                                case 'transfer':
-                                    paymentMethodText = 'Transferencia Bancaria';
-                                    break;
-                                case 'store':
-                                    paymentMethodText = 'Pago en Tienda Física';
-                                    break;
-                                default:
-                                    paymentMethodText = orderData.payment_method;
-                            }
-                            document.getElementById('order-payment').textContent = paymentMethodText;
-                            document.getElementById('order-total').textContent = `$${total.toFixed(2)}`;
-                            
-                            // Quitar indicador de carga
-                            placeOrderBtn.classList.remove('loading');
-                            placeOrderBtn.innerHTML = 'Realizar el pedido';
-                            
-                            // Mostrar modal de éxito
-                            successModal.classList.add('active');
-                        })
-                        .catch(error => {
-                            console.error('Error al procesar el pedido:', error);
-                            alert('Error al procesar el pedido. Por favor, inténtalo de nuevo.');
-                            
-                            // Quitar indicador de carga
-                            placeOrderBtn.classList.remove('loading');
-                            placeOrderBtn.innerHTML = 'Realizar el pedido';
-                        });
-                    })
-                    .catch(error => {
-                        console.error('Error al obtener datos del carrito:', error);
-                        alert('Error al obtener datos del carrito. Por favor, inténtalo de nuevo.');
-                        
-                        // Quitar indicador de carga
-                        placeOrderBtn.classList.remove('loading');
-                        placeOrderBtn.innerHTML = 'Realizar el pedido';
-                    });
-            }
+            // Calcular IVA y total
+            const tax = subtotal * 0.15; // 15% de IVA
+            const total = subtotal + shipping + tax;
             
-            // Función para obtener cookies (necesario para CSRF en Django)
-            function getCookie(name) {
-                let cookieValue = null;
-                if (document.cookie && document.cookie !== '') {
-                    const cookies = document.cookie.split(';');
-                    for (let i = 0; i < cookies.length; i++) {
-                        const cookie = cookies[i].trim();
-                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                            break;
-                        }
-                    }
-                }
-                return cookieValue;
-            }
-            
-            // Función para obtener datos del carrito desde el servidor
-            function fetchCartData() {
-                return fetch('/cart_data/')
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Error al obtener datos del carrito');
-                        }
-                        return response.json();
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        // Fallback a datos de ejemplo en caso de error
-                        return {
-                            cart_items: [
-                                {
-                                    id: 1,
-                                    name: "KÜLER Sorbetes - Metálico",
-                                    price: 4.00,
-                                    quantity: 1,
-                                    subtotal: 4.00,
-                                    main_image: "https://via.placeholder.com/60"
-                                },
-                                {
-                                    id: 2,
-                                    name: "KÜLER Botella Térmica",
-                                    price: 15.00,
-                                    quantity: 1,
-                                    subtotal: 15.00,
-                                    main_image: "https://via.placeholder.com/60"
-                                },
-                                {
-                                    id: 3,
-                                    name: "KÜLER Set Ecológico",
-                                    price: 12.50,
-                                    quantity: 2,
-                                    subtotal: 25.00,
-                                    main_image: "https://via.placeholder.com/60"
-                                }
-                            ]
-                        };
-                    });
-            }
+            // Actualizar los totales en el DOM
+            document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
+            document.getElementById('tax-amount').textContent = `$${tax.toFixed(2)}`;
+            document.getElementById('tax-note').textContent = `$${tax.toFixed(2)}`;
+            document.getElementById('total-amount').textContent = `$${total.toFixed(2)}`;
+        })
+        .catch(error => {
+            console.error('Error al cargar el resumen del pedido:', error);
+            // Mostrar mensaje de error en el contenedor de items
+            document.getElementById('orderItems').innerHTML = 
+                '<p>Error al cargar los productos. Por favor, intenta de nuevo.</p>';
         });
+}
+
+// Función para obtener datos del carrito desde el servidor
+function fetchCartData() {
+    return fetch('/cart_data/')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error al obtener datos del carrito');
+            }
+            return response.json();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Fallback a datos de ejemplo en caso de error
+            return {
+                cart_items: [
+                    {
+                        id: 1,
+                        name: "KÜLER Sorbetes - Metálico",
+                        price: 4.00,
+                        quantity: 1,
+                        main_image: "https://via.placeholder.com/60"
+                    },
+                    {
+                        id: 2,
+                        name: "KÜLER Botella Térmica",
+                        price: 15.00,
+                        quantity: 1,
+                        main_image: "https://via.placeholder.com/60"
+                    },
+                    {
+                        id: 3,
+                        name: "KÜLER Set Ecológico",
+                        price: 12.50,
+                        quantity: 2,
+                        main_image: "https://via.placeholder.com/60"
+                    }
+                ]
+            };
+        });
+}
+
+// Función para actualizar totales cuando cambia la opción de envío
+function updateTotals() {
+    fetchCartData()
+        .then(data => {
+            let subtotal = 0;
+            
+            // Calcular subtotal
+            if (data.cart_items && data.cart_items.length > 0) {
+                data.cart_items.forEach(item => {
+                    subtotal += item.price * item.quantity;
+                });
+            } else if (data.items && Object.keys(data.items).length > 0) {
+                Object.values(data.items).forEach(item => {
+                    subtotal += item.price * item.quantity;
+                });
+            }
+            
+            // Obtener el costo de envío seleccionado
+            let shipping = 4.00; // Valor predeterminado
+            const selectedShipping = document.querySelector('input[name="shipping"]:checked');
+            
+            if (selectedShipping) {
+                shipping = parseFloat(selectedShipping.value);
+            }
+            
+            // Calcular IVA y total
+            const tax = subtotal * 0.15; // 15% de IVA
+            const total = subtotal + shipping + tax;
+            
+            // Actualizar el DOM
+            document.getElementById('subtotal').textContent = '$' + subtotal.toFixed(2);
+            document.getElementById('tax-amount').textContent = '$' + tax.toFixed(2);
+            document.getElementById('tax-note').textContent = '$' + tax.toFixed(2);
+            document.getElementById('total-amount').textContent = '$' + total.toFixed(2);
+        })
+        .catch(error => {
+            console.error('Error al actualizar totales:', error);
+        });
+}
     </script>
 
 {% endblock %}
