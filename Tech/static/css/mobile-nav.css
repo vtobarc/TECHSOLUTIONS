@@ -11,6 +11,54 @@
 /* Mobile styles */
 @media (max-width: 768px) {
   /* Hide desktop navigation on mobile */
+  /* Enhanced active state styles for mobile navigation */
+.mobile-nav a.active {
+  color: var(--primary-color);
+  position: relative;
+}
+
+/* Add an indicator dot or line under the active item */
+.mobile-nav a.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 5px;
+  height: 5px;
+  background-color: var(--primary-color);
+  border-radius: 50%;
+}
+
+/* Alternative: use a line instead of a dot */
+.mobile-nav a.active::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 25%;
+  width: 50%;
+  height: 3px;
+  background-color: var(--primary-color);
+  border-radius: 3px 3px 0 0;
+}
+
+/* Make the icon slightly larger for active items */
+.mobile-nav a.active i {
+  transform: scale(1.2);
+  transition: transform 0.2s ease;
+}
+
+/* Add a subtle animation when an item becomes active */
+@keyframes activeAnimation {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+  100% { transform: translateY(0); }
+}
+
+.mobile-nav a.active {
+  animation: activeAnimation 0.3s ease;
+}
+  
   .navigation {
     display: none !important;
   }
