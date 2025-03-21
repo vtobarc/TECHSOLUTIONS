@@ -1389,7 +1389,7 @@ def apply_filters_and_sorting(products, request):
         products = products.order_by(ordering_options[sort_by])
 
     return products, selected_category_id, selected_brand_id, sort_by, price_range
-
+    
 def cliente_home(request, product_id=None):
     # Si se pasa un product_id, redirige a la página de detalles del producto
     if product_id:
@@ -1425,17 +1425,19 @@ def cliente_home(request, product_id=None):
     max_price = (int(max_price / 100) + 1) * 100  # Redondear hacia arriba al siguiente 100
     
     # Aplicar filtros y ordenamiento
-    products, selected_category_id, selected_brand_id, sort_by, price_range = apply_filters_and_sorting(products, request)
-    
+    products, selected_category_id, selected_brand_id, sort_by, price_range = apply_filters_and_sorting(products, request)   
+
     # Si no se especificó un precio máximo, usar el máximo calculado
     if not price_range:
         price_range = max_price
     else:
         price_range = float(price_range)
         
-    # Seleccionar la categoría activa
-    if selected_category_id:
-        selected_category = get_object_or_404(Category, id=selected_category_id)
+   # Seleccionar la categoría activa - MODIFICADO
+    selected_category_obj = None
+    if selected_category_id and selected_category_id != 'all':
+        selected_category_obj = get_object_or_404(Category, id=selected_category_id)
+        
     else:
         selected_category = all_categories.first()  # Si no hay selección, toma la primera categoría
         selected_category_id = selected_category.id if selected_category else None
@@ -1458,11 +1460,12 @@ def cliente_home(request, product_id=None):
     
     # Pasar todas las categorías al template
     context = {
-        'category': selected_category,
+        'category': selected_category_obj or all_categories.first(),        
         'products': products,
         'all_categories': all_categories,
         'all_brands': all_brands,
         'selected_category': selected_category_id,
+        'selected_category_obj': selected_category_obj,  # Añadido
         'selected_brand': selected_brand_id,
         'sort_by': sort_by,
         'price_range': price_range,
@@ -1515,14 +1518,21 @@ def category_detail(request, category_id, product_id=None):
         products = products.filter(name__icontains=search_query)
     
     # Aplicar filtros y ordenamiento
-    products, selected_category_id, selected_brand_id, sort_by, price_range = apply_filters_and_sorting(products, request)
-    
+    products, selected_category_id, selected_brand_id, sort_by, price_range = apply_filters_and_sorting(products, request)    
+
     # Si no se especificó un precio máximo, usar el máximo calculado
     if not price_range:
         price_range = max_price
     else:
         price_range = float(price_range)
-    
+
+# Obtener el objeto de categoría seleccionada - MODIFICADO
+    selected_category_obj = None
+    if selected_category_id and selected_category_id != 'all':
+        selected_category_obj = get_object_or_404(Category, id=selected_category_id)
+    else:
+        selected_category_obj = category  # Usar la categoría actual si no hay selección
+        
     # Si es una solicitud AJAX, devolver JSON con productos
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         products_data = [{
@@ -1546,6 +1556,7 @@ def category_detail(request, category_id, product_id=None):
     context = {
         'category': category,
         'selected_category': selected_category_id if selected_category_id else 'all',
+        'selected_category_obj': selected_category_obj,  # Añadido
         'selected_brand': selected_brand_id if selected_brand_id else 'all',
         'products': products,
         'all_categories': Category.objects.all(),
