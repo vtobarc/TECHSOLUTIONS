@@ -240,7 +240,7 @@ class CompanyForm(forms.ModelForm):
             'legal_representative', 'capital', 'employees_count',
             'facebook', 'twitter', 'linkedin', 'instagram', 'youtube', 'opening_hours',
             'country', 'city', 'latitude', 'longitude', 'industry', 'services', 'branches_count',
-            'certifications'
+            'certifications', 'account_number'
         ]
         # Only make the truly required fields required in the form
         required = ['name', 'ruc', 'address', 'phone', 'email']
