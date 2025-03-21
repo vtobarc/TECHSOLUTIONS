@@ -214,37 +214,7 @@ button {
     font-weight: 600;
   }
   
-  
-/* Mobile styles */
-@media (max-width: 768px) {
-  /* Show mobile header with search and filter */
-  .mobile-header {
-    display: flex;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    background-color: var(--primary-color, #01257d);
-    padding: 10px 15px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    width: 100%;
-  }
-
-  .search-container {
-    display: flex;
-    width: 100%;
-    align-items: center;
-  }
-
-  .search-input {
-    flex: 1;
-    padding: 10px 15px;
-    border-radius: 20px;
-    border: none;
-    font-size: 14px;
-    background-color: rgba(255, 255, 255, 0.9);
-  }
-  
-/* Estilos para el botón de filtro activo */
+  /* Estilos para el botón de filtro activo */
   .filter-button.active {
     background-color: #4f46e5;
     color: white;
@@ -310,6 +280,36 @@ button {
     border: none;
   }
 
+/* Mobile styles */
+@media (max-width: 768px) {
+  /* Show mobile header with search and filter */
+  .mobile-header {
+    display: flex;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background-color: var(--primary-color, #01257d);
+    padding: 10px 15px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    width: 100%;
+  }
+
+  .search-container {
+    display: flex;
+    width: 100%;
+    align-items: center;
+  }
+
+  .search-input {
+    flex: 1;
+    padding: 10px 15px;
+    border-radius: 20px;
+    border: none;
+    font-size: 14px;
+    background-color: rgba(255, 255, 255, 0.9);
+  }
+  
+
 
 
 
@@ -332,6 +332,7 @@ button {
   .filter-button:active {
     transform: scale(0.95);
   }
+  
 
   .filter-button i {
     font-size: 18px;
