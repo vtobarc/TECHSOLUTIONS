@@ -255,7 +255,7 @@ class CompanyForm(forms.ModelForm):
             'certifications', 'account_number', 'account_name', 'bank_name', 'account_type', 'swift_code', 'iban', 'branchesfijos'
         ]
          widgets = {
-            'branchesfijos': TinyMCE(attrs={'cols': 80, 'rows': 20}), 
+            'branchesfijos': TinyMCE(attrs={'cols': 80, 'rows': 20}),  # Usando el widget TinyMCE
         }
 
         # Only make the truly required fields required in the form
