@@ -100,7 +100,16 @@ urlpatterns = [
     path('checkout/process/', views.process_order, name='process_order'),
     path('order/success/', views.order_success, name='order_success'),
     path('order/success/<str:order_id>/', views.order_success, name='order_success_with_id'),
-    
+    path('orders/', views.view_orders, name='view_orders'),
+    path('orders/<int:order_id>/', views.order_detail, name='order_detail'),
+    path('orders/<int:order_id>/update/', views.update_order_status, name='update_order_status'),
+    path('orders/<int:order_id>/delete/', views.delete_order, name='delete_order'),
+    path('orders/<int:order_id>/tracking/', views.add_tracking, name='add_tracking'),
+    path('orders/<int:order_id>/print/', views.print_invoice, name='print_invoice'),
+    path('process-order/', views.process_order, name='process_order'),
+    path('order-success/<int:order_id>/', views.order_success, name='order_success'),
+    path('checkout/', views.checkout, name='checkout'),
+]
     
     
     path("categoria/", base_product, name="all_categories"),  # Muestra todas las categorías
