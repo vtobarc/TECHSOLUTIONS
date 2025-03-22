@@ -617,15 +617,28 @@ class QuoteItem(models.Model):
 
 
 
+from django.db import models
+from django.conf import settings
+from django.utils import timezone
+from decimal import Decimal
+import uuid
 
 def generate_order_number():
-    return str(uuid.uuid4())[:20]  # Genera un identificador único basado en UUID
+    return f"TECH-{str(uuid.uuid4())[:8].upper()}"
 
 class Order(models.Model):
     STATUS_CHOICES = [
         ('pending', 'Pendiente'),
+        ('processing', 'Procesando'),
+        ('shipped', 'Enviado'),
         ('completed', 'Completado'),
         ('canceled', 'Cancelado'),
+    ]
+
+    PAYMENT_METHOD_CHOICES = [
+        ('card', 'Tarjeta'),
+        ('transfer', 'Transferencia'),
+        ('store', 'Tienda'),
     ]
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -633,8 +646,14 @@ class Order(models.Model):
     total = models.DecimalField(max_digits=10, decimal_places=2)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     date = models.DateTimeField(auto_now_add=True)
-
-    # Datos de entrega con valores por defecto
+    
+    # Fechas de seguimiento del estado
+    processing_date = models.DateTimeField(null=True, blank=True)
+    shipping_date = models.DateTimeField(null=True, blank=True)
+    completion_date = models.DateTimeField(null=True, blank=True)
+    cancellation_date = models.DateTimeField(null=True, blank=True)
+    
+    # Datos de entrega
     email = models.EmailField(default='example@example.com')
     phone = models.CharField(max_length=15, default='0000000000')
     fullname = models.CharField(max_length=255, default='Nombre Desconocido')
@@ -642,17 +661,24 @@ class Order(models.Model):
     city = models.CharField(max_length=100, default='Ciudad Desconocida')
     postal_code = models.CharField(max_length=10, default='00000')
     state = models.CharField(max_length=100, default='Estado Desconocido')
-    payment_method = models.CharField(max_length=50, default='Desconocido')
+    
+    # Datos de pago y envío
+    payment_method = models.CharField(max_length=50, choices=PAYMENT_METHOD_CHOICES, default='store')
+    shipping_cost = models.DecimalField(max_digits=10, decimal_places=2, default=5.00)
+    tracking_number = models.CharField(max_length=100, blank=True, null=True)
+    cancel_reason = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return f'Pedido {self.order_number} - {self.user.username}'
-
-
-class OrderItem(models.Model):
-    order = models.ForeignKey(Order, related_name='order_items', on_delete=models.CASCADE)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    quantity = models.PositiveIntegerField()
-    price = models.DecimalField(max_digits=10, decimal_places=2)
-
-    def __str__(self):
-        return f"{self.product.name} - {self.quantity} unidades"
+    
+    def get_subtotal(self):
+        """Calcula el subtotal del pedido (sin impuestos ni envío)"""
+        return sum(item.price * item.quantity for item in self.order_items.all())
+    
+    def get_iva_amount(self):
+        """Calcula el IVA (15%)"""
+        return self.get_subtotal() * Decimal('0.15')
+    
+    def get_total_with_iva(self):
+        """Calcula el total con IVA y envío"""
+        return self.get_subtotal() + self.get_iva_amount() + self.shipping_cost
