@@ -187,6 +187,7 @@ class Company(models.Model):
     longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
      # Datos de las sucursales de la empresa
     branches = models.JSONField(default=list, blank=True)  # Lista de sucursales en formato JSON
+    branchesfijos = HTMLField(blank=True, null=True)  # Permite HTML enriquecido
 
     # Datos comerciales
     industry = models.CharField(max_length=255, blank=True, null=True)  # Sector empresarial
