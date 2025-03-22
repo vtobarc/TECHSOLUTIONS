@@ -109,7 +109,7 @@ urlpatterns = [
     path('process-order/', views.process_order, name='process_order'),
     path('order-success/<int:order_id>/', views.order_success, name='order_success'),
     path('checkout/', views.checkout, name='checkout'),
-]
+
     
     
     path("categoria/", base_product, name="all_categories"),  # Muestra todas las categorías
@@ -123,8 +123,8 @@ urlpatterns = [
     
     
     
-      path('ver-pedidos/', views.view_orders, name='view_orders'),
-       path('procesar-pedido/', views.process_order, name='process_order'),
+    path('ver-pedidos/', views.view_orders, name='view_orders'),
+    path('procesar-pedido/', views.process_order, name='process_order'),
     path('pedido-exitoso/<int:order_id>/', views.order_success, name='order_success'),
     path('order/<int:order_id>/update/', views.update_order_status, name='update_order_status'),
     path('order/<int:order_id>/delete/', views.delete_order, name='delete_order'),
