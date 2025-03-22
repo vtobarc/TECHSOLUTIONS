@@ -395,8 +395,12 @@
                         selector: '#id_branches',  // Aplicamos TinyMCE al campo de sucursales
                         height: 300,
                         menubar: false,
-                        plugins: ['advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'print', 'preview', 'anchor'],
-                        toolbar: 'undo redo | formatselect | bold italic backcolor | alignleft aligncenter alignright | bullist numlist outdent indent | link image',
+                        plugins: 'lists advlist autolink link',
+                        toolbar: 'undo redo | bold italic | bullist numlist outdent indent',
+                        branding: false,
+                        forced_root_block: 'p',
+                        convert_newlines_to_brs: false,
+                        entity_encoding: "raw"   
                     });
                 </script>
 
@@ -851,9 +855,14 @@
         selector: '#id_branches',  // Aplicamos TinyMCE al campo de sucursales
         height: 300,
         menubar: false,
-        plugins: ['advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'print', 'preview', 'anchor'],
-        toolbar: 'undo redo | formatselect | bold italic backcolor | alignleft aligncenter alignright | bullist numlist outdent indent | link image',
+        plugins: 'lists advlist autolink link',
+        toolbar: 'undo redo | bold italic | bullist numlist outdent indent',
+        branding: false,
+        forced_root_block: 'p',
+        convert_newlines_to_brs: false,
+        entity_encoding: "raw"   
     });
+
 </script>
 
 <script>
