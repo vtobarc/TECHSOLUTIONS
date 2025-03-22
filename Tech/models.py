@@ -164,8 +164,12 @@ class Company(models.Model):
     legal_representative = models.CharField(max_length=255, blank=True, null=True)  
     capital = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)  
     employees_count = models.PositiveIntegerField(blank=True, null=True)  
-    account_number = models.CharField(max_length=20, blank=True, null=True)
-
+    account_number = models.CharField(max_length=50, blank=True, null=True)
+    account_name = models.CharField(max_length=255, blank=True, null=True)
+    bank_name = models.CharField(max_length=255, blank=True, null=True)
+    account_type = models.CharField(max_length=50, choices=[('Ahorro', 'Ahorro'), ('Corriente', 'Corriente')], blank=True, null=True)
+    swift_code = models.CharField(max_length=20, blank=True, null=True)
+    iban = models.CharField(max_length=34, blank=True, null=True)
     # Redes sociales
     facebook = models.URLField(blank=True, null=True)
     twitter = models.URLField(blank=True, null=True)
