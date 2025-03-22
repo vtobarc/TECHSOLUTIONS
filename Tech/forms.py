@@ -243,6 +243,11 @@ class CompanyForm(forms.ModelForm):
         widget=forms.CheckboxSelectMultiple,
         required=False
     )
+    # Definir branchesfijos con TinyMCE (Fuera de Meta)
+    branchesfijos = forms.CharField(
+        widget=TinyMCE(attrs={'cols': 80, 'rows': 20}),
+        required=False
+    )
 
     class Meta:
         model = Company
@@ -252,7 +257,7 @@ class CompanyForm(forms.ModelForm):
             'legal_representative', 'capital', 'employees_count',
             'facebook', 'twitter', 'linkedin', 'instagram', 'youtube', 'opening_hours',
             'country', 'city', 'latitude', 'longitude', 'industry', 'services', 'branches_count',
-            'certifications', 'account_number', 'account_name', 'bank_name', 'account_type', 'swift_code', 'iban', 'branches'
+            'certifications', 'account_number', 'account_name', 'bank_name', 'account_type', 'swift_code', 'iban', 'branches','branchesfijos'
         ]
         
 
