@@ -682,3 +682,15 @@ class Order(models.Model):
     def get_total_with_iva(self):
         """Calcula el total con IVA y envío"""
         return self.get_subtotal() + self.get_iva_amount() + self.shipping_cost
+
+
+
+class OrderItem(models.Model):
+    order = models.ForeignKey(Order, related_name='order_items', on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def __str__(self):
+        return f"{self.product.name} - {self.quantity} unidades"
+
