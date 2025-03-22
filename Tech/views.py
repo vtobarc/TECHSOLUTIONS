@@ -1737,7 +1737,17 @@ def checkout(request):
         
     return render(request, 'cart/checkout.html')
 
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import JsonResponse, HttpResponseForbidden
+from django.contrib import messages
+from django.utils import timezone
+from django.core.paginator import Paginator
+from django.db.models import Q, Count
+from decimal import Decimal
+import json
+import uuid
 
+from .models import Order, OrderItem, Product
 
 def process_order(request):
     # Verificar si el usuario está autenticado
@@ -1757,16 +1767,16 @@ def process_order(request):
 
             # Calcular el total del pedido
             subtotal = sum(item['subtotal'] for item in cart.values())
-            tax = subtotal * 0.15  # 15% IVA
-            shipping_cost = 5  # Envío fijo, puedes ajustarlo según la ciudad
+            tax = subtotal * Decimal('0.15')  # 15% IVA
+            shipping_cost = Decimal(data.get('shipping_cost', '5.00'))
             total = subtotal + tax + shipping_cost
 
             # Crear un nuevo pedido en la base de datos con datos de entrega
             order = Order.objects.create(
                 user=request.user,
-                order_number=data.get('order_number'),
+                order_number=data.get('order_number', generate_order_number()),
                 total=total,
-                status='pending',  # El pedido está pendiente hasta que se procese el pago
+                status='pending',
                 date=timezone.now(),
                 email=data.get('email'),
                 phone=data.get('phone'),
@@ -1775,12 +1785,13 @@ def process_order(request):
                 city=data.get('city'),
                 postal_code=data.get('postal'),
                 state=data.get('state'),
-                payment_method=data.get('payment_method')
+                payment_method=data.get('payment_method'),
+                shipping_cost=shipping_cost
             )
             
             # Guardar los productos del carrito en el modelo OrderItem
             for item in cart.values():
-                product = Product.objects.get(name=item['name'])  # O usa un ID único si es más adecuado
+                product = Product.objects.get(name=item['name'])
                 OrderItem.objects.create(
                     order=order,
                     product=product,
@@ -1813,36 +1824,85 @@ def order_success(request, order_id=None):
 
     return render(request, 'cart/order_success.html', {'order': order})
 
+
 def view_orders(request):
+    # Obtener parámetros de filtrado y búsqueda
+    search_query = request.GET.get('search', '')
+    status_filter = request.GET.get('status', 'all')
+    tab_filter = request.GET.get('tab', 'all')
+    sort_param = request.GET.get('sort', '-date')  # Por defecto, ordenar por fecha descendente
+    
+    # Iniciar la consulta base
     if request.user.is_staff:
-        orders = Order.objects.all().select_related('user')  # Optimiza la consulta para obtener el usuario
+        orders = Order.objects.all().select_related('user')
     else:
         orders = Order.objects.filter(user=request.user).select_related('user')
     
-    return render(request, 'orders/view_orders.html', {'orders': orders})
+    # Aplicar filtro de pestaña
+    if tab_filter != 'all':
+        orders = orders.filter(status=tab_filter)
+    
+    # Aplicar filtro de estado
+    if status_filter != 'all':
+        orders = orders.filter(status=status_filter)
+    
+    # Aplicar búsqueda
+    if search_query:
+        orders = orders.filter(
+            Q(id__icontains=search_query) | 
+            Q(fullname__icontains=search_query) | 
+            Q(email__icontains=search_query) | 
+            Q(address__icontains=search_query)
+        )
+    
+    # Aplicar ordenamiento
+    if sort_param.startswith('-'):
+        orders = orders.order_by(sort_param)
+    else:
+        orders = orders.order_by(sort_param)
+    
+    # Paginación
+    paginator = Paginator(orders, 10)  # 10 pedidos por página
+    page_number = request.GET.get('page', 1)
+    orders_page = paginator.get_page(page_number)
+    
+    # Contar pedidos por estado para las estadísticas
+    pending_count = Order.objects.filter(status='pending').count()
+    processing_count = Order.objects.filter(Q(status='processing') | Q(status='shipped')).count()
+    completed_count = Order.objects.filter(status='completed').count()
+    
+    context = {
+        'orders': orders_page,
+        'pending_count': pending_count,
+        'processing_count': processing_count,
+        'completed_count': completed_count,
+    }
+    
+    return render(request, 'orders/order_list.html', context)
 
-
-from decimal import Decimal
 
 def order_detail(request, order_id):
     # Obtiene el pedido y sus productos
     order = get_object_or_404(Order, id=order_id)
-    order_items = order.order_items.all()  # Relación con OrderItem
-
-    # Calcular el total del pedido, asegurando que el precio sea un Decimal
+    order_items = order.order_items.all().select_related('product')
+    
+    # Calcular el total del pedido
     total_price = sum(Decimal(item.price) * Decimal(item.quantity) for item in order_items)
     
-    # Calcular el IVA (por ejemplo, 15%)
-    iva_amount = total_price * Decimal(0.15)
-    total_with_iva = total_price + iva_amount
-
-    return render(request, 'orders/order_detail.html', {
+    # Calcular el IVA (15%)
+    iva_amount = total_price * Decimal('0.15')
+    total_with_iva = total_price + iva_amount + order.shipping_cost
+    
+    context = {
         'order': order,
         'order_items': order_items,
         'total_price': total_price,
         'iva_amount': iva_amount,
         'total_with_iva': total_with_iva
-    })
+    }
+    
+    return render(request, 'orders/order_detail.html', context)
+
 
 def update_order_status(request, order_id):
     # Asegúrate de que solo los administradores puedan actualizar el estado
@@ -1854,14 +1914,47 @@ def update_order_status(request, order_id):
     if request.method == "POST":
         # Obtén el nuevo estado del formulario
         new_status = request.POST.get('status')
+        
         if new_status:
+            # Guardar el estado anterior para comparar
+            old_status = order.status
+            
+            # Actualizar el estado
             order.status = new_status
+            
+            # Registrar la fecha del cambio de estado
+            now = timezone.now()
+            if new_status == 'processing' and old_status == 'pending':
+                order.processing_date = now
+            elif new_status == 'shipped' and old_status == 'processing':
+                order.shipping_date = now
+                
+                # Si hay un número de seguimiento en el formulario, guardarlo
+                tracking_number = request.POST.get('tracking_number')
+                if tracking_number:
+                    order.tracking_number = tracking_number
+                    
+            elif new_status == 'completed' and old_status == 'shipped':
+                order.completion_date = now
+            elif new_status == 'canceled':
+                order.cancellation_date = now
+                
+                # Guardar el motivo de cancelación si existe
+                cancel_reason = request.POST.get('cancel_reason')
+                if cancel_reason:
+                    order.cancel_reason = cancel_reason
+            
             order.save()
-            return redirect('view_orders')  # Redirige al listado de pedidos
+            
+            # Redirigir a la página de detalles si venimos de ahí
+            referer = request.META.get('HTTP_REFERER', '')
+            if f'/orders/{order_id}/' in referer:
+                return redirect('order_detail', order_id=order_id)
+            
+            return redirect('view_orders')
     
     # Redirige si no es un POST
     return redirect('view_orders')
-
 
 
 def delete_order(request, order_id):
@@ -1875,11 +1968,52 @@ def delete_order(request, order_id):
     if request.method == "POST":
         # Eliminar el pedido
         order.delete()
-        return redirect('view_orders')  # Redirige a la lista de pedidos
+        messages.success(request, f"El pedido #{order_id} ha sido eliminado correctamente.")
+        return redirect('view_orders')
     
-    # Si no es POST, redirige sin cambios (esto debería manejarse por si alguien accede a la URL sin hacer un POST)
+    # Si no es POST, redirige sin cambios
     return redirect('view_orders')
 
+
+def add_tracking(request, order_id):
+    """Añadir número de seguimiento a un pedido enviado"""
+    if not request.user.is_staff:
+        return HttpResponseForbidden("No tienes permiso para realizar esta acción.")
+    
+    order = get_object_or_404(Order, id=order_id)
+    
+    if request.method == "POST" and order.status == 'shipped':
+        tracking_number = request.POST.get('tracking_number')
+        if tracking_number:
+            order.tracking_number = tracking_number
+            order.save()
+            messages.success(request, "Número de seguimiento añadido correctamente.")
+        
+        return redirect('order_detail', order_id=order_id)
+    
+    return redirect('order_detail', order_id=order_id)
+
+
+def print_invoice(request, order_id):
+    """Vista para imprimir la factura"""
+    order = get_object_or_404(Order, id=order_id)
+    order_items = order.order_items.all().select_related('product')
+    
+    # Calcular el total del pedido
+    total_price = sum(Decimal(item.price) * Decimal(item.quantity) for item in order_items)
+    iva_amount = total_price * Decimal('0.15')
+    total_with_iva = total_price + iva_amount + order.shipping_cost
+    
+    context = {
+        'order': order,
+        'order_items': order_items,
+        'total_price': total_price,
+        'iva_amount': iva_amount,
+        'total_with_iva': total_with_iva,
+        'print_mode': True  # Para indicar que es modo impresión
+    }
+    
+    return render(request, 'orders/print_invoice.html', context)
 
 def base_product(request, category_id):
     category = get_object_or_404(category, id=category_id)
