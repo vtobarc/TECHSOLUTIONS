@@ -831,7 +831,16 @@
         </div>
     </div>
 </div>
-
+<script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+    <script>
+        tinymce.init({
+            selector: 'textarea#id_branches',  // Este es el id de tu campo de sucursales
+            height: 300,
+            menubar: false,
+            plugins: ['advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'print', 'preview', 'anchor'],
+            toolbar: 'undo redo | formatselect | bold italic backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image'
+        });
+    </script>
 <script>
 // JavaScript para manejar la carga de archivos
 document.addEventListener('DOMContentLoaded', function() {
