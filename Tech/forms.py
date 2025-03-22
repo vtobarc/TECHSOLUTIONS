@@ -254,7 +254,7 @@ class CompanyForm(forms.ModelForm):
             'country', 'city', 'latitude', 'longitude', 'industry', 'services', 'branches_count',
             'certifications', 'account_number', 'account_name', 'bank_name', 'account_type', 'swift_code', 'iban', 'branches'
         ]
-        branches = forms.CharField(widget=TinyMCE(attrs={'cols': 80, 'rows': 20}), required=False)  # Campo de sucursales con TinyMCE
+        branches = forms.CharField(widget=TinyMCE(attrs={'cols': 80, 'rows': 20, 'class': 'form-control'}), required=False)  
         # Only make the truly required fields required in the form
         required = ['name', 'ruc', 'address', 'phone', 'email']
         
