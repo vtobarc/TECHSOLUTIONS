@@ -733,6 +733,16 @@
             <p>RUC: {{ company.ruc }}</p>
             <p class="mt-4 text-sm">Una vez realizado el depósito o transferencia comuníquese al correo: {{ company.email }}</p>
         </div>
+        <!-- Detalles de pago - Transferencia Bancaria -->
+        <div id="transfer-details" class="payment-details mt-4 p-4 bg-gray-50 rounded-md hidden">
+            <p>Haz tu pago directamente en nuestra cuenta bancaria:</p>
+            <p class="font-medium mt-2">{{ company.name }}</p>  <!-- Nombre de la empresa -->
+            <p>{{ company.bank_name }}</p>  <!-- Banco -->
+            <p>Cuenta {{ account_type }}: {{ company.account_number }}</p>  <!-- Número de cuenta bancaria -->
+            <p>RUC: {{ company.ruc }}</p>  <!-- RUC de la empresa -->
+            <p class="mt-4 text-sm">Una vez realizado el depósito o transferencia comuníquese al correo: {{ company.email }}</p>  <!-- Correo para consultas -->
+        </div>
+
 
     
     <!-- Detalles de pago - Tarjetas -->
