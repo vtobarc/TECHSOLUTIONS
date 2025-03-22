@@ -371,16 +371,16 @@
                                     
                         <!-- Sucursales -->
                        <div class="form-group">
-                                <label for="{{ form.branches.id_for_label }}" class="form-label">Sucursales</label>
-                                {{ form.branches|add_class:"form-control" }}  <!-- Asegúrate de usar el campo correcto de Django -->
+                                <label for="{{ form.branchesfijos.id_for_label }}" class="form-label">Sucursales</label>
+                                {{ form.branchesfijos|add_class:"form-control" }}  <!-- Asegúrate de usar el campo correcto de Django -->
                             </div>
 
                 
                         <!-- Mostrar Sucursales -->
                         <h3>Sucursales</h3>
-                        {% if company.branches %}
+                        {% if company.branchesfijos %}
                             <div>
-                                <div>{{ company.branches|safe }}</div>  <!-- Mostrar el contenido enriquecido -->
+                                <div>{{ company.branchesfijos|safe }}</div>  <!-- Mostrar el contenido enriquecido -->
                             </div>
                         {% else %}
                             <p>No hay sucursales disponibles.</p>
