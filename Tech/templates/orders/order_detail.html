@@ -3,547 +3,1274 @@
 {% load custom_filters %}
 
 {% block content %}
-
 <style>
-  :root {
-      --primary-color: #4f46e5;
-      --primary-dark: #4338ca;
-      --primary-light: #eef2ff;
-      --secondary-color: #64748b;
-      --success-color: #10b981;
-      --success-light: #d1fae5;
-      --warning-color: #f59e0b;
-      --warning-light: #fef3c7;
-      --text-color: #1e293b;
-      --text-light: #64748b;
-      --border-color: #e2e8f0;
-      --card-bg: #ffffff;
-      --body-bg: #f8fafc;
-      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  }
+    :root {
+        --primary-color: #4f46e5;
+        --primary-light: #eef2ff;
+        --success-color: #10b981;
+        --success-light: #d1fae5;
+        --warning-color: #f59e0b;
+        --warning-light: #fef3c7;
+        --danger-color: #ef4444;
+        --danger-light: #fee2e2;
+        --info-color: #3b82f6;
+        --info-light: #dbeafe;
+        --purple-color: #8b5cf6;
+        --purple-light: #ede9fe;
+        --gray-color: #6b7280;
+        --gray-light: #f3f4f6;
+    }
 
-  .order-details-container {
-      max-width: 800px;
-      margin: 0 auto;
-      background-color: var(--card-bg);
-      border-radius: 8px;
-      box-shadow: var(--shadow);
-      overflow: hidden;
-  }
+    .order-detail-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
 
-  /* Company Header */
-  .company-header {
-      background-color: var(--primary-color);
-      color: white;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-  }
+    .order-header {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 24px;
+        align-items: flex-start;
+    }
 
-  @media (min-width: 768px) {
-      .company-header {
-          flex-direction: row;
-          justify-content: space-between;
-          align-items: center;
-      }
-  }
+    @media (min-width: 768px) {
+        .order-header {
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+        }
+    }
 
-  .company-info h1 {
-      font-size: 24px;
-      margin-bottom: 5px;
-  }
+    .back-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        background-color: #f3f4f6;
+        color: #4b5563;
+        border-radius: 6px;
+        font-weight: 500;
+        text-decoration: none;
+    }
 
-  .company-info p {
-      opacity: 0.9;
-      font-size: 14px;
-  }
+    .back-button:hover {
+        background-color: #e5e7eb;
+    }
 
-  .invoice-box {
-      background-color: white;
-      color: var(--primary-color);
-      padding: 15px;
-      border-radius: 6px;
-      text-align: center;
-  }
+    .order-title {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-top: 16px;
+    }
 
-  .invoice-box h2 {
-      font-size: 20px;
-      margin-bottom: 5px;
-  }
+    @media (min-width: 768px) {
+        .order-title {
+            margin-top: 0;
+        }
+    }
 
-  /* Invoice Details */
-  .invoice-details {
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-  }
+    .order-id {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 700;
+    }
 
-  @media (min-width: 768px) {
-      .invoice-details {
-          flex-direction: row;
-          justify-content: space-between;
-          align-items: flex-start;
-      }
-  }
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 12px;
+        border-radius: 9999px;
+        font-size: 14px;
+        font-weight: 500;
+    }
 
-  .detail-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 8px;
-  }
+    .badge-pending {
+        background-color: var(--warning-light);
+        color: var(--warning-color);
+    }
 
-  .detail-item i {
-      color: var(--secondary-color);
-      width: 16px;
-  }
+    .badge-processing {
+        background-color: var(--info-light);
+        color: var(--info-color);
+    }
 
-  .order-status {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 16px;
-      border-radius: 6px;
-      font-weight: 500;
-  }
+    .badge-shipped {
+        background-color: var(--purple-light);
+        color: var(--purple-color);
+    }
 
-  .status-completed {
-      background-color: var(--success-light);
-      color: var(--success-color);
-  }
+    .badge-completed {
+        background-color: var(--success-light);
+        color: var(--success-color);
+    }
 
-  .status-pending {
-      background-color: var(--warning-light);
-      color: var(--warning-color);
-  }
+    .badge-canceled {
+        background-color: var(--danger-light);
+        color: var(--danger-color);
+    }
 
-  /* Separator */
-  .separator {
-      height: 1px;
-      background-color: var(--border-color);
-      margin: 20px 0;
-  }
+    .tabs {
+        display: flex;
+        border-bottom: 1px solid #e5e7eb;
+        margin-bottom: 24px;
+        overflow-x: auto;
+    }
 
-  /* Info Grid */
-  .info-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 20px;
-      padding: 0 20px;
-  }
+    .tab {
+        padding: 12px 16px;
+        font-weight: 500;
+        color: #6b7280;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border-bottom: 2px solid transparent;
+        white-space: nowrap;
+    }
 
-  @media (min-width: 768px) {
-      .info-grid {
-          grid-template-columns: 1fr 1fr;
-      }
-  }
+    .tab.active {
+        color: var(--primary-color);
+        border-bottom-color: var(--primary-color);
+    }
 
-  .info-card h2 {
-      font-size: 18px;
-      margin-bottom: 15px;
-      color: var(--text-color);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-  }
+    .tab:hover:not(.active) {
+        color: #4b5563;
+        border-bottom-color: #e5e7eb;
+    }
 
-  .info-card h2 i {
-      color: var(--primary-color);
-  }
+    .tab-content {
+        display: none;
+    }
 
-  .info-item {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 12px;
-  }
+    .tab-content.active {
+        display: block;
+    }
 
-  .info-item i {
-      color: var(--secondary-color);
-      width: 16px;
-      margin-top: 4px;
-  }
+    .info-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 24px;
+        margin-bottom: 24px;
+    }
 
-  .info-primary {
-      font-weight: 500;
-  }
+    @media (min-width: 768px) {
+        .info-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
 
-  .info-secondary {
-      color: var(--text-light);
-      font-size: 14px;
-  }
+    .card {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e5e7eb;
+    }
 
-  /* Payment Summary */
-  .payment-summary {
-      background-color: var(--body-bg);
-      padding: 15px;
-      border-radius: 6px;
-      margin-top: 10px;
-  }
+    .card-header {
+        padding: 16px 20px;
+        border-bottom: 1px solid #e5e7eb;
+    }
 
-  .summary-row {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 8px;
-      font-size: 14px;
-  }
+    .card-title {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
 
-  .summary-row.total {
-      font-weight: 700;
-      font-size: 16px;
-      padding-top: 8px;
-      border-top: 1px solid var(--border-color);
-      margin-top: 8px;
-  }
+    .card-content {
+        padding: 16px 20px;
+    }
 
-  /* Order Items */
-  .order-items {
-      padding: 20px;
-  }
+    .card-footer {
+        padding: 16px 20px;
+        border-top: 1px solid #e5e7eb;
+        display: flex;
+        justify-content: flex-end;
+    }
 
-  .order-items h2 {
-      font-size: 18px;
-      margin-bottom: 15px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-  }
+    .info-section {
+        margin-bottom: 16px;
+    }
 
-  .order-items h2 i {
-      color: var(--primary-color);
-  }
+    .info-section:last-child {
+        margin-bottom: 0;
+    }
 
-  .table-responsive {
-      overflow-x: auto;
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
-  }
+    .info-label {
+        font-weight: 600;
+        margin-bottom: 4px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
 
-  .order-table {
-      width: 100%;
-      border-collapse: collapse;
-  }
+    .info-value {
+        color: #4b5563;
+    }
 
-  .order-table th {
-      background-color: var(--body-bg);
-      padding: 12px 15px;
-      text-align: left;
-      font-weight: 600;
-      font-size: 14px;
-  }
+    .info-secondary {
+        color: #6b7280;
+        font-size: 14px;
+        margin-top: 2px;
+    }
 
-  .order-table td {
-      padding: 12px 15px;
-      border-top: 1px solid var(--border-color);
-  }
+    .separator {
+        height: 1px;
+        background-color: #e5e7eb;
+        margin: 16px 0;
+    }
 
-  .order-table .even-row {
-      background-color: var(--body-bg);
-  }
+    .table-container {
+        overflow-x: auto;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        margin-bottom: 16px;
+    }
 
-  .order-table .quantity,
-  .order-table .unit-price,
-  .order-table .item-total {
-      text-align: right;
-  }
+    .order-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+    }
 
-  /* Total Summary */
-  .total-summary {
-      background-color: var(--primary-color);
-      color: white;
-      padding: 15px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-weight: 700;
-      font-size: 18px;
-      margin: 20px;
-      border-radius: 6px;
-  }
+    .order-table th {
+        background-color: #f9fafb;
+        padding: 12px 16px;
+        text-align: left;
+        font-weight: 600;
+        color: #4b5563;
+        border-bottom: 1px solid #e5e7eb;
+    }
 
-  /* Footer */
-  .invoice-footer {
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-  }
+    .order-table td {
+        padding: 12px 16px;
+        border-bottom: 1px solid #e5e7eb;
+    }
 
-  @media (min-width: 640px) {
-      .invoice-footer {
-          flex-direction: row;
-          justify-content: space-between;
-      }
-  }
+    .order-table tr:last-child td {
+        border-bottom: none;
+    }
 
-  .back-button,
-  .print-button {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 16px;
-      border-radius: 6px;
-      font-weight: 500;
-      text-decoration: none;
-      cursor: pointer;
-      transition: all 0.2s;
-      border: none;
-      font-size: 14px;
-  }
+    .order-table .text-right {
+        text-align: right;
+    }
 
-  .back-button {
-      background-color: var(--body-bg);
-      color: var(--text-color);
-      border: 1px solid var(--border-color);
-  }
+    .summary-box {
+        background-color: #f9fafb;
+        border-radius: 6px;
+        padding: 16px;
+        margin-top: 16px;
+    }
 
-  .print-button {
-      background-color: var(--primary-color);
-      color: white;
-  }
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+    }
 
-  .back-button:hover {
-      background-color: var(--border-color);
-  }
+    .summary-row:last-child {
+        margin-bottom: 0;
+    }
 
-  .print-button:hover {
-      background-color: var(--primary-dark);
-  }
+    .summary-row.total {
+        font-weight: 700;
+        padding-top: 8px;
+        margin-top: 8px;
+        border-top: 1px solid #e5e7eb;
+    }
 
-  /* Terms and conditions - only visible in print */
-  .terms-conditions {
-      display: none;
-  }
+    .btn {
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border: 1px solid transparent;
+    }
 
-  /* Print styles */
-  @media print {
-      body {
-          background-color: white;
-          padding: 0;
-      }
+    .btn-primary {
+        background-color: var(--primary-color);
+        color: white;
+    }
 
-      .order-details-container {
-          box-shadow: none;
-          max-width: 100%;
-      }
+    .btn-primary:hover {
+        background-color: #4338ca;
+    }
 
-      .invoice-footer {
-          display: none;
-      }
+    .btn-outline {
+        background-color: white;
+        border-color: #d1d5db;
+        color: #4b5563;
+    }
 
-      .terms-conditions {
-          display: block;
-          padding: 20px;
-          border-top: 1px solid var(--border-color);
-          margin-top: 20px;
-          font-size: 12px;
-          color: var(--text-light);
-      }
-  }
+    .btn-outline:hover {
+        background-color: #f9fafb;
+    }
+
+    .btn-danger {
+        background-color: var(--danger-color);
+        color: white;
+    }
+
+    .btn-danger:hover {
+        background-color: #dc2626;
+    }
+
+    .btn-success {
+        background-color: var(--success-color);
+        color: white;
+    }
+
+    .btn-success:hover {
+        background-color: #059669;
+    }
+
+    .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 24px;
+        justify-content: flex-end;
+    }
+
+    /* Timeline styles */
+    .timeline {
+        position: relative;
+        margin: 20px 0;
+    }
+
+    .timeline-line {
+        position: absolute;
+        left: 15px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background-color: #e5e7eb;
+    }
+
+    .timeline-item {
+        position: relative;
+        padding-left: 40px;
+        margin-bottom: 24px;
+    }
+
+    .timeline-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .timeline-icon {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1;
+    }
+
+    .timeline-icon.completed {
+        background-color: var(--success-light);
+        color: var(--success-color);
+    }
+
+    .timeline-icon.pending {
+        background-color: var(--gray-light);
+        color: var(--gray-color);
+    }
+
+    .timeline-icon.active {
+        background-color: var(--info-light);
+        color: var(--info-color);
+    }
+
+    .timeline-icon.canceled {
+        background-color: var(--danger-light);
+        color: var(--danger-color);
+    }
+
+    .timeline-content {
+        background-color: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        padding: 12px 16px;
+    }
+
+    .timeline-title {
+        font-weight: 600;
+        margin: 0 0 4px 0;
+    }
+
+    .timeline-date {
+        font-size: 12px;
+        color: #6b7280;
+    }
+
+    .timeline-description {
+        margin-top: 8px;
+        color: #4b5563;
+    }
+
+    /* Invoice styles */
+    .invoice-header {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 24px;
+        border-radius: 8px 8px 0 0;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    @media (min-width: 768px) {
+        .invoice-header {
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+    }
+
+    .company-info h2 {
+        margin: 0 0 8px 0;
+        font-size: 24px;
+    }
+
+    .company-info p {
+        margin: 0 0 4px 0;
+        opacity: 0.9;
+    }
+
+    .invoice-box {
+        background-color: white;
+        color: var(--primary-color);
+        padding: 16px;
+        border-radius: 6px;
+        text-align: center;
+    }
+
+    .invoice-box h3 {
+        margin: 0 0 4px 0;
+        font-size: 18px;
+    }
+
+    .invoice-box p {
+        margin: 0;
+    }
+
+    .invoice-body {
+        padding: 24px;
+        border: 1px solid #e5e7eb;
+        border-top: none;
+        border-radius: 0 0 8px 8px;
+    }
+
+    .invoice-details {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    @media (min-width: 768px) {
+        .invoice-details {
+            flex-direction: row;
+            justify-content: space-between;
+        }
+    }
+
+    .invoice-total {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 16px 24px;
+        border-radius: 6px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: 700;
+        font-size: 18px;
+        margin-top: 24px;
+    }
+
+    /* Modal styles */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        overflow: auto;
+    }
+
+    .modal-content {
+        background-color: white;
+        margin: 10% auto;
+        padding: 24px;
+        border-radius: 8px;
+        max-width: 500px;
+        position: relative;
+    }
+
+    .modal-header {
+        margin-bottom: 16px;
+    }
+
+    .modal-title {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 600;
+    }
+
+    .modal-body {
+        margin-bottom: 24px;
+    }
+
+    .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+    }
+
+    .close-modal {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        font-size: 24px;
+        cursor: pointer;
+        color: #6b7280;
+    }
+
+    .form-group {
+        margin-bottom: 16px;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 14px;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 1px var(--primary-color);
+    }
+
+    textarea.form-control {
+        min-height: 100px;
+        resize: vertical;
+    }
 </style>
-<div class="order-details-container">
-  <!-- Company Header -->
-  <div class="company-header">
-      <div class="company-info">
-          <h1>TechVision S.A.</h1>
-          <p>RUC: 0992456789001</p>
-          <p>Av. Francisco de Orellana y Alberto Borges, Guayaquil</p>
-          <p>(04) 500-9800 • ventas@techvision.com.ec</p>
-      </div>
-      <div class="invoice-box">
-          <h2>FACTURA</h2>
-          <p>FACT-001-002-000012345# {{ order.id }}</p>
-      </div>
-  </div>
 
-  <!-- Invoice Details -->
-  <div class="invoice-details">
-      <div>
-          <div class="detail-item">
-              <i class="fas fa-calendar"></i>
-              <div>
-                  <span class="detail-label">Fecha de Emisión:</span>
-                  <span>{{ order.date }}</span>
-              </div>
-          </div>
-          <div class="detail-item">
-              <i class="fas fa-truck"></i>
-              <div>
-                  <span class="detail-label">Fecha de Entrega:</span>
-                  <span>07 de Marzo, 2025</span>
-              </div>
-          </div>
-          <div class="detail-item">
-              <i class="fas fa-user"></i>
-              <div>
-                  <span class="detail-label">Entregado por:</span>
-                  <span>Carlos Mendoza</span>
-              </div>
-          </div>
-      </div>
-      
-      <div class="order-status status-completed">
-          <i class="fas fa-check-circle"></i>
-          <div>
-              <div class="status-label">Estado del Pedido:</div>
-              <div class="status-value">{{ order.get_status_display }}</div>
-          </div>
-      </div>
-  </div>
+<div class="order-detail-container">
+    <div class="order-header">
+        <a href="{% url 'view_orders' %}" class="back-button">
+            <i class="fas fa-arrow-left"></i>
+            Volver a la lista de pedidos
+        </a>
+        <div class="order-title">
+            <h1 class="order-id">Pedido #{{ order.id }}</h1>
+            {% if order.status == 'pending' %}
+            <span class="badge badge-pending">
+                <i class="fas fa-exclamation-triangle"></i>
+                Pendiente
+            </span>
+            {% elif order.status == 'processing' %}
+            <span class="badge badge-processing">
+                <i class="fas fa-clock"></i>
+                Procesando
+            </span>
+            {% elif order.status == 'shipped' %}
+            <span class="badge badge-shipped">
+                <i class="fas fa-truck"></i>
+                Enviado
+            </span>
+            {% elif order.status == 'completed' %}
+            <span class="badge badge-completed">
+                <i class="fas fa-check-circle"></i>
+                Completado
+            </span>
+            {% elif order.status == 'canceled' %}
+            <span class="badge badge-canceled">
+                <i class="fas fa-times-circle"></i>
+                Cancelado
+            </span>
+            {% endif %}
+        </div>
+    </div>
 
-  <div class="separator"></div>
+    <div class="tabs">
+        <div class="tab active" data-tab="details">
+            <i class="fas fa-info-circle"></i>
+            Detalles del Pedido
+        </div>
+        <div class="tab" data-tab="invoice">
+            <i class="fas fa-file-invoice-dollar"></i>
+            Factura
+        </div>
+        <div class="tab" data-tab="shipping">
+            <i class="fas fa-truck"></i>
+            Envío
+        </div>
+    </div>
 
-  <!-- Info Grid -->
-  <div class="info-grid">
-      <!-- Customer Info -->
-      <div class="info-card">
-          <h2><i class="fas fa-user-circle"></i> Información del Cliente</h2>
-          
-          <div class="info-item">
-              <i class="fas fa-user"></i>
-              <div>
-                  <div class="info-primary">{{ order.fullname }}</div>
-                  <div class="info-secondary">{{ order.email }}</div>
-              </div>
-          </div>
-          
-          <div class="info-item">
-              <i class="fas fa-phone"></i>
-              <div class="info-primary">{{ order.phone }}</div>
-          </div>
-          
-          <div class="info-item">
-              <i class="fas fa-map-marker-alt"></i>
-              <div>
-                  <div class="info-primary">{{ order.address }}</div>
-                  <div class="info-secondary">{{ order.city }}, {{ order.state }} {{ order.postal_code }}</div>
-              </div>
-          </div>
-      </div>
+    <!-- Detalles del Pedido -->
+    <div id="details" class="tab-content active">
+        <div class="info-grid">
+            <!-- Información del cliente -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-user"></i>
+                        Información del Cliente
+                    </h2>
+                </div>
+                <div class="card-content">
+                    <div class="info-section">
+                        <div class="info-label">Nombre</div>
+                        <div class="info-value">{{ order.fullname }}</div>
+                    </div>
+                    <div class="info-section">
+                        <div class="info-label">
+                            <i class="fas fa-envelope"></i>
+                            Correo Electrónico
+                        </div>
+                        <div class="info-value">{{ order.email }}</div>
+                    </div>
+                    <div class="info-section">
+                        <div class="info-label">
+                            <i class="fas fa-phone"></i>
+                            Teléfono
+                        </div>
+                        <div class="info-value">{{ order.phone }}</div>
+                    </div>
+                    <div class="separator"></div>
+                    <div class="info-section">
+                        <div class="info-label">
+                            <i class="fas fa-map-marker-alt"></i>
+                            Dirección de Envío
+                        </div>
+                        <div class="info-value">{{ order.address }}</div>
+                        <div class="info-secondary">{{ order.city }}, {{ order.state }} {{ order.postal_code }}</div>
+                    </div>
+                </div>
+            </div>
 
-      <!-- Payment Info -->
-      <div class="info-card">
-          <h2><i class="fas fa-credit-card"></i> Información de Pago</h2>
-          
-          <div class="info-item">
-              <i class="fas fa-money-bill-wave"></i>
-              <div>
-                  <div class="info-primary">Método de Pago</div>
-                  <div class="info-secondary">{{ order.payment_method }}</div>
-              </div>
-          </div>
-          
-          <div class="info-item">
-              <i class="fas fa-file-invoice-dollar"></i>
-              <div>
-                  <div class="info-primary">Resumen</div>
-                  <div class="payment-summary">
-                      <div class="summary-row">
-                          <span>Subtotal:</span>
-                          <span>${{ total_price|floatformat:2 }} USD</span>
-                      </div>
-                      
-                      <div class="summary-row">
-                          <span>IVA (15%):</span>
-                          <span>${{ iva_amount|floatformat:2 }} USD</span>
-                      </div>
-                      
-                      <div class="summary-row total">
-                          <span>Total:</span>
-                          <span>${{ total_with_iva|floatformat:2 }} USD</span>
-                      </div>
-                  </div>
-              </div>
-          </div>
-      </div>
-  </div>
+            <!-- Información de pago -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-credit-card"></i>
+                        Información de Pago
+                    </h2>
+                </div>
+                <div class="card-content">
+                    <div class="info-section">
+                        <div class="info-label">Método de Pago</div>
+                        <div class="info-value">{{ order.payment_method|default:"No especificado" }}</div>
+                    </div>
+                    <div class="separator"></div>
+                    <div class="info-section">
+                        <div class="info-label">Resumen</div>
+                        <div class="summary-box">
+                            <div class="summary-row">
+                                <span>Subtotal:</span>
+                                <span>${{ total_price|floatformat:2 }}</span>
+                            </div>
+                            <div class="summary-row">
+                                <span>Envío:</span>
+                                <span>${{ order.shipping_cost|default:"0.00"|floatformat:2 }}</span>
+                            </div>
+                            <div class="summary-row">
+                                <span>IVA (15%):</span>
+                                <span>${{ iva_amount|floatformat:2 }}</span>
+                            </div>
+                            <div class="summary-row total">
+                                <span>Total:</span>
+                                <span>${{ total_with_iva|floatformat:2 }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-  <div class="separator"></div>
+            <!-- Información de envío -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-truck"></i>
+                        Información de Envío
+                    </h2>
+                </div>
+                <div class="card-content">
+                    <div class="info-section">
+                        <div class="info-label">Método de Envío</div>
+                        <div class="info-value">Envío Estándar</div>
+                        <div class="info-secondary">Costo: ${{ order.shipping_cost|default:"0.00"|floatformat:2 }}</div>
+                    </div>
+                    <div class="separator"></div>
+                    <div class="info-section">
+                        <div class="info-label">Estado del Envío</div>
+                        <div class="info-value">
+                            {% if order.status == 'pending' %}
+                            <span class="badge badge-pending">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                Pendiente
+                            </span>
+                            {% elif order.status == 'processing' %}
+                            <span class="badge badge-processing">
+                                <i class="fas fa-clock"></i>
+                                Procesando
+                            </span>
+                            {% elif order.status == 'shipped' %}
+                            <span class="badge badge-shipped">
+                                <i class="fas fa-truck"></i>
+                                Enviado
+                            </span>
+                            {% elif order.status == 'completed' %}
+                            <span class="badge badge-completed">
+                                <i class="fas fa-check-circle"></i>
+                                Completado
+                            </span>
+                            {% elif order.status == 'canceled' %}
+                            <span class="badge badge-canceled">
+                                <i class="fas fa-times-circle"></i>
+                                Cancelado
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if order.tracking_number %}
+                    <div class="separator"></div>
+                    <div class="info-section">
+                        <div class="info-label">Número de Seguimiento</div>
+                        <div class="info-value">{{ order.tracking_number }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
 
-  <!-- Order Items -->
-  <div class="order-items">
-      <h2><i class="fas fa-shopping-cart"></i> Productos del Pedido</h2>
-      
-      <div class="table-responsive">
-          <table class="order-table">
-              <thead>
-                  <tr>
-                      <th>Producto</th>
-                      <th>Cantidad</th>
-                      <th>Precio Unitario</th>
-                      <th>Total</th>
-                  </tr>
-              </thead>
-              <tbody>
-                {% for item in order_items %}
-                <tr {% if forloop.counter|divisibleby:2 %}class="even-row"{% endif %}>
-                    <td class="product-name">{{ item.product.name }}</td>
-                    <td class="quantity">{{ item.quantity }}</td>
-                    <td class="unit-price">${{ item.price|floatformat:2 }} USD</td>
-                    <td class="item-total">${{ item.price|multiply:item.quantity|floatformat:2 }} USD</td>
-                </tr>
-                {% endfor %}
-              
-              </tbody>
-          </table>
-      </div>
-  </div>
+        <!-- Productos del pedido -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <i class="fas fa-shopping-cart"></i>
+                    Productos
+                </h2>
+            </div>
+            <div class="card-content">
+                <div class="table-container">
+                    <table class="order-table">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th class="text-right">Precio</th>
+                                <th class="text-right">Cantidad</th>
+                                <th class="text-right">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in order_items %}
+                            <tr>
+                                <td>{{ item.product.name }}</td>
+                                <td class="text-right">${{ item.price|floatformat:2 }}</td>
+                                <td class="text-right">{{ item.quantity }}</td>
+                                <td class="text-right">${{ item.price|multiply:item.quantity|floatformat:2 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="summary-box">
+                    <div class="summary-row">
+                        <span>Subtotal:</span>
+                        <span>${{ total_price|floatformat:2 }}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Envío:</span>
+                        <span>${{ order.shipping_cost|default:"0.00"|floatformat:2 }}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>IVA (15%):</span>
+                        <span>${{ iva_amount|floatformat:2 }}</span>
+                    </div>
+                    <div class="summary-row total">
+                        <span>Total:</span>
+                        <span>${{ total_with_iva|floatformat:2 }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-  <!-- Total Summary -->
-  <div class="total-summary">
-      <div class="total-label">Total a Pagar</div>
-      <div class="total-amount">${{ total_with_iva|floatformat:2 }} USD</div>
-  </div>
+        <!-- Acciones -->
+        <div class="actions">
+            {% if order.status != 'completed' and order.status != 'canceled' %}
+                <form action="{% url 'update_order_status' order.id %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="status" value="
+                        {% if order.status == 'pending' %}processing
+                        {% elif order.status == 'processing' %}shipped
+                        {% elif order.status == 'shipped' %}completed
+                        {% endif %}
+                    ">
+                    <button type="submit" class="btn btn-primary">
+                        {% if order.status == 'pending' %}
+                            <i class="fas fa-clock"></i> Procesar Pedido
+                        {% elif order.status == 'processing' %}
+                            <i class="fas fa-truck"></i> Marcar como Enviado
+                        {% elif order.status == 'shipped' %}
+                            <i class="fas fa-check-circle"></i> Completar Pedido
+                        {% endif %}
+                    </button>
+                </form>
+            {% endif %}
+            
+            {% if order.status != 'canceled' and order.status != 'completed' %}
+                <button type="button" class="btn btn-danger" id="cancelOrderBtn">
+                    <i class="fas fa-times-circle"></i>
+                    Cancelar Pedido
+                </button>
+            {% endif %}
+            
+            <a href="{% url 'print_invoice' order.id %}" class="btn btn-outline">
+                <i class="fas fa-print"></i>
+                Imprimir Factura
+            </a>
+        </div>
+    </div>
 
-  <!-- Footer with buttons -->
-  <div class="invoice-footer">
-      <a href="{% url 'view_orders' %}" class="back-button">
-          <i class="fas fa-arrow-left"></i>
-          Volver a la lista de pedidos
-      </a>
-      
-      <button class="print-button" onclick="window.print()">
-          <i class="fas fa-print"></i>
-          Imprimir Factura
-      </button>
-  </div>
+    <!-- Factura -->
+    <div id="invoice" class="tab-content">
+        <div class="card">
+            <div class="invoice-header">
+                <div class="company-info">
+                    <h2>TechVision S.A.</h2>
+                    <p>RUC: 0992456789001</p>
+                    <p>Av. Francisco de Orellana y Alberto Borges, Guayaquil</p>
+                    <p>(04) 500-9800 • ventas@techvision.com.ec</p>
+                </div>
+                <div class="invoice-box">
+                    <h3>FACTURA</h3>
+                    <p>{{ order.order_number|default:"FACT-001-002-000012345" }}</p>
+                </div>
+            </div>
+            <div class="invoice-body">
+                <div class="invoice-details">
+                    <div>
+                        <div class="info-section">
+                            <div class="info-label">
+                                <i class="fas fa-calendar"></i>
+                                Fecha de Emisión
+                            </div>
+                            <div class="info-value">{{ order.date|date:"d/m/Y" }}</div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="info-section">
+                            <div class="info-label">
+                                <i class="fas fa-tag"></i>
+                                Estado del Pedido
+                            </div>
+                            <div class="info-value">
+                                {% if order.status == 'pending' %}
+                                <span class="badge badge-pending">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    Pendiente
+                                </span>
+                                {% elif order.status == 'processing' %}
+                                <span class="badge badge-processing">
+                                    <i class="fas fa-clock"></i>
+                                    Procesando
+                                </span>
+                                {% elif order.status == 'shipped' %}
+                                <span class="badge badge-shipped">
+                                    <i class="fas fa-truck"></i>
+                                    Enviado
+                                </span>
+                                {% elif order.status == 'completed' %}
+                                <span class="badge badge-completed">
+                                    <i class="fas fa-check-circle"></i>
+                                    Completado
+                                </span>
+                                {% elif order.status == 'canceled' %}
+                                <span class="badge badge-canceled">
+                                    <i class="fas fa-times-circle"></i>
+                                    Cancelado
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-  <!-- Terms and conditions - only visible in print -->
-  <div class="terms-conditions">
-      <p><strong>Términos y Condiciones:</strong></p>
-      <p>1. La garantía de los productos es de 1 año a partir de la fecha de compra.</p>
-      <p>2. Para reclamos o devoluciones, presentar esta factura dentro de los 15 días posteriores a la compra.</p>
-      <p>3. Los precios incluyen IVA.</p>
-      <p>4. Este documento es una representación impresa de una factura electrónica.</p>
-  </div>
+                <div class="separator"></div>
+
+                <div class="info-grid">
+                    <div>
+                        <div class="info-section">
+                            <div class="info-label">
+                                <i class="fas fa-user"></i>
+                                Información del Cliente
+                            </div>
+                            <div class="info-value">{{ order.fullname }}</div>
+                            <div class="info-secondary">{{ order.email }}</div>
+                            <div class="info-secondary">{{ order.phone }}</div>
+                            <div class="info-secondary">{{ order.address }}</div>
+                            <div class="info-secondary">{{ order.city }}, {{ order.state }} {{ order.postal_code }}</div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="info-section">
+                            <div class="info-label">
+                                <i class="fas fa-credit-card"></i>
+                                Información de Pago
+                            </div>
+                            <div class="info-value">Método: {{ order.payment_method|default:"No especificado" }}</div>
+                            <div class="summary-box">
+                                <div class="summary-row">
+                                    <span>Subtotal:</span>
+                                    <span>${{ total_price|floatformat:2 }}</span>
+                                </div>
+                                <div class="summary-row">
+                                    <span>Envío:</span>
+                                    <span>${{ order.shipping_cost|default:"0.00"|floatformat:2 }}</span>
+                                </div>
+                                <div class="summary-row">
+                                    <span>IVA (15%):</span>
+                                    <span>${{ iva_amount|floatformat:2 }}</span>
+                                </div>
+                                <div class="summary-row total">
+                                    <span>Total:</span>
+                                    <span>${{ total_with_iva|floatformat:2 }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="separator"></div>
+
+                <div class="info-section">
+                    <div class="info-label">
+                        <i class="fas fa-shopping-cart"></i>
+                        Productos del Pedido
+                    </div>
+                    <div class="table-container">
+                        <table class="order-table">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th class="text-right">Precio</th>
+                                    <th class="text-right">Cantidad</th>
+                                    <th class="text-right">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in order_items %}
+                                <tr>
+                                    <td>{{ item.product.name }}</td>
+                                    <td class="text-right">${{ item.price|floatformat:2 }}</td>
+                                    <td class="text-right">{{ item.quantity }}</td>
+                                    <td class="text-right">${{ item.price|multiply:item.quantity|floatformat:2 }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="invoice-total">
+                    <span>Total a Pagar:</span>
+                    <span>${{ total_with_iva|floatformat:2 }} USD</span>
+                </div>
+            </div>
+            <div class="card-footer">
+                <button class="btn btn-outline" onclick="window.print()">
+                    <i class="fas fa-print"></i>
+                    Imprimir Factura
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Envío -->
+    <div id="shipping" class="tab-content">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <i class="fas fa-truck"></i>
+                    Información de Envío
+                </h2>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    <div>
+                        <div class="info-section">
+                            <div class="info-label">
+                                <i class="fas fa-map-marker-alt"></i>
+                                Dirección de Envío
+                            </div>
+                            <div class="info-value">{{ order.fullname }}</div>
+                            <div class="info-secondary">{{ order.address }}</div>
+                            <div class="info-secondary">{{ order.city }}, {{ order.state }} {{ order.postal_code }}</div>
+                            <div class="info-secondary">{{ order.phone }}</div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="info-section">
+                            <div class="info-label">
+                                <i class="fas fa-shipping-fast"></i>
+                                Método de Envío
+                            </div>
+                            <div class="info-value">Envío Estándar</div>
+                            <div class="info-secondary">Tiempo estimado: 3-5 días hábiles</div>
+                            <div class="info-secondary">Costo: ${{ order.shipping_cost|default:"0.00"|floatformat:2 }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="separator"></div>
+
+                <div class="info-section">
+                    <div class="info-label">
+                        <i class="fas fa-tasks"></i>
+                        Estado del Envío
+                    </div>
+                    <div class="timeline">
+                        <div class="timeline-line"></div>
+                        
+                        <div class="timeline-item">
+                            <div class="timeline-icon completed">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h3 class="timeline-title">Pedido Recibido</h3>
+                                <div class="timeline-date">{{ order.date|date:"d/m/Y H:i" }}</div>
+                                <div class="timeline-description">Su pedido ha sido recibido y está siendo procesado.</div>
+                            </div>
+                        </div>
+                        
+                        {% if order.status != 'pending' %}
+                        <div class="timeline-item">
+                            <div class="timeline-icon completed">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h3 class="timeline-title">Pedido Procesado</h3>
+                                <div class="timeline-date">{{ order.processing_date|default:order.date|date:"d/m/Y H:i" }}</div>
+                                <div class="timeline-description">Su pedido ha sido procesado y está siendo preparado para envío.</div>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="timeline-item">
+                            <div class="timeline-icon pending">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h3 class="timeline-title">Pedido Procesado</h3>
+                                <div class="timeline-date">Pendiente</div>
+                                <div class="timeline-description">Su pedido está esperando ser procesado.</div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if order.status == 'shipped' or order.status == 'completed' %}
+                        <div class="timeline-item">
+                            <div class="timeline-icon completed">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h3 class="timeline-title">Pedido Enviado</h3>
+                                <div class="timeline-date">{{ order.shipping_date|default:order.date|date:"d/m/Y H:i" }}</div>
+                                <div class="timeline-description">
+                                    Su pedido ha sido enviado y está en camino.
+                                    {% if order.tracking_number %}
+                                    <br>Número de seguimiento: {{ order.tracking_number }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% elif order.status != 'canceled' %}
+                        <div class="timeline-item">
+                            <div class="timeline-icon pending">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h3 class="timeline-title">Pedido Enviado</h3>
+                                <div class="timeline-date">Pendiente</div>
+                                <div class="timeline-description">Su pedido está esperando ser enviado.</div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if order.status == 'completed' %}
+                        <div class="timeline-item">
+                            <div class="timeline-icon completed">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h3 class="timeline-title">Pedido Entregado</h3>
+                                <div class="timeline-date">{{ order.completion_date|default:order.date|date:"d/m/Y H:i" }}</div>
+                                <div class="timeline-description">Su pedido ha sido entregado con éxito.</div>
+                            </div>
+                        </div>
+                        {% elif order.status != 'canceled' %}
+                        <div class="timeline-item">
+                            <div class="timeline-icon pending">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h3 class="timeline-title">Pedido Entregado</h3>
+                                <div class="timeline-date">Pendiente</div>
+                                <div class="timeline-description">Su pedido está esperando ser entregado.</div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if order.status == 'canceled' %}
+                        <div class="timeline-item">
+                            <div class="timeline-icon canceled">
+                                <i class="fas fa-times"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h3 class="timeline-title">Pedido Cancelado</h3>
+                                <div class="timeline-date">{{ order.cancellation_date|default:order.date|date:"d/m/Y H:i" }}</div>
+                                <div class="timeline-description">El pedido ha sido cancelado.</div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                {% if order.status == 'shipped' and not order.tracking_number %}
+                <div class="separator"></div>
+                <div class="info-section">
+                    <div class="info-label">
+                        <i class="fas fa-barcode"></i>
+                        Agregar Número de Seguimiento
+                    </div>
+                    <form action="{% url 'add_tracking' order.id %}" method="post" class="mt-3">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <input type="text" name="tracking_number" class="form-control" placeholder="Ingrese el número de seguimiento">
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i>
+                            Guardar Número de Seguimiento
+                        </button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para cancelar pedido -->
+    <div id="cancelOrderModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div class="modal-header">
+                <h2 class="modal-title">Cancelar Pedido</h2>
+            </div>
+            <div class="modal-body">
+                <p>¿Estás seguro de que deseas cancelar este pedido? Esta acción no se puede deshacer.</p>
+                <form id="cancelOrderForm" action="{% url 'update_order_status' order.id %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="status" value="canceled">
+                    <div class="form-group">
+                        <label for="cancel_reason" class="form-label">Motivo de cancelación</label>
+                        <textarea id="cancel_reason" name="cancel_reason" class="form-control" placeholder="Ingrese el motivo de la cancelación..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" id="closeCancelModal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="confirmCancelOrder">Confirmar Cancelación</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
-  // Simple print functionality
-  function printInvoice() {
-      window.print();
-  }
+    document.addEventListener('DOMContentLoaded', function() {
+        // Tab functionality
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                const tabId = this.getAttribute('data-tab');
+                
+                // Remove active class from all tabs and contents
+                tabs.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(c => c.classList.remove('active'));
+                
+                // Add active class to current tab and content
+                this.classList.add('active');
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+        
+        // Cancel order modal
+        const cancelOrderBtn = document.getElementById('cancelOrderBtn');
+        const cancelOrderModal = document.getElementById('cancelOrderModal');
+        const closeCancelModal = document.getElementById('closeCancelModal');
+        const closeModalX = document.querySelector('.close-modal');
+        const confirmCancelOrder = document.getElementById('confirmCancelOrder');
+        const cancelOrderForm = document.getElementById('cancelOrderForm');
+        
+        if (cancelOrderBtn) {
+            cancelOrderBtn.addEventListener('click', function() {
+                cancelOrderModal.style.display = 'block';
+            });
+        }
+        
+        if (closeCancelModal) {
+            closeCancelModal.addEventListener('click', function() {
+                cancelOrderModal.style.display = 'none';
+            });
+        }
+        
+        if (closeModalX) {
+            closeModalX.addEventListener('click', function() {
+                cancelOrderModal.style.display = 'none';
+            });
+        }
+        
+        if (confirmCancelOrder) {
+            confirmCancelOrder.addEventListener('click', function() {
+                cancelOrderForm.submit();
+            });
+        }
+        
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            if (event.target == cancelOrderModal) {
+                cancelOrderModal.style.display = 'none';
+            }
+        });
+    });
 </script>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 {% endblock %}
