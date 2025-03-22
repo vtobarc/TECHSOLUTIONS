@@ -226,6 +226,18 @@ from django import forms
 from .models import Company, Certification
 
 class CompanyForm(forms.ModelForm):
+    # Definición del campo account_type con opciones de selección
+    ACCOUNT_TYPE_CHOICES = [
+        ('Ahorro', 'Ahorro'),
+        ('Corriente', 'Corriente'),
+    ]
+    
+    account_type = forms.ChoiceField(
+        choices=ACCOUNT_TYPE_CHOICES,
+        widget=forms.Select,
+        required=False  # Puedes cambiar a True si deseas que sea obligatorio
+    )
+    
     certifications = forms.ModelMultipleChoiceField(
         queryset=Certification.objects.all(),
         widget=forms.CheckboxSelectMultiple,
