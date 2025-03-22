@@ -369,21 +369,17 @@
                             </div>
                         </div>
                                     
-                    <!-- Brashes Fijos -->
+                    <!-- Sucursales -->
                         <div class="form-group">
-                            <label for="{{ form.branchesfijos.id_for_label }}" class="form-label">Brashes Fijos</label>
+                            <label for="{{ form.branchesfijos.id_for_label }}" class="form-label">Sucursales</label>
                             {{ form.branchesfijos|add_class:"form-control" }}
                         </div>
                         
-                        <!-- Mostrar Brashes Fijos -->
-                        <h3>Brashes Fijos</h3>
-                        {% if company.branchesfijos %}
-                            <div>
-                                <pre>{{ company.branchesfijos|json_script:"branchesfijos-data" }}</pre>  <!-- Esto convierte el JSON en un formato seguro para mostrar -->
-                            </div>
-                        {% else %}
-                            <p>No hay brashes fijos disponibles.</p>
-                        {% endif %}
+                        <!-- Mostrar Sucursaless -->
+                        <h3>Brashes </h3>
+                       <div class="branches-container">
+                            {{ company.branchesfijos|safe }}
+                        </div>
 
                </div>
                                 </div>
