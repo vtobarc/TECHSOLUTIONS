@@ -57,3 +57,13 @@ def cloudinary_url(value, transformation=''):
             # Aplica la transformación si se proporciona
             return cloudinary.CloudinaryImage(value.name).build_url(transformation=transformation)
     return value  # Devuelve el valor original si no es una imagen válida
+
+
+
+@register.filter
+def multiply(value, arg):
+    """Multiplica el valor por el argumento"""
+    try:
+        return Decimal(str(value)) * Decimal(str(arg))
+    except (ValueError, TypeError):
+        return 0
