@@ -373,6 +373,14 @@
                                     <textarea name="branches" class="form-control" rows="5" placeholder="Introduce las ubicaciones de las sucursales. Ejemplo: Dirección, Ciudad, Latitud, Longitud">{{ form.branches.value }}</textarea>
                                 </div>
                             </div>
+                           <h3>Sucursales</h3>
+                            {% if company.branches %}
+                                <div>
+                                    {{ company.branches|safe }}  <!-- Mostrar el contenido enriquecido -->
+                                </div>
+                            {% else %}
+                                <p>No hay sucursales disponibles.</p>
+                            {% endif %}
      
                     </div>
                 </div>
