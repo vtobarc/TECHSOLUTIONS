@@ -346,65 +346,28 @@
 
                 <!-- Horario y Ubicación -->
               <!-- Horario y Ubicación -->
-<div class="card">
-    <div class="card-header card-header-teal">
-        <h2 class="card-title card-title-teal">Horario y Ubicación</h2>
-    </div>
-    <div class="card-body">
-        <div class="form-group">
-            <label for="{{ form.opening_hours.id_for_label }}" class="form-label">Horario de Atención</label>
-            {{ form.opening_hours|add_class:"form-control" }}
-        </div>
+                <div class="card">
+                        <div class="card-header card-header-teal">
+                            <h2 class="card-title card-title-teal">Horario y Ubicación</h2>
+                        </div>
+                    <div class="card-body">
+                         <div class="form-group">
+                            <label for="{{ form.opening_hours.id_for_label }}" class="form-label">Horario de Atención</label>
+                            {{ form.opening_hours|add_class:"form-control" }}
+                        </div>
 
-        <div class="form-row form-row-2">
-            <div class="form-group">
-                <label for="{{ form.latitude.id_for_label }}" class="form-label">Latitud</label>
-                {{ form.latitude|add_class:"form-control" }}
-            </div>
-            <div class="form-group">
-                <label for="{{ form.longitude.id_for_label }}" class="form-label">Longitud</label>
-                {{ form.longitude|add_class:"form-control" }}
-            </div>
-        </div>
+                        <div class="form-row form-row-2">
+                            <div class="form-group">
+                                <label for="{{ form.latitude.id_for_label }}" class="form-label">Latitud</label>
+                                {{ form.latitude|add_class:"form-control" }}
+                            </div>
+                            <div class="form-group">
+                                <label for="{{ form.longitude.id_for_label }}" class="form-label">Longitud</label>
+                                {{ form.longitude|add_class:"form-control" }}
+                            </div>
+                        </div>
 
-        <!-- Nuevos Campos de Ubicación de Sucursales -->
-                        <div class="form-row form-row-2">
-                            <div class="form-group">
-                                <label for="{{ form.branch_address.id_for_label }}" class="form-label">Dirección de la Sucursal</label>
-                                {{ form.branch_address|add_class:"form-control" }}
-                            </div>
-                            <div class="form-group">
-                                <label for="{{ form.branch_city.id_for_label }}" class="form-label">Ciudad de la Sucursal</label>
-                                {{ form.branch_city|add_class:"form-control" }}
-                            </div>
-                        </div>
-                
-                        <div class="form-row form-row-2">
-                            <div class="form-group">
-                                <label for="{{ form.branch_phone.id_for_label }}" class="form-label">Teléfono de la Sucursal</label>
-                                {{ form.branch_phone|add_class:"form-control" }}
-                            </div>
-                            <div class="form-group">
-                                <label for="{{ form.branch_email.id_for_label }}" class="form-label">Correo Electrónico de la Sucursal</label>
-                                {{ form.branch_email|add_class:"form-control" }}
-                            </div>
-                        </div>
-                
-                        <div class="form-row form-row-2">
-                            <div class="form-group">
-                                <label for="{{ form.branch_latitude.id_for_label }}" class="form-label">Latitud de la Sucursal</label>
-                                {{ form.branch_latitude|add_class:"form-control" }}
-                            </div>
-                            <div class="form-group">
-                                <label for="{{ form.branch_longitude.id_for_label }}" class="form-label">Longitud de la Sucursal</label>
-                                {{ form.branch_longitude|add_class:"form-control" }}
-                            </div>
-                        </div>
-                        
-                        <!-- Botón para agregar más sucursales -->
-                        <div class="form-group">
-                            <button type="button" class="btn btn-primary" id="add-branch">Agregar Sucursal</button>
-                        </div>
+     
                     </div>
                 </div>
 
