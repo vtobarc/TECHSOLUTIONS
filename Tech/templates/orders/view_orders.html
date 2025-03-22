@@ -1,158 +1,832 @@
 {% extends 'admin_dashboard/base.html' %}
 {% load static %}
 
-
 {% block content %}
 <style>
-    body {
-        font-family: 'Arial', sans-serif;
-        background-color: #f4f4f4;
-        color: #333;
-        margin: 0;
-        padding: 0;
+    :root {
+        --primary-color: #4f46e5;
+        --primary-light: #eef2ff;
+        --success-color: #10b981;
+        --success-light: #d1fae5;
+        --warning-color: #f59e0b;
+        --warning-light: #fef3c7;
+        --danger-color: #ef4444;
+        --danger-light: #fee2e2;
+        --info-color: #3b82f6;
+        --info-light: #dbeafe;
+        --purple-color: #8b5cf6;
+        --purple-light: #ede9fe;
+        --gray-color: #6b7280;
+        --gray-light: #f3f4f6;
     }
 
-    .container {
-        width: 90%;
-        margin: auto;
-        overflow: hidden;
+    .dashboard-container {
+        max-width: 1200px;
+        margin: 0 auto;
         padding: 20px;
     }
 
-    h2 {
-        color: #333;
-        text-align: center;
-        padding-bottom: 20px;
-        border-bottom: 2px solid #eee;
+    .dashboard-header {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 24px;
     }
 
-    .table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 20px;
-        background-color: #fff;
-        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    @media (min-width: 768px) {
+        .dashboard-header {
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+        }
     }
 
-    .table th,
-    .table td {
-        padding: 12px 15px;
-        text-align: left;
-        border-bottom: 1px solid #ddd;
+    .dashboard-title {
+        margin: 0;
+        font-size: 28px;
+        font-weight: 700;
+        color: #1f2937;
     }
 
-    .table th {
-        background-color: #007bff;
-        color: white;
-        font-weight: bold;
-    }
-
-    .table tbody tr:nth-child(even) {
-        background-color: #f2f2f2;
-    }
-
-    .table tbody tr:hover {
-        background-color: #ddd;
-    }
-
-
-    .btn-info {
-        background-color: #17a2b8;
-    }
-
-    .btn-info:hover {
-        background-color: #138496;
+    .dashboard-subtitle {
+        margin: 4px 0 0 0;
+        color: #6b7280;
     }
 
     .btn-primary {
-        background-color: #28a745;
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        transition: background-color 0.2s;
     }
 
     .btn-primary:hover {
-        background-color: #218838;
+        background-color: #4338ca;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    @media (min-width: 768px) {
+        .stats-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    .stat-card {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        padding: 16px;
+        border: 1px solid #e5e7eb;
+    }
+
+    .stat-card.yellow {
+        background-color: var(--warning-light);
+        border-color: var(--warning-color);
+    }
+
+    .stat-card.blue {
+        background-color: var(--info-light);
+        border-color: var(--info-color);
+    }
+
+    .stat-card.green {
+        background-color: var(--success-light);
+        border-color: var(--success-color);
+    }
+
+    .stat-card-header {
+        margin-bottom: 8px;
+    }
+
+    .stat-card-title {
+        font-size: 16px;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .stat-card-description {
+        font-size: 14px;
+        color: #6b7280;
+        margin: 4px 0 0 0;
+    }
+
+    .stat-card-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .stat-value {
+        font-size: 28px;
+        font-weight: 700;
+    }
+
+    .stat-icon {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+    }
+
+    .yellow .stat-icon {
+        color: var(--warning-color);
+    }
+
+    .blue .stat-icon {
+        color: var(--info-color);
+    }
+
+    .green .stat-icon {
+        color: var(--success-color);
+    }
+
+    .tabs {
+        display: flex;
+        border-bottom: 1px solid #e5e7eb;
+        margin-bottom: 24px;
+        overflow-x: auto;
+    }
+
+    .tab {
+        padding: 12px 16px;
+        font-weight: 500;
+        color: #6b7280;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border-bottom: 2px solid transparent;
+        white-space: nowrap;
+    }
+
+    .tab.active {
+        color: var(--primary-color);
+        border-bottom-color: var(--primary-color);
+    }
+
+    .tab:hover:not(.active) {
+        color: #4b5563;
+        border-bottom-color: #e5e7eb;
+    }
+
+    .card {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e5e7eb;
+        margin-bottom: 24px;
+    }
+
+    .card-header {
+        padding: 16px 20px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .card-title {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    .card-description {
+        margin: 4px 0 0 0;
+        color: #6b7280;
+        font-size: 14px;
+    }
+
+    .card-content {
+        padding: 20px;
+    }
+
+    .search-filters {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        margin-bottom: 20px;
+    }
+
+    @media (min-width: 768px) {
+        .search-filters {
+            flex-direction: row;
+        }
+    }
+
+    .search-box {
+        position: relative;
+        flex: 1;
+    }
+
+    .search-icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #9ca3af;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 8px 12px 8px 36px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 14px;
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 1px var(--primary-color);
+    }
+
+    .filter-dropdown {
+        width: 100%;
+    }
+
+    @media (min-width: 768px) {
+        .filter-dropdown {
+            width: 200px;
+        }
+    }
+
+    .filter-select {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 14px;
+        background-color: white;
+        cursor: pointer;
+    }
+
+    .filter-select:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 1px var(--primary-color);
+    }
+
+    .table-container {
+        overflow-x: auto;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+    }
+
+    .orders-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+    }
+
+    .orders-table th {
+        background-color: #f9fafb;
+        padding: 12px 16px;
+        text-align: left;
+        font-weight: 600;
+        color: #4b5563;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .orders-table td {
+        padding: 12px 16px;
+        border-bottom: 1px solid #e5e7eb;
+        vertical-align: middle;
+    }
+
+    .orders-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .orders-table tr:hover {
+        background-color: #f9fafb;
+    }
+
+    .sortable {
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 8px;
+        border-radius: 9999px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+    .badge-pending {
+        background-color: var(--warning-light);
+        color: var(--warning-color);
+    }
+
+    .badge-processing {
+        background-color: var(--info-light);
+        color: var(--info-color);
+    }
+
+    .badge-shipped {
+        background-color: var(--purple-light);
+        color: var(--purple-color);
+    }
+
+    .badge-completed {
+        background-color: var(--success-light);
+        color: var(--success-color);
+    }
+
+    .badge-canceled {
+        background-color: var(--danger-light);
+        color: var(--danger-color);
+    }
+
+    .customer-info {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .customer-email {
+        font-size: 12px;
+        color: #6b7280;
+        margin-top: 2px;
+    }
+
+    .actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+    }
+
+    .btn {
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        border: 1px solid transparent;
+    }
+
+    .btn-icon {
+        padding: 6px;
+        border-radius: 6px;
+    }
+
+    .btn-ghost {
+        background-color: transparent;
+        color: #6b7280;
+        border-color: transparent;
+    }
+
+    .btn-ghost:hover {
+        background-color: #f3f4f6;
+        color: #4b5563;
+    }
+
+    .btn-outline {
+        background-color: white;
+        border-color: #d1d5db;
+        color: #4b5563;
+    }
+
+    .btn-outline:hover {
+        background-color: #f9fafb;
     }
 
     .btn-danger {
-        background-color: #dc3545;
+        background-color: var(--danger-color);
+        color: white;
     }
 
     .btn-danger:hover {
-        background-color: #c82333;
+        background-color: #dc2626;
     }
 
-    .form-control {
-        padding: 8px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        box-sizing: border-box;
-        margin: 5px 0;
+    .btn-success {
+        background-color: var(--success-color);
+        color: white;
     }
 
-    select.form-control {
-        width: auto;
+    .btn-success:hover {
+        background-color: #059669;
+    }
+
+    .btn-info {
+        background-color: var(--info-color);
+        color: white;
+    }
+
+    .btn-info:hover {
+        background-color: #2563eb;
+    }
+
+    .card-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 20px;
+        border-top: 1px solid #e5e7eb;
+    }
+
+    .pagination {
+        display: flex;
+        gap: 8px;
+    }
+
+    .pagination-info {
+        color: #6b7280;
+        font-size: 14px;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: #6b7280;
+    }
+
+    .status-select {
+        padding: 6px 10px;
+        border-radius: 6px;
+        border: 1px solid #d1d5db;
+        font-size: 14px;
+        margin-right: 8px;
+    }
+
+    .action-form {
+        display: inline;
+    }
+
+    .action-form .form-group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    /* Tooltip styles */
+    .tooltip {
+        position: relative;
         display: inline-block;
     }
 
-    /* Responsive Design */
-    @media screen and (max-width: 768px) {
-        .table {
-            overflow-x: auto;
-            display: block;
-        }
+    .tooltip .tooltip-text {
+        visibility: hidden;
+        width: 120px;
+        background-color: #333;
+        color: #fff;
+        text-align: center;
+        border-radius: 6px;
+        padding: 5px;
+        position: absolute;
+        z-index: 1;
+        bottom: 125%;
+        left: 50%;
+        transform: translateX(-50%);
+        opacity: 0;
+        transition: opacity 0.3s;
+        font-size: 12px;
+    }
 
-        .table th,
-        .table td {
-            white-space: nowrap;
-        }
+    .tooltip:hover .tooltip-text {
+        visibility: visible;
+        opacity: 1;
     }
 </style>
-<h2>Pedidos para Procesar</h2>
 
-<h2>Pedidos para Procesar</h2>
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <div>
+            <h1 class="dashboard-title">Gestión de Pedidos</h1>
+            <p class="dashboard-subtitle">Administra y procesa los pedidos de tus clientes</p>
+        </div>
+        <div>
+            <button class="btn-primary">
+                <i class="fas fa-box"></i>
+                Nuevo Pedido
+            </button>
+        </div>
+    </div>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Fecha</th>
-            <th>Total</th>
-            <th>Estado</th>
-            <th>Acciones</th> <!-- Columna para las acciones -->
-        </tr>
-    </thead>
-    <tbody>
-        {% for order in orders %}
-        <tr>
-            <td>{{ order.id }}</td>
-            <td>{{ order.date|date:"d/m/Y H:i" }}</td> <!-- Formato de fecha mejorado -->
-            <td>{{ order.total }}</td>
-            <td>{{ order.get_status_display }}</td> <!-- Muestra la opción legible del estado -->
-            <td>
-                <!-- Botón para ver los detalles del pedido -->
-                <a href="{% url 'order_detail' order.id %}" class="btn btn-info">Ver Detalles</a>
+    <div class="stats-grid">
+        <div class="stat-card yellow">
+            <div class="stat-card-header">
+                <h3 class="stat-card-title">Pedidos Pendientes</h3>
+                <p class="stat-card-description">Requieren procesamiento</p>
+            </div>
+            <div class="stat-card-content">
+                <div class="stat-value">{{ pending_count }}</div>
+                <div class="stat-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+            </div>
+        </div>
+        <div class="stat-card blue">
+            <div class="stat-card-header">
+                <h3 class="stat-card-title">Pedidos en Proceso</h3>
+                <p class="stat-card-description">En preparación o envío</p>
+            </div>
+            <div class="stat-card-content">
+                <div class="stat-value">{{ processing_count }}</div>
+                <div class="stat-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+            </div>
+        </div>
+        <div class="stat-card green">
+            <div class="stat-card-header">
+                <h3 class="stat-card-title">Pedidos Completados</h3>
+                <p class="stat-card-description">Entregados al cliente</p>
+            </div>
+            <div class="stat-card-content">
+                <div class="stat-value">{{ completed_count }}</div>
+                <div class="stat-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tabs">
+        <a href="?tab=all" class="tab {% if not request.GET.tab or request.GET.tab == 'all' %}active{% endif %}">
+            <i class="fas fa-shopping-bag"></i>
+            Todos
+        </a>
+        <a href="?tab=pending" class="tab {% if request.GET.tab == 'pending' %}active{% endif %}">
+            <i class="fas fa-exclamation-triangle"></i>
+            Pendientes
+        </a>
+        <a href="?tab=processing" class="tab {% if request.GET.tab == 'processing' %}active{% endif %}">
+            <i class="fas fa-clock"></i>
+            En Proceso
+        </a>
+        <a href="?tab=shipped" class="tab {% if request.GET.tab == 'shipped' %}active{% endif %}">
+            <i class="fas fa-truck"></i>
+            Enviados
+        </a>
+        <a href="?tab=completed" class="tab {% if request.GET.tab == 'completed' %}active{% endif %}">
+            <i class="fas fa-check-circle"></i>
+            Completados
+        </a>
+        <a href="?tab=canceled" class="tab {% if request.GET.tab == 'canceled' %}active{% endif %}">
+            <i class="fas fa-times-circle"></i>
+            Cancelados
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">Pedidos</h2>
+            <p class="card-description">Visualiza y gestiona todos los pedidos de la tienda.</p>
+        </div>
+        <div class="card-content">
+            <div class="search-filters">
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" id="searchInput" placeholder="Buscar por ID, cliente o dirección..." value="{{ request.GET.search }}">
+                </div>
+                <div class="filter-dropdown">
+                    <select class="filter-select" id="statusFilter">
+                        <option value="all" {% if not request.GET.status or request.GET.status == 'all' %}selected{% endif %}>Todos los estados</option>
+                        <option value="pending" {% if request.GET.status == 'pending' %}selected{% endif %}>Pendiente</option>
+                        <option value="processing" {% if request.GET.status == 'processing' %}selected{% endif %}>Procesando</option>
+                        <option value="shipped" {% if request.GET.status == 'shipped' %}selected{% endif %}>Enviado</option>
+                        <option value="completed" {% if request.GET.status == 'completed' %}selected{% endif %}>Completado</option>
+                        <option value="canceled" {% if request.GET.status == 'canceled' %}selected{% endif %}>Cancelado</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="orders-table">
+                    <thead>
+                        <tr>
+                            <th class="sortable" data-sort="id">
+                                ID Pedido
+                                <i class="fas fa-sort"></i>
+                            </th>
+                            <th>Cliente</th>
+                            <th class="sortable" data-sort="date">
+                                Fecha
+                                <i class="fas fa-sort"></i>
+                            </th>
+                            <th class="sortable" data-sort="total" style="text-align: right;">
+                                Total
+                                <i class="fas fa-sort"></i>
+                            </th>
+                            <th>Estado</th>
+                            <th>Pago</th>
+                            <th style="text-align: right;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if orders %}
+                            {% for order in orders %}
+                            <tr>
+                                <td class="font-medium">{{ order.id }}</td>
+                                <td>
+                                    <div class="customer-info">
+                                        <span>{{ order.fullname }}</span>
+                                        {% if order.email %}
+                                        <span class="customer-email">{{ order.email }}</span>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td>{{ order.date|date:"d/m/Y H:i" }}</td>
+                                <td style="text-align: right;">${{ order.total|floatformat:2 }}</td>
+                                <td>
+                                    {% if order.status == 'pending' %}
+                                    <span class="badge badge-pending">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                        Pendiente
+                                    </span>
+                                    {% elif order.status == 'processing' %}
+                                    <span class="badge badge-processing">
+                                        <i class="fas fa-clock"></i>
+                                        Procesando
+                                    </span>
+                                    {% elif order.status == 'shipped' %}
+                                    <span class="badge badge-shipped">
+                                        <i class="fas fa-truck"></i>
+                                        Enviado
+                                    </span>
+                                    {% elif order.status == 'completed' %}
+                                    <span class="badge badge-completed">
+                                        <i class="fas fa-check-circle"></i>
+                                        Completado
+                                    </span>
+                                    {% elif order.status == 'canceled' %}
+                                    <span class="badge badge-canceled">
+                                        <i class="fas fa-times-circle"></i>
+                                        Cancelado
+                                    </span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ order.payment_method|default:"No especificado" }}</td>
+                                <td>
+                                    <div class="actions">
+                                        <a href="{% url 'order_detail' order.id %}" class="btn btn-icon btn-ghost tooltip">
+                                            <i class="fas fa-eye"></i>
+                                            <span class="tooltip-text">Ver detalles</span>
+                                        </a>
+                                        <a href="{% url 'print_invoice' order.id %}" class="btn btn-icon btn-ghost tooltip">
+                                            <i class="fas fa-print"></i>
+                                            <span class="tooltip-text">Imprimir factura</span>
+                                        </a>
+                                        
+                                        {% if order.status != 'completed' and order.status != 'canceled' %}
+                                            <form action="{% url 'update_order_status' order.id %}" method="post" class="action-form">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="status" value="
+                                                    {% if order.status == 'pending' %}processing
+                                                    {% elif order.status == 'processing' %}shipped
+                                                    {% elif order.status == 'shipped' %}completed
+                                                    {% endif %}
+                                                ">
+                                                <button type="submit" class="btn btn-outline">
+                                                    {% if order.status == 'pending' %}
+                                                        <i class="fas fa-clock"></i> Procesar
+                                                    {% elif order.status == 'processing' %}
+                                                        <i class="fas fa-truck"></i> Enviar
+                                                    {% elif order.status == 'shipped' %}
+                                                        <i class="fas fa-check-circle"></i> Completar
+                                                    {% endif %}
+                                                </button>
+                                            </form>
+                                        {% endif %}
+                                        
+                                        {% if order.status != 'canceled' and order.status != 'completed' %}
+                                            <form action="{% url 'update_order_status' order.id %}" method="post" class="action-form">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="status" value="canceled">
+                                                <button type="submit" class="btn btn-icon btn-ghost tooltip" onclick="return confirm('¿Estás seguro de cancelar este pedido?')">
+                                                    <i class="fas fa-times-circle"></i>
+                                                    <span class="tooltip-text">Cancelar pedido</span>
+                                                </button>
+                                            </form>
+                                        {% endif %}
+                                        
+                                        <form action="{% url 'delete_order' order.id %}" method="post" class="action-form">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-icon btn-ghost tooltip" onclick="return confirm('¿Estás seguro de eliminar este pedido?')">
+                                                <i class="fas fa-trash"></i>
+                                                <span class="tooltip-text">Eliminar</span>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="7" class="empty-state">
+                                    <i class="fas fa-inbox fa-3x" style="color: #d1d5db; margin-bottom: 16px;"></i>
+                                    <p>No se encontraron pedidos que coincidan con los criterios de búsqueda.</p>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer">
+            <div class="pagination-info">
+                Mostrando {{ orders.start_index }} a {{ orders.end_index }} de {{ orders.paginator.count }} pedidos
+            </div>
+            <div class="pagination">
+                {% if orders.has_previous %}
+                    <a href="?page={{ orders.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.tab %}&tab={{ request.GET.tab }}{% endif %}" class="btn btn-outline">Anterior</a>
+                {% else %}
+                    <button class="btn btn-outline" disabled>Anterior</button>
+                {% endif %}
                 
-                <!-- Formulario para cambiar el estado del pedido -->
-                <form action="{% url 'update_order_status' order.id %}" method="post" style="display:inline;">
-                    {% csrf_token %}
-                    <div class="form-group">
-                        <select name="status" class="form-control" style="width:auto; display:inline;">
-                            <option value="pending" {% if order.status == 'pending' %}selected{% endif %}>Pendiente</option>
-                            <option value="completed" {% if order.status == 'completed' %}selected{% endif %}>Completado</option>
-                            <option value="canceled" {% if order.status == 'canceled' %}selected{% endif %}>Cancelado</option>
-                        </select>
-                        <button type="submit" class="btn btn-primary">Actualizar Estado</button>
-                    </div>
-                </form>
-                
-                <!-- Formulario para eliminar el pedido -->
-                <form action="{% url 'delete_order' order.id %}" method="post" style="display:inline;">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-danger" onclick="return confirm('¿Estás seguro de eliminar este pedido?')">Eliminar</button>
-                </form>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+                {% if orders.has_next %}
+                    <a href="?page={{ orders.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.tab %}&tab={{ request.GET.tab }}{% endif %}" class="btn btn-outline">Siguiente</a>
+                {% else %}
+                    <button class="btn btn-outline" disabled>Siguiente</button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Search functionality
+        const searchInput = document.getElementById('searchInput');
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                applyFilters();
+            }
+        });
+        
+        // Status filter
+        const statusFilter = document.getElementById('statusFilter');
+        statusFilter.addEventListener('change', function() {
+            applyFilters();
+        });
+        
+        // Sorting
+        const sortableHeaders = document.querySelectorAll('.sortable');
+        sortableHeaders.forEach(header => {
+            header.addEventListener('click', function() {
+                const sort = this.dataset.sort;
+                const currentSort = new URLSearchParams(window.location.search).get('sort') || '';
+                const isDesc = currentSort === sort;
+                
+                const newSort = isDesc ? `-${sort}` : sort;
+                
+                const url = new URL(window.location);
+                url.searchParams.set('sort', newSort);
+                window.location = url;
+            });
+        });
+        
+        function applyFilters() {
+            const searchValue = searchInput.value.trim();
+            const statusValue = statusFilter.value;
+            
+            const url = new URL(window.location);
+            
+            // Keep the current tab
+            const currentTab = new URLSearchParams(window.location.search).get('tab');
+            if (currentTab) {
+                url.searchParams.set('tab', currentTab);
+            }
+            
+            // Set search and status parameters
+            if (searchValue) {
+                url.searchParams.set('search', searchValue);
+            } else {
+                url.searchParams.delete('search');
+            }
+            
+            if (statusValue && statusValue !== 'all') {
+                url.searchParams.set('status', statusValue);
+            } else {
+                url.searchParams.delete('status');
+            }
+            
+            // Reset to page 1 when filters change
+            url.searchParams.delete('page');
+            
+            window.location = url;
+        }
+    });
+</script>
 {% endblock %}
