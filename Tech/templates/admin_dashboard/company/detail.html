@@ -372,12 +372,11 @@
                         </div>
                 
                         <!-- Sucursales -->
-                        <div class="form-row form-row-2">
-                            <div class="form-group">
-                                <label for="branches" class="form-label">Sucursales</label>
-                                <textarea name="branches" class="form-control" rows="5" id="id_branches" placeholder="Introduce las ubicaciones de las sucursales. Ejemplo: Dirección, Ciudad, Horario">{{ form.branches.value }}</textarea>
+                       <div class="form-group">
+                                <label for="{{ form.branches.id_for_label }}" class="form-label">Sucursales</label>
+                                {{ form.branches|add_class:"form-control" }}  <!-- Asegúrate de usar el campo correcto de Django -->
                             </div>
-                        </div>
+
                 
                         <!-- Mostrar Sucursales -->
                         <h3>Sucursales</h3>
