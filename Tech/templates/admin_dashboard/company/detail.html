@@ -400,7 +400,6 @@
                         toolbar: 'undo redo | formatselect | bold italic backcolor | alignleft aligncenter alignright | bullist numlist outdent indent | link image',
                     });
                 </script>
-                
 
                 <!-- Información Comercial -->
                 <div class="card">
@@ -847,16 +846,17 @@
         </div>
     </div>
 </div>
-<script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
-    <script>
-        tinymce.init({
-            selector: 'textarea#id_branches',  // Este es el id de tu campo de sucursales
-            height: 300,
-            menubar: false,
-            plugins: ['advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'print', 'preview', 'anchor'],
-            toolbar: 'undo redo | formatselect | bold italic backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image'
-        });
-    </script>
+<script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+<script>
+    tinymce.init({
+        selector: '#id_branches',  // Aplicamos TinyMCE al campo de sucursales
+        height: 300,
+        menubar: false,
+        plugins: ['advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'print', 'preview', 'anchor'],
+        toolbar: 'undo redo | formatselect | bold italic backcolor | alignleft aligncenter alignright | bullist numlist outdent indent | link image',
+    });
+</script>
+
 <script>
 // JavaScript para manejar la carga de archivos
 document.addEventListener('DOMContentLoaded', function() {
