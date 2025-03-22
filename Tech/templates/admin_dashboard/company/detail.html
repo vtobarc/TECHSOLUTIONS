@@ -344,20 +344,18 @@
                     </div>
 
 
-                <!-- Horario y Ubicación -->
              <!-- Horario y Ubicación -->
-<div class="card">
-    <div class="card-header card-header-teal">
-        <h2 class="card-title card-title-teal">Horario y Ubicación</h2>
-    </div>
-    <div class="card-body">
-        <!-- Horario de Atención -->
-        <div class="form-group">
-            <label for="{{ form.opening_hours.id_for_label }}" class="form-label">Horario de Atención</label>
-            <div class="input-group">
-                <input type="time" name="opening_hours" id="id_opening_hours" class="form-control" value="{{ form.opening_hours.value }}" required>
-            </div>
-        </div>
+                            <div class="card">
+                                <div class="card-header card-header-teal">
+                                    <h2 class="card-title card-title-teal">Horario y Ubicación</h2>
+                                </div>
+                                <div class="card-body">
+                                    <!-- Horario de Atención -->
+                                   <div class="form-group">
+                                <label for="{{ form.opening_hours.id_for_label }}" class="form-label">Horario de Atención</label>
+                                <textarea name="opening_hours" id="id_opening_hours" class="form-control" rows="5" placeholder="Ejemplo: 09:00 AM - 05:00 PM">{{ form.opening_hours.value }}</textarea>
+                            </div>
+
 
         <!-- Latitud y Longitud -->
                         <div class="form-row form-row-2">
