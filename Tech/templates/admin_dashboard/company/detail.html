@@ -390,19 +390,7 @@
                     </div>
                 </div>
                 
-                <script>
-                    tinymce.init({
-                        selector: '#id_branches',  // Aplicamos TinyMCE al campo de sucursales
-                        height: 300,
-                        menubar: false,
-                        plugins: 'lists advlist autolink link',
-                        toolbar: 'undo redo | bold italic | bullist numlist outdent indent',
-                        branding: false,
-                        forced_root_block: 'p',
-                        convert_newlines_to_brs: false,
-                        entity_encoding: "raw"   
-                    });
-                </script>
+               
 
                 <!-- Información Comercial -->
                 <div class="card">
@@ -849,21 +837,24 @@
         </div>
     </div>
 </div>
-<script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
-<script>
-    tinymce.init({
-        selector: '#id_branches',  // Aplicamos TinyMCE al campo de sucursales
-        height: 300,
-        menubar: false,
-        plugins: 'lists advlist autolink link',
-        toolbar: 'undo redo | bold italic | bullist numlist outdent indent',
-        branding: false,
-        forced_root_block: 'p',
-        convert_newlines_to_brs: false,
-        entity_encoding: "raw"   
-    });
+<!-- Place the first <script> tag in your HTML's <head> -->
+<script src="https://cdn.tiny.cloud/1/l1bkeewefzhqtkkm9wsa5l6xxv64tmd572g311ksjgwjep83/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
 
+<!-- Place the following <script> and <textarea> tags your HTML's <body> -->
+<script>
+  tinymce.init({
+    selector: '#id_branches',  // Aplicamos TinyMCE al campo de sucursales
+    plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount',
+    height: 300,
+    menubar: false,
+    toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
+    branding: false,
+    forced_root_block: 'p',
+    convert_newlines_to_brs: false,
+    entity_encoding: "raw"   
+  });
 </script>
+
 
 <script>
 // JavaScript para manejar la carga de archivos
