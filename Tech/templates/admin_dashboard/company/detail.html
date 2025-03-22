@@ -369,22 +369,6 @@
                             </div>
                         </div>
                 
-                        <!-- Sucursales -->
-                       <div class="form-group">
-                                <label for="{{ form.branches.id_for_label }}" class="form-label">Sucursales</label>
-                                {{ form.branches|add_class:"form-control" }}  <!-- Asegúrate de usar el campo correcto de Django -->
-                            </div>
-
-                
-                        <!-- Mostrar Sucursales -->
-                        <h3>Sucursales</h3>
-                        {% if company.branches %}
-                            <div>
-                                <div>{{ company.branches|safe }}</div>  <!-- Mostrar el contenido enriquecido -->
-                            </div>
-                        {% else %}
-                            <p>No hay sucursales disponibles.</p>
-                        {% endif %}
                     </div>
                 </div>
                 
@@ -835,23 +819,7 @@
         </div>
     </div>
 </div>
-<!-- Place the first <script> tag in your HTML's <head> -->
-<script src="https://cdn.tiny.cloud/1/l1bkeewefzhqtkkm9wsa5l6xxv64tmd572g311ksjgwjep83/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
 
-<!-- Place the following <script> and <textarea> tags your HTML's <body> -->
-<script>
-  tinymce.init({
-    selector: '#id_branches',  // Aplicamos TinyMCE al campo de sucursales
-    plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount',
-    height: 300,
-    menubar: false,
-    toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
-    branding: false,
-    forced_root_block: 'p',
-    convert_newlines_to_brs: false,
-    entity_encoding: "raw"   
-  });
-</script>
 
 
 <script>
