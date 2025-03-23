@@ -1894,7 +1894,27 @@ def view_orders(request):
     }
     
     return render(request, 'orders/order_list.html', context)
-
+def order_detail(request, order_id):
+    # Obtiene el pedido y sus productos
+    order = get_object_or_404(Order, id=order_id)
+    order_items = order.order_items.all().select_related('product')
+    
+    # Calcular el total del pedido
+    total_price = sum(Decimal(item.price) * Decimal(item.quantity) for item in order_items)
+    
+    # Calcular el IVA (15%)
+    iva_amount = total_price * Decimal('0.15')
+    total_with_iva = total_price + iva_amount + order.shipping_cost
+    
+    context = {
+        'order': order,
+        'order_items': order_items,
+        'total_price': total_price,
+        'iva_amount': iva_amount,
+        'total_with_iva': total_with_iva
+    }
+    
+    return render(request, 'orders/order_detail.html', context)
 
 
 from django.shortcuts import render, get_object_or_404, redirect
