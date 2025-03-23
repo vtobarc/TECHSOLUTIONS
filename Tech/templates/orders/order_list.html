@@ -730,11 +730,11 @@
                                             <i class="fas fa-eye"></i>
                                             <span class="tooltip-text">Ver detalles</span>
                                         </a>
-                                        <a href="" class="btn btn-icon btn-ghost tooltip">
-                                            <!-- Cambiado de fa-solid a fa -->
-                                            <i class="fa-solid fa-print"></i>                                            
+                                      <a href="{% url 'print_invoice' order.id %}" class="btn btn-icon btn-ghost tooltip">
+                                            <i class="fa-solid fa-print"></i>  
                                             <span class="tooltip-text">Imprimir factura</span>
                                         </a>
+
                                         
                                         {% if order.status != 'completed' and order.status != 'canceled' %}
                                             <form action="{% url 'update_order_status' order.id %}" method="post" class="action-form">
