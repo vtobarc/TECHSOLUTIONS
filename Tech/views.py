@@ -1824,6 +1824,15 @@ def order_success(request, order_id=None):
 
     return render(request, 'cart/order_success.html', {'order': order})
 
+from django.shortcuts import render, get_object_or_404, redirect
+from django.http import HttpResponseForbidden
+from django.core.paginator import Paginator
+from django.db.models import Q
+from django.contrib import messages
+from django.utils import timezone
+from datetime import datetime
+from decimal import Decimal
+from .models import Order
 
 def view_orders(request):
     # Obtener parámetros de filtrado y búsqueda
@@ -1866,6 +1875,24 @@ def view_orders(request):
     page_number = request.GET.get('page', 1)
     orders_page = paginator.get_page(page_number)
     
+    # Convertir objetos date a datetime para evitar el error de utcoffset
+    for order in orders_page:
+        # Procesar el campo date
+        if hasattr(order, 'date') and isinstance(order.date, datetime.date) and not isinstance(order.date, datetime.datetime):
+            # Convertir date a datetime al inicio del día
+            order.date = datetime.combine(order.date, datetime.min.time())
+            # Hacer que sea consciente de la zona horaria
+            order.date = timezone.make_aware(order.date)
+        
+        # Procesar otros campos de fecha si existen
+        date_fields = ['processing_date', 'shipping_date', 'completion_date', 'cancellation_date']
+        for field_name in date_fields:
+            if hasattr(order, field_name):
+                field_value = getattr(order, field_name)
+                if field_value and isinstance(field_value, datetime.date) and not isinstance(field_value, datetime.datetime):
+                    aware_datetime = timezone.make_aware(datetime.combine(field_value, datetime.min.time()))
+                    setattr(order, field_name, aware_datetime)
+    
     # Contar pedidos por estado para las estadísticas
     pending_count = Order.objects.filter(status='pending').count()
     processing_count = Order.objects.filter(Q(status='processing') | Q(status='shipped')).count()
@@ -1879,6 +1906,8 @@ def view_orders(request):
     }
     
     return render(request, 'orders/order_list.html', context)
+
+
 
 
 def order_detail(request, order_id):
