@@ -1036,89 +1036,61 @@
         document.getElementById('orderTotal').textContent = `$${total.toFixed(2)}`;
     }
     
-    function placeOrder() {
-        // Validar formulario
-        const requiredFields = ['email', 'phone', 'fullname', 'address', 'city', 'postal', 'state'];
-        let isValid = true;
-    
-        requiredFields.forEach(field => {
-            const input = document.getElementById(field);
-            if (!input.value.trim()) {
-                input.classList.add('border-red-500');
-                isValid = false;
-            } else {
-                input.classList.remove('border-red-500');
-            }
-        });
-    
-        // Verificar si se seleccionó un método de pago
-        const selectedPayment = document.querySelector('.payment-method.border-blue-500');
-        if (!selectedPayment) {
-            alert('Por favor selecciona un método de pago');
-            return;
+    // Función corregida para procesar el pedido
+function placeOrder() {
+    // Validar formulario
+    const requiredFields = ['email', 'phone', 'fullname', 'address', 'city', 'postal', 'state'];
+    let isValid = true;
+
+    requiredFields.forEach(field => {
+        const input = document.getElementById(field);
+        if (!input.value.trim()) {
+            input.classList.add('border-red-500');
+            isValid = false;
+        } else {
+            input.classList.remove('border-red-500');
         }
-        
-        // Verificar términos y condiciones
-        const termsAccepted = document.getElementById('terms').checked;
-        if (!termsAccepted) {
-            alert('Debes aceptar los términos y condiciones para continuar');
-            return;
-        }
-    
-        if (!isValid) {
-            alert('Por favor completa todos los campos requeridos');
-            return;
-        }
-    
-        // Generar número de pedido aleatorio
-        const orderNumber = 'TECH-' + Math.floor(100000 + Math.random() * 900000);
-        document.getElementById('orderNumber').textContent = orderNumber;
-    
-        // Mostrar mensaje de éxito
-        document.getElementById('orderSuccess').classList.remove('hidden');
-    
-        // Obtener el costo de envío seleccionado
-        const selectedShipping = document.querySelector('input[name="shipping"]:checked');
-        const shipping = selectedShipping ? parseFloat(selectedShipping.value) : 4.00;
-    
-        // Aquí se enviaría el pedido al servidor
-         fetch('{% url "process_order" %}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
-            },
-            body: JSON.stringify({
-                email: document.getElementById('email').value,
-                phone: document.getElementById('phone').value,
-                fullname: document.getElementById('fullname').value,
-                address: document.getElementById('address').value,
-                city: document.getElementById('city').value,
-                postal: document.getElementById('postal').value,
-                state: document.getElementById('state').value,
-                payment_method: selectedPayment.dataset.method,
-                shipping_cost: shipping,
-                order_number: orderNumber
-            })
-         })
-         
-        .then(response => response.json())
-       .then(data => {
-            // Limpiar carrito después de procesar el pedido
-           window.location.href = '{% url "order_success" %}';
-         })
-         .catch(error => {
-            console.error('Error al procesar el pedido:', error);
-         });
+    });
+
+    // Verificar si se seleccionó un método de pago
+    const selectedPayment = document.querySelector('.payment-method.border-blue-500');
+    if (!selectedPayment) {
+        alert('Por favor selecciona un método de pago');
+        return;
     }
     
-    // Función para obtener el valor de una cookie
+    // Verificar términos y condiciones
+    const termsAccepted = document.getElementById('terms').checked;
+    if (!termsAccepted) {
+        alert('Debes aceptar los términos y condiciones para continuar');
+        return;
+    }
+
+    if (!isValid) {
+        alert('Por favor completa todos los campos requeridos');
+        return;
+    }
+
+    // Añadir indicador de carga al botón
+    const placeOrderBtn = document.getElementById('placeOrderBtn');
+    placeOrderBtn.innerHTML = '<span class="spinner"></span> Procesando...';
+    placeOrderBtn.classList.add('loading');
+
+    // Generar número de pedido aleatorio
+    const orderNumber = 'TECH-' + Math.floor(100000 + Math.random() * 900000);
+    
+    // Obtener el costo de envío seleccionado
+    const selectedShipping = document.querySelector('input[name="shipping"]:checked');
+    const shipping = selectedShipping ? parseFloat(selectedShipping.value) : 4.00;
+
+    // Function to get CSRF cookie
     function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
             const cookies = document.cookie.split(';');
             for (let i = 0; i < cookies.length; i++) {
                 const cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
                 if (cookie.substring(0, name.length + 1) === (name + '=')) {
                     cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                     break;
@@ -1127,6 +1099,58 @@
         }
         return cookieValue;
     }
+
+    // Enviar el pedido al servidor
+    fetch('/process_order/', {  // Asegúrate de que esta URL sea correcta
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            email: document.getElementById('email').value,
+            phone: document.getElementById('phone').value,
+            fullname: document.getElementById('fullname').value,
+            address: document.getElementById('address').value,
+            city: document.getElementById('city').value,
+            postal: document.getElementById('postal').value,
+            state: document.getElementById('state').value,
+            payment_method: selectedPayment.dataset.method,
+            shipping_cost: shipping,
+            order_number: orderNumber
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Error en la respuesta del servidor: ' + response.status);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            // Actualizar el número de pedido en el modal
+            document.getElementById('orderNumber').textContent = orderNumber;
+            
+            // Mostrar el modal de éxito
+            document.getElementById('orderSuccess').classList.remove('hidden');
+            
+            // Limpiar el carrito (opcional, ya que el backend también lo hace)
+            // localStorage.removeItem('cart');
+        } else {
+            // Mostrar mensaje de error
+            alert('Error al procesar el pedido: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error al procesar el pedido:', error);
+        alert('Ocurrió un error al procesar el pedido. Por favor, inténtalo de nuevo.');
+    })
+    .finally(() => {
+        // Restaurar el botón
+        placeOrderBtn.innerHTML = 'Realizar Pedido';
+        placeOrderBtn.classList.remove('loading');
+    });
+}
     
 </script>
 {% endblock %}
