@@ -1825,10 +1825,12 @@ def order_success(request, order_id=None):
     return render(request, 'cart/order_success.html', {'order': order})
 
 
-    from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponseForbidden
 from django.core.paginator import Paginator
-from django.db.models import Q
+from django.db.models import Q, F
+from django.db.models.functions import Cast
+from django.db.models.fields import DateTimeField
 from django.contrib import messages
 from django.utils import timezone
 from datetime import datetime
@@ -1871,18 +1873,13 @@ def view_orders(request):
     else:
         orders_query = orders_query.order_by(sort_param)
     
-    try:
-        # Ejecutar la consulta y convertir a lista para evitar problemas con la conversión de fechas
-        orders_list = list(orders_query)
-        
+    # Desactivar temporalmente la conversión de zona horaria para esta consulta
+    # Esto evita el error de utcoffset
+    with timezone.override(None):
         # Paginación
-        paginator = Paginator(orders_list, 10)  # 10 pedidos por página
+        paginator = Paginator(orders_query, 10)  # 10 pedidos por página
         page_number = request.GET.get('page', 1)
         orders_page = paginator.get_page(page_number)
-    except Exception as e:
-        # Si hay un error, mostrar mensaje y devolver lista vacía
-        messages.error(request, f"Error al cargar los pedidos: {str(e)}")
-        orders_page = []
     
     # Contar pedidos por estado para las estadísticas
     pending_count = Order.objects.filter(status='pending').count()
@@ -1899,30 +1896,6 @@ def view_orders(request):
     return render(request, 'orders/order_list.html', context)
 
 
-
-
-
-def order_detail(request, order_id):
-    # Obtiene el pedido y sus productos
-    order = get_object_or_404(Order, id=order_id)
-    order_items = order.order_items.all().select_related('product')
-    
-    # Calcular el total del pedido
-    total_price = sum(Decimal(item.price) * Decimal(item.quantity) for item in order_items)
-    
-    # Calcular el IVA (15%)
-    iva_amount = total_price * Decimal('0.15')
-    total_with_iva = total_price + iva_amount + order.shipping_cost
-    
-    context = {
-        'order': order,
-        'order_items': order_items,
-        'total_price': total_price,
-        'iva_amount': iva_amount,
-        'total_with_iva': total_with_iva
-    }
-    
-    return render(request, 'orders/order_detail.html', context)
 
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponseForbidden
