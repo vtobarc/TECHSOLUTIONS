@@ -647,18 +647,17 @@
                                         {% endif %}
                                     </div>
                                 </td>
-                                <!-- Modificar la línea donde se muestra la fecha -->
-                                <td>
-                                    {% if order.date %}
-                                        {% if order.date|date:"" %}
-                                            {{ order.date|date:"d/m/Y H:i" }}
-                                        {% else %}
-                                            {{ order.date|date:"d/m/Y" }}
-                                        {% endif %}
-                                    {% else %}
-                                        Sin fecha
-                                    {% endif %}
-                                </td>
+                                   <!-- Modificar la parte donde se muestra la fecha del pedido -->
+<td>
+    {% if order.date %}
+        {{ order.date|date:"d/m/Y" }}
+    {% else %}
+        Sin fecha
+    {% endif %}
+</td>
+
+
+                              
 
 
                                 <td style="text-align: right;">${{ order.total|floatformat:2 }}</td>
