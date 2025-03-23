@@ -1,1 +1,346 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Factura #{{ order.order_number }}</title>
+    <style>
+        @page {
+            size: letter;
+            margin: 2cm;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .print-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .invoice-header {
+            background-color: #4f46e5;
+            color: white;
+            padding: 24px;
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        
+        .company-info h2 {
+            margin: 0 0 8px 0;
+            font-size: 24px;
+        }
+        
+        .company-info p {
+            margin: 0 0 4px 0;
+            opacity: 0.9;
+        }
+        
+        .invoice-box {
+            background-color: white;
+            color: #4f46e5;
+            padding: 16px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        
+        .invoice-box h3 {
+            margin: 0 0 4px 0;
+            font-size: 18px;
+        }
+        
+        .invoice-box p {
+            margin: 0;
+        }
+        
+        .invoice-body {
+            padding: 24px;
+            border: 1px solid #e5e7eb;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+        }
+        
+        .invoice-details {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+        
+        .info-section {
+            margin-bottom: 16px;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .info-value {
+            color: #4b5563;
+        }
+        
+        .info-secondary {
+            color: #6b7280;
+            font-size: 14px;
+            margin-top: 2px;
+        }
+        
+        .separator {
+            height: 1px;
+            background-color: #e5e7eb;
+            margin: 16px 0;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .badge-pending {
+            background-color: #fef3c7;
+            color: #f59e0b;
+        }
+        
+        .badge-processing {
+            background-color: #dbeafe;
+            color: #3b82f6;
+        }
+        
+        .badge-shipped {
+            background-color: #ede9fe;
+            color: #8b5cf6;
+        }
+        
+        .badge-completed {
+            background-color: #d1fae5;
+            color: #10b981;
+        }
+        
+        .badge-canceled {
+            background-color: #fee2e2;
+            color: #ef4444;
+        }
+        
+        .order-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+        
+        .order-table th {
+            background-color: #f9fafb;
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            color: #4b5563;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .order-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .order-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .text-right {
+            text-align: right;
+        }
+        
+        .summary-box {
+            background-color: #f9fafb;
+            border-radius: 6px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+        
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .summary-row:last-child {
+            margin-bottom: 0;
+        }
+        
+        .summary-row.total {
+            font-weight: 700;
+            padding-top: 8px;
+            margin-top: 8px;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        .invoice-total {
+            background-color: #4f46e5;
+            color: white;
+            padding: 16px 24px;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 700;
+            font-size: 18px;
+            margin-top: 24px;
+        }
+        
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 14px;
+            color: #6b7280;
+        }
+        
+        @media print {
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            
+            .no-print {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="print-container">
+        <div class="invoice-header">
+            <div class="company-info">
+                <h2>TechVision S.A.</h2>
+                <p>RUC: 0992456789001</p>
+                <p>Av. Francisco de Orellana y Alberto Borges, Guayaquil</p>
+                <p>(04) 500-9800 • ventas@techvision.com.ec</p>
+            </div>
+            <div class="invoice-box">
+                <h3>FACTURA</h3>
+                <p>{{ order.order_number|default:"FACT-001-002-000012345" }}</p>
+            </div>
+        </div>
+        <div class="invoice-body">
+            <div class="invoice-details">
+                <div>
+                    <div class="info-section">
+                        <div class="info-label">Fecha de Emisión</div>
+                        <div class="info-value">{{ order.date|date:"d/m/Y" }}</div>
+                    </div>
+                </div>
+                <div>
+                    <div class="info-section">
+                        <div class="info-label">Estado del Pedido</div>
+                        <div class="info-value">
+                            {% if order.status == 'pending' %}
+                            <span class="badge badge-pending">Pendiente</span>
+                            {% elif order.status == 'processing' %}
+                            <span class="badge badge-processing">Procesando</span>
+                            {% elif order.status == 'shipped' %}
+                            <span class="badge badge-shipped">Enviado</span>
+                            {% elif order.status == 'completed' %}
+                            <span class="badge badge-completed">Completado</span>
+                            {% elif order.status == 'canceled' %}
+                            <span class="badge badge-canceled">Cancelado</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
 
+            <div class="separator"></div>
+
+            <div style="display: flex; justify-content: space-between;">
+                <div style="width: 48%;">
+                    <div class="info-section">
+                        <div class="info-label">Información del Cliente</div>
+                        <div class="info-value">{{ order.fullname }}</div>
+                        <div class="info-secondary">{{ order.email }}</div>
+                        <div class="info-secondary">{{ order.phone }}</div>
+                        <div class="info-secondary">{{ order.address }}</div>
+                        <div class="info-secondary">{{ order.city }}, {{ order.state }} {{ order.postal_code }}</div>
+                    </div>
+                </div>
+                <div style="width: 48%;">
+                    <div class="info-section">
+                        <div class="info-label">Información de Pago</div>
+                        <div class="info-value">Método: {{ order.payment_method|default:"No especificado" }}</div>
+                        <div class="summary-box">
+                            <div class="summary-row">
+                                <span>Subtotal:</span>
+                                <span>${{ total_price|floatformat:2 }}</span>
+                            </div>
+                            <div class="summary-row">
+                                <span>Envío:</span>
+                                <span>${{ order.shipping_cost|default:"0.00"|floatformat:2 }}</span>
+                            </div>
+                            <div class="summary-row">
+                                <span>IVA (15%):</span>
+                                <span>${{ iva_amount|floatformat:2 }}</span>
+                            </div>
+                            <div class="summary-row total">
+                                <span>Total:</span>
+                                <span>${{ total_with_iva|floatformat:2 }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="separator"></div>
+
+            <div class="info-section">
+                <div class="info-label">Productos del Pedido</div>
+                <table class="order-table">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th class="text-right">Precio</th>
+                            <th class="text-right">Cantidad</th>
+                            <th class="text-right">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in order_items %}
+                        <tr>
+                            <td>{{ item.product.name }}</td>
+                            <td class="text-right">${{ item.price|floatformat:2 }}</td>
+                            <td class="text-right">{{ item.quantity }}</td>
+                            <td class="text-right">${{ item.price|multiply:item.quantity|floatformat:2 }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="invoice-total">
+                <span>Total a Pagar:</span>
+                <span>${{ total_with_iva|floatformat:2 }} USD</span>
+            </div>
+            
+            <div class="footer">
+                <p>Gracias por su compra. Este documento es una representación impresa de su factura electrónica.</p>
+                <p>Para cualquier consulta, contáctenos al (04) 500-9800 o escriba a soporte@techvision.com.ec</p>
+            </div>
+        </div>
+        
+        {% if print_mode %}
+        <script>
+            window.onload = function() {
+                window.print();
+            }
+        </script>
+        {% endif %}
+    </div>
+</body>
+</html>
