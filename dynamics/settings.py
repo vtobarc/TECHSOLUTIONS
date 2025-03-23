@@ -229,7 +229,11 @@ TIME_ZONE = 'America/Guayaquil'
 
 USE_I18N = True
 
-USE_TZ = True  # Debe estar habilitado para usar zonas horarias
+
+# Desactivar el soporte de zona horaria si no es necesario
+USE_TZ = False
+
+
 
 
 
