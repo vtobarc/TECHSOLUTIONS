@@ -1825,8 +1825,7 @@ def order_success(request, order_id=None):
     return render(request, 'cart/order_success.html', {'order': order})
 
 
-    
-from django.shortcuts import render, get_object_or_404, redirect
+    from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponseForbidden
 from django.core.paginator import Paginator
 from django.db.models import Q
@@ -1845,21 +1844,21 @@ def view_orders(request):
     
     # Iniciar la consulta base
     if request.user.is_staff:
-        orders = Order.objects.all().select_related('user')
+        orders_query = Order.objects.all().select_related('user')
     else:
-        orders = Order.objects.filter(user=request.user).select_related('user')
+        orders_query = Order.objects.filter(user=request.user).select_related('user')
     
     # Aplicar filtro de pestaña
     if tab_filter != 'all':
-        orders = orders.filter(status=tab_filter)
+        orders_query = orders_query.filter(status=tab_filter)
     
     # Aplicar filtro de estado
     if status_filter != 'all':
-        orders = orders.filter(status=status_filter)
+        orders_query = orders_query.filter(status=status_filter)
     
     # Aplicar búsqueda
     if search_query:
-        orders = orders.filter(
+        orders_query = orders_query.filter(
             Q(id__icontains=search_query) | 
             Q(fullname__icontains=search_query) | 
             Q(email__icontains=search_query) | 
@@ -1868,24 +1867,22 @@ def view_orders(request):
     
     # Aplicar ordenamiento
     if sort_param.startswith('-'):
-        orders = orders.order_by(sort_param)
+        orders_query = orders_query.order_by(sort_param)
     else:
-        orders = orders.order_by(sort_param)
-    
-    # Paginación
-    paginator = Paginator(orders, 10)  # 10 pedidos por página
-    page_number = request.GET.get('page', 1)
+        orders_query = orders_query.order_by(sort_param)
     
     try:
-        # Convertir la lista de objetos a una lista Python antes de la paginación
-        # para evitar problemas con la conversión de fechas
-        orders_list = list(orders)
-        paginator = Paginator(orders_list, 10)
+        # Ejecutar la consulta y convertir a lista para evitar problemas con la conversión de fechas
+        orders_list = list(orders_query)
+        
+        # Paginación
+        paginator = Paginator(orders_list, 10)  # 10 pedidos por página
+        page_number = request.GET.get('page', 1)
         orders_page = paginator.get_page(page_number)
     except Exception as e:
-        # Si hay un error, intentar un enfoque alternativo
-        orders_page = []
+        # Si hay un error, mostrar mensaje y devolver lista vacía
         messages.error(request, f"Error al cargar los pedidos: {str(e)}")
+        orders_page = []
     
     # Contar pedidos por estado para las estadísticas
     pending_count = Order.objects.filter(status='pending').count()
