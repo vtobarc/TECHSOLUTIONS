@@ -3,6 +3,7 @@ from datetime import timedelta
 import datetime
 import cloudinary
 import cloudinary.uploader
+from decimal import Decimal
 
 register = template.Library()
 
@@ -67,3 +68,6 @@ def multiply(value, arg):
         return Decimal(str(value)) * Decimal(str(arg))
     except (ValueError, TypeError):
         return 0
+
+
+
