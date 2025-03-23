@@ -1079,7 +1079,12 @@
                             </div>
                             <div class="timeline-content">
                                 <h3 class="timeline-title">Pedido Procesado</h3>
-                                <div class="timeline-date">{{ order.processing_date|default:order.date|date:"d/m/Y H:i" }}</div>
+<div class="timeline-date">
+    {{ order.processing_date|default:order.date|date:"d/m/Y" }}
+    {% if order.processing_date or order.date|time:"H:i" %}
+        {{ order.processing_date|default:order.date|time:"H:i" }}
+    {% endif %}
+</div>
                                 <div class="timeline-description">Su pedido ha sido procesado y está siendo preparado para envío.</div>
                             </div>
                         </div>
