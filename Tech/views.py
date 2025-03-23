@@ -1750,6 +1750,14 @@ import uuid
 from .models import Order, OrderItem, Product
 
 from decimal import Decimal
+from decimal import Decimal
+import random
+import string
+
+# Función para generar el número de pedido
+def generate_order_number():
+    """Genera un número de orden único y aleatorio."""
+    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
 
 def process_order(request):
     # Verificar si el usuario está autenticado
@@ -1774,7 +1782,7 @@ def process_order(request):
             # Crear un nuevo pedido en la base de datos con datos de entrega
             order = Order.objects.create(
                 user=request.user,
-                order_number=data.get('order_number', generate_order_number()),
+                order_number=data.get('order_number', generate_order_number()),  # Usar la función aquí
                 total=total,
                 status='pending',
                 date=timezone.now(),
