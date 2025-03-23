@@ -3,10 +3,8 @@
 
 {% block extra_css %}
 <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<!-- Simplificando la carga de Font Awesome - usando sólo una versión para evitar conflictos -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
 {% endblock %}
 {% block content %}
 <style>
@@ -520,23 +518,33 @@
         opacity: 1;
     }
     
-    /* Fix for action icons */
-    .actions .fa-solid,
-    .actions .fas {
-        font-size: 16px;
-        width: 16px;
-        height: 16px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
+    /* Fix para iconos */
+    .actions i {
+        font-size: 16px !important;
+        display: inline-block !important;
     }
     
-    .actions .btn-icon {
+    /* Estilo mejorado para botones de acción */
+    .btn-icon {
+        padding: 8px !important;
+        border-radius: 6px;
+        width: 36px !important;
+        height: 36px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background-color: #f3f4f6;
         transition: all 0.2s;
     }
     
-    .actions .btn-icon:hover {
+    .btn-icon:hover {
+        background-color: #e5e7eb;
         transform: translateY(-2px);
+    }
+    
+    /* Asegurando que los iconos sean visibles */
+    .fa-eye, .fa-print, .fa-times-circle, .fa-trash {
+        color: #6b7280 !important;
     }
 </style>
 
@@ -718,11 +726,13 @@
                                 <td>
                                     <div class="actions">
                                         <a href="{% url 'order_detail' order.id %}" class="btn btn-icon btn-ghost tooltip">
-                                            <i class="fa-solid fa-eye"></i>
+                                            <!-- Cambiado de fa-solid a fa -->
+                                            <i class="fas fa-eye"></i>
                                             <span class="tooltip-text">Ver detalles</span>
                                         </a>
                                         <a href="" class="btn btn-icon btn-ghost tooltip">
-                                            <i class="fa-solid fa-print"></i>
+                                            <!-- Cambiado de fa-solid a fa -->
+                                            <i class="fas fa-print"></i>
                                             <span class="tooltip-text">Imprimir factura</span>
                                         </a>
                                         
@@ -747,7 +757,8 @@
                                                 {% csrf_token %}
                                                 <input type="hidden" name="status" value="canceled">
                                                 <button type="submit" class="btn btn-icon btn-ghost tooltip" onclick="return confirm('¿Estás seguro de cancelar este pedido?')">
-                                                    <i class="fa-solid fa-times-circle"></i>
+                                                    <!-- Cambiado de fa-solid a fa -->
+                                                    <i class="fas fa-times-circle"></i>
                                                     <span class="tooltip-text">Cancelar pedido</span>
                                                 </button>
                                             </form>
@@ -756,7 +767,8 @@
                                         <form action="{% url 'delete_order' order.id %}" method="post" class="action-form">
                                             {% csrf_token %}
                                             <button type="submit" class="btn btn-icon btn-ghost tooltip" onclick="return confirm('¿Estás seguro de eliminar este pedido?')">
-                                                <i class="fa-solid fa-trash"></i>
+                                                <!-- Cambiado de fa-solid a fa -->
+                                                <i class="fas fa-trash"></i>
                                                 <span class="tooltip-text">Eliminar</span>
                                             </button>
                                         </form>
@@ -799,6 +811,13 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Asegurarse de que los iconos sean visibles
+        document.querySelectorAll('.actions i').forEach(icon => {
+            icon.style.display = 'inline-block';
+            icon.style.color = '#6b7280';
+            icon.style.fontSize = '16px';
+        });
+        
         // Search functionality
         const searchInput = document.getElementById('searchInput');
         searchInput.addEventListener('keypress', function(e) {
