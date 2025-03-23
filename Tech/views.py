@@ -1903,6 +1903,11 @@ def order_detail(request, order_id):
     
     return render(request, 'orders/order_detail.html', context)
 
+from django.shortcuts import render, get_object_or_404, redirect
+from django.http import HttpResponseForbidden
+from .models import Order
+from django.contrib import messages
+from django.utils import timezone
 
 def update_order_status(request, order_id):
     # Asegúrate de que solo los administradores puedan actualizar el estado
@@ -1915,7 +1920,9 @@ def update_order_status(request, order_id):
         # Obtén el nuevo estado del formulario
         new_status = request.POST.get('status')
         
-        if new_status:
+        # Validar que el estado sea válido y no exceda la longitud máxima
+        valid_statuses = [status[0] for status in Order.STATUS_CHOICES]
+        if new_status and new_status in valid_statuses:
             # Guardar el estado anterior para comparar
             old_status = order.status
             
@@ -1944,17 +1951,25 @@ def update_order_status(request, order_id):
                 if cancel_reason:
                     order.cancel_reason = cancel_reason
             
-            order.save()
+            try:
+                order.save()
+                messages.success(request, f"El estado del pedido #{order_id} ha sido actualizado a {dict(Order.STATUS_CHOICES)[new_status]}.")
+            except Exception as e:
+                messages.error(request, f"Error al actualizar el estado: {str(e)}")
+        else:
+            messages.error(request, "El estado proporcionado no es válido.")
             
-            # Redirigir a la página de detalles si venimos de ahí
-            referer = request.META.get('HTTP_REFERER', '')
-            if f'/orders/{order_id}/' in referer:
-                return redirect('order_detail', order_id=order_id)
-            
-            return redirect('view_orders')
+        # Redirigir a la página de detalles si venimos de ahí
+        referer = request.META.get('HTTP_REFERER', '')
+        if f'/orders/{order_id}/' in referer or f'/order/{order_id}/' in referer:
+            return redirect('order_detail', order_id=order_id)
+        
+        return redirect('view_orders')
     
     # Redirige si no es un POST
     return redirect('view_orders')
+
+
 
 
 def delete_order(request, order_id):
