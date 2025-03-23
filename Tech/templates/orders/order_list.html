@@ -692,12 +692,7 @@
                                         {% if order.status != 'completed' and order.status != 'canceled' %}
                                             <form action="{% url 'update_order_status' order.id %}" method="post" class="action-form">
                                                 {% csrf_token %}
-                                                <input type="hidden" name="status" value="
-                                                    {% if order.status == 'pending' %}processing
-                                                    {% elif order.status == 'processing' %}shipped
-                                                    {% elif order.status == 'shipped' %}completed
-                                                    {% endif %}
-                                                ">
+                                                <input type="hidden" name="status" value="{% if order.status == 'pending' %}processing{% elif order.status == 'processing' %}shipped{% elif order.status == 'shipped' %}completed{% endif %}">
                                                 <button type="submit" class="btn btn-outline">
                                                     {% if order.status == 'pending' %}
                                                         <i class="fas fa-clock"></i> Procesar
@@ -708,6 +703,8 @@
                                                     {% endif %}
                                                 </button>
                                             </form>
+
+
                                         {% endif %}
                                         
                                         {% if order.status != 'canceled' and order.status != 'completed' %}
