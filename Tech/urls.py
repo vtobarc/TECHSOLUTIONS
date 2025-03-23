@@ -7,6 +7,7 @@ from .views import register_view  # Importa la vista de registro
 from django.conf.urls.static import static
 from django.conf import settings
 from . import views
+from .views import process_order  
 from .views import add_to_cart, cart_detail, remove_from_cart
 from .views import (
     home_view, nosotros_view, servicios, category_detail, product_detail, 
