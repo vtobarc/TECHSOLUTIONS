@@ -1134,7 +1134,12 @@
                             </div>
                             <div class="timeline-content">
                                 <h3 class="timeline-title">Pedido Entregado</h3>
-                                <div class="timeline-date">{{ order.completion_date|default:order.date|date:"d/m/Y H:i" }}</div>
+<div class="timeline-date">
+    {{ order.completion_date|default:order.date|date:"d/m/Y" }}
+    {{ order.completion_date|default:order.date|time:"H:i" }}
+</div>
+
+                                
                                 <div class="timeline-description">Su pedido ha sido entregado con éxito.</div>
                             </div>
                         </div>
