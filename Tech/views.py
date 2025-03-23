@@ -1749,6 +1749,8 @@ import uuid
 
 from .models import Order, OrderItem, Product
 
+from decimal import Decimal
+
 def process_order(request):
     # Verificar si el usuario está autenticado
     if not request.user.is_authenticated:
@@ -1763,11 +1765,11 @@ def process_order(request):
             if not cart:
                 return JsonResponse({'success': False, 'message': "No hay productos en el carrito para realizar la compra."})
 
-            # Calcular el total del pedido
-            subtotal = sum(item['subtotal'] for item in cart.values())
+            # Calcular el total del pedido asegurando que subtotal sea Decimal
+            subtotal = sum(Decimal(str(item['subtotal'])) for item in cart.values())  # Convertimos a Decimal
             tax = subtotal * Decimal('0.15')  # 15% IVA
-            shipping_cost = Decimal(data.get('shipping_cost', '5.00'))
-            total = subtotal + tax + shipping_cost
+            shipping_cost = Decimal(str(data.get('shipping_cost', '5.00')))  # Convertir shipping_cost a Decimal
+            total = subtotal + tax + shipping_cost  # Suma sin errores
 
             # Crear un nuevo pedido en la base de datos con datos de entrega
             order = Order.objects.create(
@@ -1794,7 +1796,7 @@ def process_order(request):
                     order=order,
                     product=product,
                     quantity=item['quantity'],
-                    price=item['price'],
+                    price=Decimal(str(item['price'])),  # Convertir precio a Decimal
                 )
             
             # Vaciar el carrito después de realizar el pedido
@@ -1816,6 +1818,7 @@ def process_order(request):
             return JsonResponse({'success': False, 'message': f'Error al procesar el pedido: {str(e)}'})
 
     return JsonResponse({'success': False, 'message': 'Método no permitido'})
+
 
 
 def order_success(request, order_id=None):
