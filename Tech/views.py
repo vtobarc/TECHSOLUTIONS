@@ -1824,6 +1824,8 @@ def order_success(request, order_id=None):
 
     return render(request, 'cart/order_success.html', {'order': order})
 
+
+    
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponseForbidden
 from django.core.paginator import Paginator
@@ -1873,25 +1875,17 @@ def view_orders(request):
     # Paginación
     paginator = Paginator(orders, 10)  # 10 pedidos por página
     page_number = request.GET.get('page', 1)
-    orders_page = paginator.get_page(page_number)
     
-    # Convertir objetos date a datetime para evitar el error de utcoffset
-    for order in orders_page:
-        # Procesar el campo date
-        if hasattr(order, 'date') and isinstance(order.date, datetime.date) and not isinstance(order.date, datetime.datetime):
-            # Convertir date a datetime al inicio del día
-            order.date = datetime.combine(order.date, datetime.min.time())
-            # Hacer que sea consciente de la zona horaria
-            order.date = timezone.make_aware(order.date)
-        
-        # Procesar otros campos de fecha si existen
-        date_fields = ['processing_date', 'shipping_date', 'completion_date', 'cancellation_date']
-        for field_name in date_fields:
-            if hasattr(order, field_name):
-                field_value = getattr(order, field_name)
-                if field_value and isinstance(field_value, datetime.date) and not isinstance(field_value, datetime.datetime):
-                    aware_datetime = timezone.make_aware(datetime.combine(field_value, datetime.min.time()))
-                    setattr(order, field_name, aware_datetime)
+    try:
+        # Convertir la lista de objetos a una lista Python antes de la paginación
+        # para evitar problemas con la conversión de fechas
+        orders_list = list(orders)
+        paginator = Paginator(orders_list, 10)
+        orders_page = paginator.get_page(page_number)
+    except Exception as e:
+        # Si hay un error, intentar un enfoque alternativo
+        orders_page = []
+        messages.error(request, f"Error al cargar los pedidos: {str(e)}")
     
     # Contar pedidos por estado para las estadísticas
     pending_count = Order.objects.filter(status='pending').count()
@@ -1906,6 +1900,7 @@ def view_orders(request):
     }
     
     return render(request, 'orders/order_list.html', context)
+
 
 
 
