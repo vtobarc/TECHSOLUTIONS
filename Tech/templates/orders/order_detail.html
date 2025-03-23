@@ -863,14 +863,17 @@
 
     <!-- Factura -->
     <div id="invoice" class="tab-content">
-        <div class="card">
-            <div class="invoice-header">
-                <div class="company-info">
-                    <h2>TechVision S.A.</h2>
-                    <p>RUC: 0992456789001</p>
-                    <p>Av. Francisco de Orellana y Alberto Borges, Guayaquil</p>
-                    <p>(04) 500-9800 • ventas@techvision.com.ec</p>
+        <div class="card">              
+                <div class="invoice-header">
+                    <div class="company-info">
+                        <h2>{{ company.name }}</h2>
+                        <p>RUC: {{ company.ruc }}</p>
+                        <p>{{ company.address }}</p>
+                        <p>{{ company.phone }} • {{ company.email }}</p>
+                    </div>
                 </div>
+
+                
                 <div class="invoice-box">
                     <h3>FACTURA</h3>
                     <p>{{ order.order_number|default:"FACT-001-002-000012345" }}</p>
