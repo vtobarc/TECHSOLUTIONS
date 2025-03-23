@@ -107,6 +107,8 @@ urlpatterns = [
     path('orders/<int:order_id>/tracking/', views.add_tracking, name='add_tracking'),
     path('orders/<int:order_id>/print/', views.print_invoice, name='print_invoice'),
     path('process-order/', views.process_order, name='process_order'),
+    path("process_order/", process_order, name="process_order"),
+
     path('order-success/<int:order_id>/', views.order_success, name='order_success'),
     path('checkout/', views.checkout, name='checkout'),
 
