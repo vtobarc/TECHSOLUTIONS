@@ -1752,8 +1752,7 @@ from .models import Order, OrderItem, Product
 def process_order(request):
     # Verificar si el usuario está autenticado
     if not request.user.is_authenticated:
-        messages.warning(request, "Debes iniciar sesión para procesar el pedido.")
-        return redirect('login')
+        return JsonResponse({'success': False, 'message': "Debes iniciar sesión para procesar el pedido."})
 
     if request.method == 'POST':
         try:
@@ -1762,8 +1761,7 @@ def process_order(request):
             # Obtener los productos del carrito
             cart = request.session.get('cart', {})
             if not cart:
-                messages.warning(request, "No hay productos en el carrito para realizar la compra.")
-                return redirect('cart_detail')
+                return JsonResponse({'success': False, 'message': "No hay productos en el carrito para realizar la compra."})
 
             # Calcular el total del pedido
             subtotal = sum(item['subtotal'] for item in cart.values())
@@ -1801,10 +1799,20 @@ def process_order(request):
             
             # Vaciar el carrito después de realizar el pedido
             request.session['cart'] = {}
+            request.session.modified = True  # Asegurarse de que los cambios se guarden
 
-            return JsonResponse({'success': True, 'message': 'Pedido procesado correctamente', 'order_id': order.id})
+            return JsonResponse({
+                'success': True, 
+                'message': 'Pedido procesado correctamente', 
+                'order_id': order.id,
+                'order_number': order.order_number
+            })
 
+        except Product.DoesNotExist as e:
+            return JsonResponse({'success': False, 'message': f'Producto no encontrado: {str(e)}'})
         except Exception as e:
+            import traceback
+            print(traceback.format_exc())  # Imprimir el error completo en la consola del servidor
             return JsonResponse({'success': False, 'message': f'Error al procesar el pedido: {str(e)}'})
 
     return JsonResponse({'success': False, 'message': 'Método no permitido'})
