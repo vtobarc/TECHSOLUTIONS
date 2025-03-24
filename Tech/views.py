@@ -2792,7 +2792,6 @@ def sales_report(request):
     messages.info(request, f"Órdenes filtradas: {filtered_orders_count}")
 
     return render(request, 'admin_dashboard/reports/sales.html', context)
-
 @login_required
 @user_passes_test(is_admin)
 def sales_report_excel(request):
@@ -2812,33 +2811,12 @@ def sales_report_excel(request):
     # Hoja de ventas
     worksheet_sales = workbook.add_worksheet('Ventas')
     
-    # Formatos
-    title_format = workbook.add_format({
-        'bold': True,
-        'font_size': 14,
-        'align': 'center',
-        'valign': 'vcenter'
-    })
-    header_format = workbook.add_format({
-        'bold': True,
-        'bg_color': '#4e73df',
-        'color': 'white',
-        'align': 'center',
-        'valign': 'vcenter',
-        'border': 1
-    })
-    date_format = workbook.add_format({
-        'num_format': 'dd/mm/yyyy',
-        'align': 'center'
-    })
-    number_format = workbook.add_format({
-        'num_format': '#,##0.00',
-        'align': 'right'
-    })
-    cell_format = workbook.add_format({
-        'align': 'left',
-        'border': 1
-    })
+    # Formatos - Corregidos para evitar el error 'set_color'
+    title_format = workbook.add_format({'bold': True, 'font_size': 14, 'align': 'center', 'valign': 'vcenter'})
+    header_format = workbook.add_format({'bold': True, 'bg_color': '#4e73df', 'font_color': 'white', 'align': 'center', 'valign': 'vcenter', 'border': 1})
+    date_format = workbook.add_format({'num_format': 'dd/mm/yyyy', 'align': 'center'})
+    number_format = workbook.add_format({'num_format': '#,##0.00', 'align': 'right'})
+    cell_format = workbook.add_format({'align': 'left', 'border': 1})
 
     # Título - Ventas
     worksheet_sales.merge_range('A1:F1', 'Reporte de Ventas', title_format)
@@ -2907,7 +2885,8 @@ def sales_report_excel(request):
     sales_count = sales.count()
     sales_total = sales.aggregate(total=Sum('total'))['total'] or 0
     orders_count = orders.count()
-    orders_total = orders.aggregate(total=Sum('total'))['total'] or 0
+    # Solo contar órdenes completadas para el total
+    completed_orders_total = orders.filter(status='completed').aggregate(total=Sum('total'))['total'] or 0
     
     # Encabezados - Resumen
     worksheet_summary.write(4, 0, 'Tipo', header_format)
@@ -2919,13 +2898,13 @@ def sales_report_excel(request):
     worksheet_summary.write(5, 1, sales_count, cell_format)
     worksheet_summary.write(5, 2, float(sales_total), number_format)
     
-    worksheet_summary.write(6, 0, 'Órdenes', cell_format)
+    worksheet_summary.write(6, 0, 'Órdenes (Completadas)', cell_format)
     worksheet_summary.write(6, 1, orders_count, cell_format)
-    worksheet_summary.write(6, 2, float(orders_total), number_format)
+    worksheet_summary.write(6, 2, float(completed_orders_total), number_format)
     
     worksheet_summary.write(7, 0, 'Total', header_format)
     worksheet_summary.write(7, 1, sales_count + orders_count, header_format)
-    worksheet_summary.write(7, 2, float(sales_total + orders_total), number_format)
+    worksheet_summary.write(7, 2, float(sales_total + completed_orders_total), number_format)
     
     # Ajustar anchos de columna
     for worksheet in [worksheet_sales, worksheet_orders, worksheet_summary]:
@@ -2952,6 +2931,12 @@ def sales_report_excel(request):
 @login_required
 @user_passes_test(is_admin)
 def sales_report_pdf(request):
+    # Importar las clases necesarias de reportlab
+    from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+    from reportlab.lib.styles import getSampleStyleSheet
+    from reportlab.lib import colors
+    from reportlab.lib.pagesizes import letter
+    
     # Obtener el rango de fechas
     end_date = timezone.now()
     start_date = end_date - timedelta(days=30)
@@ -2965,9 +2950,12 @@ def sales_report_pdf(request):
     buffer = BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=letter)
     elements = []
+    
+    # Obtener estilos
+    styles = getSampleStyleSheet()
 
-    # Estilos
-    styles = TableStyle([
+    # Estilos para tablas
+    table_style = TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#4e73df')),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
@@ -3013,21 +3001,21 @@ def sales_report_pdf(request):
 
     # Crear tablas
     sales_table = Table(sales_data)
-    sales_table.setStyle(styles)
+    sales_table.setStyle(table_style)
     
     orders_table = Table(orders_data)
-    orders_table.setStyle(styles)
+    orders_table.setStyle(table_style)
     
     # Agregar elementos al PDF
-    elements.append(Paragraph(f"Reporte de Ventas y Órdenes", getSampleStyleSheet()['Title']))
-    elements.append(Paragraph(f"Período: {start_date.strftime('%d/%m/%Y')} - {end_date.strftime('%d/%m/%Y')}", getSampleStyleSheet()['Normal']))
+    elements.append(Paragraph(f"Reporte de Ventas y Órdenes", styles['Title']))
+    elements.append(Paragraph(f"Período: {start_date.strftime('%d/%m/%Y')} - {end_date.strftime('%d/%m/%Y')}", styles['Normal']))
     elements.append(Spacer(1, 12))
     
-    elements.append(Paragraph("Ventas", getSampleStyleSheet()['Heading2']))
+    elements.append(Paragraph("Ventas", styles['Heading2']))
     elements.append(sales_table)
     elements.append(Spacer(1, 12))
     
-    elements.append(Paragraph("Órdenes", getSampleStyleSheet()['Heading2']))
+    elements.append(Paragraph("Órdenes", styles['Heading2']))
     elements.append(orders_table)
 
     # Generar PDF
@@ -3041,6 +3029,8 @@ def sales_report_pdf(request):
     response.write(pdf)
 
     return response
+
+
 
 
 @login_required
