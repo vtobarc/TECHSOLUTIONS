@@ -110,7 +110,7 @@
                             ${{ total_revenue|floatformat:2 }}
                         </div>
                         <div class="text-xs text-muted">
-                            Ventas: ${{ sales_revenue|floatformat:2 }} | Órdenes: ${{ orders_revenue|floatformat:2 }}
+                            Ventas: ${{ sales_revenue|floatformat:2 }} | Órdenes (completadas): ${{ orders_revenue|floatformat:2 }}
                         </div>
                     </div>
                     <div class="col-auto">
@@ -687,3 +687,4 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 {% endblock %}
+
