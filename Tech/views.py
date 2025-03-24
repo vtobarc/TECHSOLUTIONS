@@ -2630,15 +2630,18 @@ def sales_report(request):
     # Estadísticas de órdenes
     all_orders = Order.objects.all()
     total_orders_count = all_orders.count()
-    
+
     orders = Order.objects.filter(date__range=[start_date, end_date]).order_by('-date')
     filtered_orders_count = orders.count()
-    orders_revenue = orders.aggregate(total=Sum('total'))['total'] or 0
-    
-    # Total combinado
+
+    # Filtrar órdenes completadas para el cálculo de ingresos
+    completed_orders = orders.filter(status='completed')
+    orders_revenue = completed_orders.aggregate(total=Sum('total'))['total'] or 0
+
+    # Total combinado (solo incluye órdenes completadas en el ingreso)
     total_transactions = filtered_sales_count + filtered_orders_count
     total_revenue = sales_revenue + orders_revenue
-
+    
     # Ventas por método de pago
     payment_methods_sales = (
         sales.values('payment_method')
@@ -3038,6 +3041,7 @@ def sales_report_pdf(request):
     response.write(pdf)
 
     return response
+
 
 @login_required
 def product_delete(request, pk):
