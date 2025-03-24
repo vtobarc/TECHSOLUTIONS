@@ -394,24 +394,12 @@
             <div class="tab-pane fade" id="orders" role="tabpanel" aria-labelledby="orders-tab">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h6 class="m-0 font-weight-bold text-primary">Detalle de Órdenes</h6>
-                    <div>
-                        <button id="deleteSelectedOrders" class="btn btn-outline-danger me-2" disabled>
-                            <i class="fas fa-trash me-1"></i> Eliminar Seleccionados (<span id="selectedOrdersCount">0</span>)
-                        </button>
-                        <button id="deleteAllOrders" class="btn btn-danger">
-                            <i class="fas fa-trash-alt me-1"></i> Eliminar Todo
-                        </button>
-                    </div>
+                    <!-- Eliminamos los botones de eliminar órdenes por ahora -->
                 </div>
                 <div class="table-responsive">
                     <table class="table table-bordered" id="ordersTable" width="100%" cellspacing="0">
                         <thead>
                             <tr>
-                                <th width="60">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="selectAllOrders">
-                                    </div>
-                                </th>
                                 <th>Número</th>
                                 <th>Fecha</th>
                                 <th>Cliente</th>
@@ -423,11 +411,6 @@
                         <tbody>
                             {% for order in orders %}
                             <tr data-id="{{ order.id }}">
-                                <td width="60">
-                                    <div class="form-check">
-                                        <input class="form-check-input order-checkbox" type="checkbox" value="{{ order.id }}">
-                                    </div>
-                                </td>
                                 <td>{{ order.order_number }}</td>
                                 <td>{{ order.date|date:"d/m/Y H:i" }}</td>
                                 <td>{{ order.fullname }}</td>
@@ -449,7 +432,7 @@
                             </tr>
                             {% empty %}
                             <tr>
-                                <td colspan="7" class="text-center">No hay órdenes en el período seleccionado</td>
+                                <td colspan="6" class="text-center">No hay órdenes en el período seleccionado</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -519,10 +502,10 @@
             <div class="modal-body">
                 <div class="alert alert-danger">
                     <i class="fas fa-exclamation-triangle me-2"></i>
-                    <span>¡ADVERTENCIA! Estás a punto de eliminar TODOS los elementos del período seleccionado. Esta acción no se puede deshacer.</span>
+                    <span>¡ADVERTENCIA! Estás a punto de eliminar TODAS las ventas del período seleccionado. Esta acción no se puede deshacer.</span>
                 </div>
                 <p>Período: <strong>{{ start_date|date:"d/m/Y" }} - {{ end_date|date:"d/m/Y" }}</strong></p>
-                <p>Total de elementos: <strong id="totalItemsToDelete">{{ total_transactions }}</strong></p>
+                <p>Total de ventas: <strong>{{ total_sales }}</strong></p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -530,7 +513,6 @@
                     {% csrf_token %}
                     <input type="hidden" name="start_date" value="{{ start_date|date:'Y-m-d' }}">
                     <input type="hidden" name="end_date" value="{{ end_date|date:'Y-m-d' }}">
-                    <input type="hidden" name="type" id="deleteAllType" value="sales">
                     <button type="submit" class="btn btn-danger">Eliminar todo</button>
                 </form>
             </div>
@@ -682,35 +664,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Gestión de selección para órdenes
-    $("#selectAllOrders").change(function() {
-        $(".order-checkbox").prop('checked', $(this).prop('checked'));
-        updateSelectedOrdersCount();
-    });
-    
-    $(".order-checkbox").change(function() {
-        updateSelectedOrdersCount();
-        
-        if (!$(this).prop('checked')) {
-            $("#selectAllOrders").prop('checked', false);
-        }
-        
-        if ($(".order-checkbox:checked").length === $(".order-checkbox").length) {
-            $("#selectAllOrders").prop('checked', true);
-        }
-    });
-    
-    function updateSelectedOrdersCount() {
-        var count = $(".order-checkbox:checked").length;
-        $("#selectedOrdersCount").text(count);
-        
-        if (count > 0) {
-            $("#deleteSelectedOrders").prop('disabled', false);
-        } else {
-            $("#deleteSelectedOrders").prop('disabled', true);
-        }
-    }
-    
     // Eliminar seleccionados (ventas)
     $("#deleteSelectedSales").click(function() {
         if ($(".sale-checkbox:checked").length === 0) return;
@@ -726,34 +679,9 @@ document.addEventListener('DOMContentLoaded', function() {
         $("#deleteSelectedModal").modal('show');
     });
     
-    // Eliminar seleccionados (órdenes)
-    $("#deleteSelectedOrders").click(function() {
-        if ($(".order-checkbox:checked").length === 0) return;
-        
-        var selectedIds = [];
-        $(".order-checkbox:checked").each(function() {
-            selectedIds.push($(this).val());
-        });
-        
-        $("#selectedIds").val(selectedIds.join(','));
-        $("#selectedCountModal").text($(".order-checkbox:checked").length);
-        $("#deleteSelectedForm").attr('action', '{% url "admin_delete_selected_orders" %}');
-        $("#deleteSelectedModal").modal('show');
-    });
-    
     // Eliminar todo (ventas)
     $("#deleteAllSales").click(function() {
-        $("#totalItemsToDelete").text({{ total_sales }});
-        $("#deleteAllType").val('sales');
         $("#deleteAllForm").attr('action', '{% url "admin_delete_all_sales" %}');
-        $("#deleteAllModal").modal('show');
-    });
-    
-    // Eliminar todo (órdenes)
-    $("#deleteAllOrders").click(function() {
-        $("#totalItemsToDelete").text({{ total_orders }});
-        $("#deleteAllType").val('orders');
-        $("#deleteAllForm").attr('action', '{% url "admin_delete_all_orders" %}');
         $("#deleteAllModal").modal('show');
     });
 });
