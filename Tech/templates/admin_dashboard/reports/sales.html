@@ -1,7 +1,7 @@
 {% extends 'admin_dashboard/base.html' %}
 {% load static %}
 
-{% block title %}Reporte de Ventas - Panel de Administración{% endblock %}
+{% block title %}Reporte Combinado - Panel de Administración{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.css">
@@ -9,7 +9,7 @@
 
 {% block content %}
 <style>
-    #salesTable tbody {
+    #salesTable tbody, #ordersTable tbody {
         display: block;
         max-height: 300px; /* Establece la altura máxima */
         overflow-y: auto; /* Muestra el scroll vertical */
@@ -18,19 +18,22 @@
         overflow-x: hidden; /* Evita el scroll horizontal */
     }
     
-    #salesTable thead, #salesTable tbody tr {
+    #salesTable thead, #salesTable tbody tr,
+    #ordersTable thead, #ordersTable tbody tr {
         display: table;
         width: 100%;
         table-layout: fixed;
     }
     
-    
+    .nav-tabs .nav-link.active {
+        font-weight: bold;
+        border-bottom: 3px solid #4e73df;
+    }
 </style>
 
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800">Reporte de Ventas</h1>
+    <h1 class="h3 mb-0 text-gray-800">Reporte Combinado de Ventas y Órdenes</h1>
     <div class="btn-group">
-        
         <button class="btn btn-primary" onclick="window.print()">
             <i class="fas fa-print me-2"></i> Imprimir
         </button>
@@ -40,7 +43,6 @@
         <button class="btn btn-danger" id="exportPDF">
             <i class="fas fa-file-pdf me-2"></i> Exportar PDF
         </button>
-
     </div>
 </div>
 
@@ -66,13 +68,12 @@
                 <a href="{% url 'admin_sales_report' %}" class="btn btn-secondary">
                     <i class="fas fa-undo me-2"></i> Reiniciar
                 </a>
-                
             </div>
         </form>
     </div>
 </div>
 
-<!-- Resumen de Ventas -->
+<!-- Resumen de Ventas y Órdenes -->
 <div class="row">
     <div class="col-xl-3 col-md-6 mb-4">
         <div class="card border-left-primary shadow h-100 py-2">
@@ -80,10 +81,13 @@
                 <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
                         <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                            Total de Ventas
+                            Total de Transacciones
                         </div>
                         <div class="h5 mb-0 font-weight-bold text-gray-800">
-                            {{ total_sales }}
+                            {{ total_transactions }}
+                        </div>
+                        <div class="text-xs text-muted">
+                            Ventas: {{ total_sales }} | Órdenes: {{ total_orders }}
                         </div>
                     </div>
                     <div class="col-auto">
@@ -105,6 +109,9 @@
                         <div class="h5 mb-0 font-weight-bold text-gray-800">
                             ${{ total_revenue|floatformat:2 }}
                         </div>
+                        <div class="text-xs text-muted">
+                            Ventas: ${{ sales_revenue|floatformat:2 }} | Órdenes: ${{ orders_revenue|floatformat:2 }}
+                        </div>
                     </div>
                     <div class="col-auto">
                         <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
@@ -120,16 +127,15 @@
                 <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
                         <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                            Promedio por Venta
+                            Promedio por Transacción
                         </div>
                         <div class="h5 mb-0 font-weight-bold text-gray-800">
-                            {% if total_sales != 0 %}
-                                ${{ total_revenue|default:0|divisibleby:total_sales|default:0|floatformat:2 }}
+                            {% if total_transactions != 0 %}
+                                ${{ total_revenue|default:0|divisibleby:total_transactions|default:0|floatformat:2 }}
                             {% else %}
                                 $0.00
                             {% endif %}
                         </div>
-                        
                     </div>
                     <div class="col-auto">
                         <i class="fas fa-chart-line fa-2x text-gray-300"></i>
@@ -166,7 +172,7 @@
     <div class="col-xl-6 col-lg-6">
         <div class="card shadow mb-4">
             <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">Ventas por Método de Pago</h6>
+                <h6 class="m-0 font-weight-bold text-primary">Transacciones por Método de Pago</h6>
             </div>
             <div class="card-body">
                 <div class="chart-pie pt-4">
@@ -179,13 +185,36 @@
                                 <th>Método</th>
                                 <th class="text-center">Cantidad</th>
                                 <th class="text-end">Total</th>
+                                <th class="text-center">Origen</th>
                             </tr>
                         </thead>
-                            {% for method in payment_methods|slice:"-5:" %}  <!-- Muestra solo los últimos 5 -->
+                        <tbody>
+                            {% for method in payment_methods %}
                             <tr>
-                                <td>{{ method.payment_method }}</td>
+                                <td>
+                                    {% if method.payment_method == 'CASH' or method.payment_method == 'cash' %}
+                                        Efectivo
+                                    {% elif method.payment_method == 'CARD' or method.payment_method == 'card' %}
+                                        Tarjeta
+                                    {% elif method.payment_method == 'TRANSFER' or method.payment_method == 'transfer' %}
+                                        Transferencia
+                                    {% elif method.payment_method == 'store' %}
+                                        Tienda
+                                    {% else %}
+                                        {{ method.payment_method }}
+                                    {% endif %}
+                                </td>
                                 <td class="text-center">{{ method.count }}</td>
                                 <td class="text-end">${{ method.total|floatformat:2 }}</td>
+                                <td class="text-center">
+                                    {% if method.source == 'Ventas' %}
+                                        <span class="badge bg-primary text-white">Ventas</span>
+                                    {% elif method.source == 'Órdenes' %}
+                                        <span class="badge bg-success text-white">Órdenes</span>
+                                    {% else %}
+                                        <span class="badge bg-info text-white">Ambos</span>
+                                    {% endif %}
+                                </td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -212,6 +241,7 @@
                                 <th>Producto</th>
                                 <th class="text-center">Cantidad</th>
                                 <th class="text-end">Ingresos</th>
+                                <th class="text-center">Origen</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -220,6 +250,15 @@
                                 <td>{{ product.product__name }}</td>
                                 <td class="text-center">{{ product.total_quantity }}</td>
                                 <td class="text-end">${{ product.total_revenue|floatformat:2 }}</td>
+                                <td class="text-center">
+                                    {% if product.source == 'Ventas' %}
+                                        <span class="badge bg-primary text-white">Ventas</span>
+                                    {% elif product.source == 'Órdenes' %}
+                                        <span class="badge bg-success text-white">Órdenes</span>
+                                    {% else %}
+                                        <span class="badge bg-info text-white">Ambos</span>
+                                    {% endif %}
+                                </td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -229,65 +268,199 @@
         </div>
     </div>
 </div>
-<!-- Opciones de eliminación -->
+
+<!-- Estado de órdenes -->
 <div class="card shadow mb-4">
-    <div class="card-header py-3 d-flex justify-content-between align-items-center">
-        <h6 class="m-0 font-weight-bold text-primary">Detalle de Ventas</h6>
-        <div>
-            <button id="deleteSelected" class="btn btn-outline-danger me-2" disabled>
-                <i class="fas fa-trash me-1"></i> Eliminar Seleccionados (<span id="selectedCount">0</span>)
-            </button>
-            <button id="deleteAll" class="btn btn-danger">
-                <i class="fas fa-trash-alt me-1"></i> Eliminar Todo
-            </button>
-        </div>
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Estado de Órdenes</h6>
     </div>
     <div class="card-body">
-        <div class="table-responsive">
-            
-            <table class="table table-bordered" id="salesTable" width="100%" cellspacing="0">
-                <thead>
-                    <tr>
-                        <th width="60">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="selectAll">
-                            </div>
-                        </th>
-                        <th>ID Venta</th>
-                        <th>Fecha</th>
-                        <th>Cliente</th>
-                        <th>Total</th>
-                        <th>Método de Pago</th>
-                    </tr>
-                </thead>
-                
-                <tbody>
-                    {% for sale in sales %}
-                    <tr data-id="{{ sale.id }}">
-                        <td width="60">
-                            <div  class="form-check">
-                                <input class="form-check-input sale-checkbox" type="checkbox" value="{{ sale.id }}">
-                            </div>
-                        </td>
-                        <td>{{ sale.number }}</td>
-                        <td>{{ sale.date|date:"d/m/Y H:i" }}</td>
-                        <td>{{ sale.customer_name|default:"Cliente general" }}</td>
-                        <td>${{ sale.total|floatformat:2 }}</td>
-                        <td>{{ sale.get_payment_method_display }}</td>
-                        
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="7" class="text-center">No hay ventas en el período seleccionado</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="chart-pie pt-4">
+                    <canvas id="orderStatusChart"></canvas>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Estado</th>
+                            <th class="text-center">Cantidad</th>
+                            <th class="text-end">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for status in order_status %}
+                        <tr>
+                            <td>
+                                {% if status.status == 'pending' %}
+                                    <span class="badge bg-warning text-dark">Pendiente</span>
+                                {% elif status.status == 'processing' %}
+                                    <span class="badge bg-info text-white">Procesando</span>
+                                {% elif status.status == 'shipped' %}
+                                    <span class="badge bg-primary text-white">Enviado</span>
+                                {% elif status.status == 'completed' %}
+                                    <span class="badge bg-success text-white">Completado</span>
+                                {% elif status.status == 'canceled' %}
+                                    <span class="badge bg-danger text-white">Cancelado</span>
+                                {% else %}
+                                    {{ status.status }}
+                                {% endif %}
+                            </td>
+                            <td class="text-center">{{ status.count }}</td>
+                            <td class="text-end">${{ status.total|floatformat:2 }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
 
-<!-- Modal para confirmar eliminación individual -->
+<!-- Pestañas para Ventas y Órdenes -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <ul class="nav nav-tabs card-header-tabs" id="transactionTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="sales-tab" data-bs-toggle="tab" data-bs-target="#sales" type="button" role="tab" aria-controls="sales" aria-selected="true">
+                    <i class="fas fa-shopping-cart me-1"></i> Ventas ({{ total_sales }})
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="orders-tab" data-bs-toggle="tab" data-bs-target="#orders" type="button" role="tab" aria-controls="orders" aria-selected="false">
+                    <i class="fas fa-box me-1"></i> Órdenes ({{ total_orders }})
+                </button>
+            </li>
+        </ul>
+    </div>
+    <div class="card-body">
+        <div class="tab-content" id="transactionTabsContent">
+            <!-- Pestaña de Ventas -->
+            <div class="tab-pane fade show active" id="sales" role="tabpanel" aria-labelledby="sales-tab">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Detalle de Ventas</h6>
+                    <div>
+                        <button id="deleteSelectedSales" class="btn btn-outline-danger me-2" disabled>
+                            <i class="fas fa-trash me-1"></i> Eliminar Seleccionados (<span id="selectedSalesCount">0</span>)
+                        </button>
+                        <button id="deleteAllSales" class="btn btn-danger">
+                            <i class="fas fa-trash-alt me-1"></i> Eliminar Todo
+                        </button>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="salesTable" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th width="60">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="selectAllSales">
+                                    </div>
+                                </th>
+                                <th>ID Venta</th>
+                                <th>Fecha</th>
+                                <th>Cliente</th>
+                                <th>Total</th>
+                                <th>Método de Pago</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for sale in sales %}
+                            <tr data-id="{{ sale.id }}">
+                                <td width="60">
+                                    <div class="form-check">
+                                        <input class="form-check-input sale-checkbox" type="checkbox" value="{{ sale.id }}">
+                                    </div>
+                                </td>
+                                <td>{{ sale.number }}</td>
+                                <td>{{ sale.date|date:"d/m/Y H:i" }}</td>
+                                <td>{{ sale.customer_name|default:"Cliente general" }}</td>
+                                <td>${{ sale.total|floatformat:2 }}</td>
+                                <td>{{ sale.get_payment_method_display }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center">No hay ventas en el período seleccionado</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Pestaña de Órdenes -->
+            <div class="tab-pane fade" id="orders" role="tabpanel" aria-labelledby="orders-tab">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Detalle de Órdenes</h6>
+                    <div>
+                        <button id="deleteSelectedOrders" class="btn btn-outline-danger me-2" disabled>
+                            <i class="fas fa-trash me-1"></i> Eliminar Seleccionados (<span id="selectedOrdersCount">0</span>)
+                        </button>
+                        <button id="deleteAllOrders" class="btn btn-danger">
+                            <i class="fas fa-trash-alt me-1"></i> Eliminar Todo
+                        </button>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="ordersTable" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th width="60">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="selectAllOrders">
+                                    </div>
+                                </th>
+                                <th>Número</th>
+                                <th>Fecha</th>
+                                <th>Cliente</th>
+                                <th>Total</th>
+                                <th>Método de Pago</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in orders %}
+                            <tr data-id="{{ order.id }}">
+                                <td width="60">
+                                    <div class="form-check">
+                                        <input class="form-check-input order-checkbox" type="checkbox" value="{{ order.id }}">
+                                    </div>
+                                </td>
+                                <td>{{ order.order_number }}</td>
+                                <td>{{ order.date|date:"d/m/Y H:i" }}</td>
+                                <td>{{ order.fullname }}</td>
+                                <td>${{ order.total|floatformat:2 }}</td>
+                                <td>{{ order.get_payment_method_display }}</td>
+                                <td>
+                                    {% if order.status == 'pending' %}
+                                        <span class="badge bg-warning text-dark">Pendiente</span>
+                                    {% elif order.status == 'processing' %}
+                                        <span class="badge bg-info text-white">Procesando</span>
+                                    {% elif order.status == 'shipped' %}
+                                        <span class="badge bg-primary text-white">Enviado</span>
+                                    {% elif order.status == 'completed' %}
+                                        <span class="badge bg-success text-white">Completado</span>
+                                    {% elif order.status == 'canceled' %}
+                                        <span class="badge bg-danger text-white">Cancelado</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center">No hay órdenes en el período seleccionado</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modales para eliminación (mantener los existentes) -->
 <div class="modal fade" id="deleteSingleModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -320,7 +493,7 @@
             <div class="modal-body">
                 <div class="alert alert-warning">
                     <i class="fas fa-exclamation-triangle me-2"></i>
-                    <span>¿Estás seguro de que deseas eliminar <span id="selectedCountModal">0</span> ventas seleccionadas? Esta acción no se puede deshacer.</span>
+                    <span>¿Estás seguro de que deseas eliminar <span id="selectedCountModal">0</span> elementos seleccionados? Esta acción no se puede deshacer.</span>
                 </div>
             </div>
             <div class="modal-footer">
@@ -346,10 +519,10 @@
             <div class="modal-body">
                 <div class="alert alert-danger">
                     <i class="fas fa-exclamation-triangle me-2"></i>
-                    <span>¡ADVERTENCIA! Estás a punto de eliminar TODAS las ventas del período seleccionado. Esta acción no se puede deshacer.</span>
+                    <span>¡ADVERTENCIA! Estás a punto de eliminar TODOS los elementos del período seleccionado. Esta acción no se puede deshacer.</span>
                 </div>
                 <p>Período: <strong>{{ start_date|date:"d/m/Y" }} - {{ end_date|date:"d/m/Y" }}</strong></p>
-                <p>Total de ventas: <strong>{{ total_sales }}</strong></p>
+                <p>Total de elementos: <strong id="totalItemsToDelete">{{ total_transactions }}</strong></p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -357,6 +530,7 @@
                     {% csrf_token %}
                     <input type="hidden" name="start_date" value="{{ start_date|date:'Y-m-d' }}">
                     <input type="hidden" name="end_date" value="{{ end_date|date:'Y-m-d' }}">
+                    <input type="hidden" name="type" id="deleteAllType" value="sales">
                     <button type="submit" class="btn btn-danger">Eliminar todo</button>
                 </form>
             </div>
@@ -380,7 +554,9 @@ document.addEventListener('DOMContentLoaded', function() {
     new Chart(paymentMethodsCtx, {
         type: 'doughnut',
         data: {
-            labels: [{% for method in payment_methods %}'{{ method.get_payment_method_display }}',{% endfor %}],
+            labels: [{% for method in payment_methods %}
+                '{% if method.payment_method == "CASH" or method.payment_method == "cash" %}Efectivo{% elif method.payment_method == "CARD" or method.payment_method == "card" %}Tarjeta{% elif method.payment_method == "TRANSFER" or method.payment_method == "transfer" %}Transferencia{% elif method.payment_method == "store" %}Tienda{% else %}{{ method.payment_method }}{% endif %}',
+            {% endfor %}],
             datasets: [{
                 data: [{% for method in payment_methods %}{{ method.total }},{% endfor %}],
                 backgroundColor: colors,
@@ -428,6 +604,40 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
+    
+    // Gráfico de Estado de Órdenes
+    const orderStatusCtx = document.getElementById('orderStatusChart').getContext('2d');
+    new Chart(orderStatusCtx, {
+        type: 'pie',
+        data: {
+            labels: [{% for status in order_status %}
+                '{% if status.status == "pending" %}Pendiente{% elif status.status == "processing" %}Procesando{% elif status.status == "shipped" %}Enviado{% elif status.status == "completed" %}Completado{% elif status.status == "canceled" %}Cancelado{% else %}{{ status.status }}{% endif %}',
+            {% endfor %}],
+            datasets: [{
+                data: [{% for status in order_status %}{{ status.count }},{% endfor %}],
+                backgroundColor: [
+                    '#f6c23e', // Pendiente (amarillo)
+                    '#36b9cc', // Procesando (azul claro)
+                    '#4e73df', // Enviado (azul)
+                    '#1cc88a', // Completado (verde)
+                    '#e74a3b'  // Cancelado (rojo)
+                ],
+                hoverBackgroundColor: [
+                    '#f6c23e', '#36b9cc', '#4e73df', '#1cc88a', '#e74a3b'
+                ],
+                hoverBorderColor: "rgba(234, 236, 244, 1)",
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'bottom'
+                }
+            }
+        }
+    });
 
     // Exportar a Excel
     document.getElementById('exportExcel').addEventListener('click', function() {
@@ -438,60 +648,71 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('exportPDF').addEventListener('click', function() {
         window.location.href = '{% url "admin_sales_report_pdf" %}' + window.location.search;
     });
-});
-</script>
-<script>
-    // Gestión de eliminación de ventas
-$(document).ready(function() {
-    // Inicializar tooltips
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl)
-    });
     
-    // Seleccionar/deseleccionar todo
-    $("#selectAll").change(function() {
+    // Gestión de pestañas
+    const transactionTabs = document.getElementById('transactionTabs');
+    const tabs = new bootstrap.Tab(transactionTabs);
+    
+    // Gestión de selección para ventas
+    $("#selectAllSales").change(function() {
         $(".sale-checkbox").prop('checked', $(this).prop('checked'));
-        updateSelectedCount();
+        updateSelectedSalesCount();
     });
     
-    // Actualizar contador cuando se selecciona individualmente
     $(".sale-checkbox").change(function() {
-        updateSelectedCount();
+        updateSelectedSalesCount();
         
-        // Si deseleccionamos alguno, el "seleccionar todo" se desmarca
         if (!$(this).prop('checked')) {
-            $("#selectAll").prop('checked', false);
+            $("#selectAllSales").prop('checked', false);
         }
         
-        // Si todos están seleccionados, marcar "seleccionar todo"
         if ($(".sale-checkbox:checked").length === $(".sale-checkbox").length) {
-            $("#selectAll").prop('checked', true);
+            $("#selectAllSales").prop('checked', true);
         }
     });
     
-    // Actualizar contador de seleccionados
-    function updateSelectedCount() {
+    function updateSelectedSalesCount() {
         var count = $(".sale-checkbox:checked").length;
-        $("#selectedCount, #selectedCountModal").text(count);
+        $("#selectedSalesCount").text(count);
         
-        // Habilitar/deshabilitar botón según si hay seleccionados
         if (count > 0) {
-            $("#deleteSelected").prop('disabled', false);
+            $("#deleteSelectedSales").prop('disabled', false);
         } else {
-            $("#deleteSelected").prop('disabled', true);
+            $("#deleteSelectedSales").prop('disabled', true);
         }
     }
     
-    // Eliminar individual
-    $(".delete-single").click(function() {
-        var saleId = $(this).data('id');
-        $("#deleteSingleForm").attr('action', '/admin/sales/' + saleId + '/delete/');
-        $("#deleteSingleModal").modal('show');
+    // Gestión de selección para órdenes
+    $("#selectAllOrders").change(function() {
+        $(".order-checkbox").prop('checked', $(this).prop('checked'));
+        updateSelectedOrdersCount();
     });
     
-    // Eliminar seleccionados
-    $("#deleteSelected").click(function() {
+    $(".order-checkbox").change(function() {
+        updateSelectedOrdersCount();
+        
+        if (!$(this).prop('checked')) {
+            $("#selectAllOrders").prop('checked', false);
+        }
+        
+        if ($(".order-checkbox:checked").length === $(".order-checkbox").length) {
+            $("#selectAllOrders").prop('checked', true);
+        }
+    });
+    
+    function updateSelectedOrdersCount() {
+        var count = $(".order-checkbox:checked").length;
+        $("#selectedOrdersCount").text(count);
+        
+        if (count > 0) {
+            $("#deleteSelectedOrders").prop('disabled', false);
+        } else {
+            $("#deleteSelectedOrders").prop('disabled', true);
+        }
+    }
+    
+    // Eliminar seleccionados (ventas)
+    $("#deleteSelectedSales").click(function() {
         if ($(".sale-checkbox:checked").length === 0) return;
         
         var selectedIds = [];
@@ -500,20 +721,41 @@ $(document).ready(function() {
         });
         
         $("#selectedIds").val(selectedIds.join(','));
+        $("#selectedCountModal").text($(".sale-checkbox:checked").length);
+        $("#deleteSelectedForm").attr('action', '{% url "admin_delete_selected_sales" %}');
         $("#deleteSelectedModal").modal('show');
     });
     
-    // Eliminar todo
-    $("#deleteAll").click(function() {
+    // Eliminar seleccionados (órdenes)
+    $("#deleteSelectedOrders").click(function() {
+        if ($(".order-checkbox:checked").length === 0) return;
+        
+        var selectedIds = [];
+        $(".order-checkbox:checked").each(function() {
+            selectedIds.push($(this).val());
+        });
+        
+        $("#selectedIds").val(selectedIds.join(','));
+        $("#selectedCountModal").text($(".order-checkbox:checked").length);
+        $("#deleteSelectedForm").attr('action', '{% url "admin_delete_selected_orders" %}');
+        $("#deleteSelectedModal").modal('show');
+    });
+    
+    // Eliminar todo (ventas)
+    $("#deleteAllSales").click(function() {
+        $("#totalItemsToDelete").text({{ total_sales }});
+        $("#deleteAllType").val('sales');
+        $("#deleteAllForm").attr('action', '{% url "admin_delete_all_sales" %}');
         $("#deleteAllModal").modal('show');
     });
     
-    // Mostrar notificación después de eliminar (si existe)
-    if ($("#deleteNotification").length) {
-        setTimeout(function() {
-            $("#deleteNotification").fadeOut();
-        }, 5000);
-    }
+    // Eliminar todo (órdenes)
+    $("#deleteAllOrders").click(function() {
+        $("#totalItemsToDelete").text({{ total_orders }});
+        $("#deleteAllType").val('orders');
+        $("#deleteAllForm").attr('action', '{% url "admin_delete_all_orders" %}');
+        $("#deleteAllModal").modal('show');
+    });
 });
 </script>
 {% endblock %}
