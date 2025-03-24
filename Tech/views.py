@@ -2587,11 +2587,20 @@ def delete_employee(request, employee_id):
     
     return redirect('admin_company_detail')
 
-# Reportes y Estadísticas
+# Reportes y Estadísticas Combinados
 from django.utils import timezone
 from django.db.models import Sum, Count, F
 from django.contrib import messages
-from .models import Sale, SaleItem
+from .models import Sale, SaleItem, Order, OrderItem
+from datetime import datetime, timedelta
+from django.shortcuts import redirect, render
+from django.http import HttpResponse
+from io import BytesIO
+import xlsxwriter
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+from reportlab.lib import colors
 
 @login_required
 @user_passes_test(is_admin)
@@ -2616,50 +2625,171 @@ def sales_report(request):
     # Estadísticas de ventas
     sales = Sale.objects.filter(date__range=[start_date, end_date]).order_by('-date')
     filtered_sales_count = sales.count()
-    total_revenue = sales.aggregate(total=Sum('total'))['total'] or 0
+    sales_revenue = sales.aggregate(total=Sum('total'))['total'] or 0
     
+    # Estadísticas de órdenes
+    all_orders = Order.objects.all()
+    total_orders_count = all_orders.count()
+    
+    orders = Order.objects.filter(date__range=[start_date, end_date]).order_by('-date')
+    filtered_orders_count = orders.count()
+    orders_revenue = orders.aggregate(total=Sum('total'))['total'] or 0
+    
+    # Total combinado
+    total_transactions = filtered_sales_count + filtered_orders_count
+    total_revenue = sales_revenue + orders_revenue
 
-      # Ventas por método de pago (ordenadas por total de ventas descendente)
-    payment_methods = (
+    # Ventas por método de pago
+    payment_methods_sales = (
         sales.values('payment_method')
         .annotate(
             count=Count('id'),
             total=Sum('total')
         )
-        .order_by('-total')[:5]  # Toma solo los 5 métodos con mayores ventas
+        .order_by('-total')
     )
-
-        # Productos más vendidos
-    top_products = SaleItem.objects.filter(
+    
+    # Órdenes por método de pago
+    payment_methods_orders = (
+        orders.values('payment_method')
+        .annotate(
+            count=Count('id'),
+            total=Sum('total')
+        )
+        .order_by('-total')
+    )
+    
+    # Combinar métodos de pago
+    payment_methods_combined = {}
+    
+    for pm in payment_methods_sales:
+        payment_method = pm['payment_method']
+        payment_methods_combined[payment_method] = {
+            'count': pm['count'],
+            'total': pm['total'],
+            'source': 'Ventas'
+        }
+    
+    for pm in payment_methods_orders:
+        payment_method = pm['payment_method']
+        if payment_method in payment_methods_combined:
+            payment_methods_combined[payment_method]['count'] += pm['count']
+            payment_methods_combined[payment_method]['total'] += pm['total']
+            payment_methods_combined[payment_method]['source'] = 'Ambos'
+        else:
+            payment_methods_combined[payment_method] = {
+                'count': pm['count'],
+                'total': pm['total'],
+                'source': 'Órdenes'
+            }
+    
+    # Convertir a lista y ordenar por total
+    payment_methods = [
+        {
+            'payment_method': k,
+            'count': v['count'],
+            'total': v['total'],
+            'source': v['source']
+        }
+        for k, v in payment_methods_combined.items()
+    ]
+    payment_methods = sorted(payment_methods, key=lambda x: x['total'], reverse=True)[:5]
+    
+    # Productos más vendidos en ventas
+    top_products_sales = SaleItem.objects.filter(
         sale__date__range=[start_date, end_date]
     ).values(
         'product__name'
     ).annotate(
         total_quantity=Sum('quantity'),
         total_revenue=Sum(F('quantity') * F('price'))
-    ).order_by('-total_quantity')[:10]
+    ).order_by('-total_quantity')
+    
+    # Productos más vendidos en órdenes
+    top_products_orders = OrderItem.objects.filter(
+        order__date__range=[start_date, end_date]
+    ).values(
+        'product__name'
+    ).annotate(
+        total_quantity=Sum('quantity'),
+        total_revenue=Sum(F('quantity') * F('price'))
+    ).order_by('-total_quantity')
+    
+    # Combinar productos
+    top_products_combined = {}
+    
+    for product in top_products_sales:
+        name = product['product__name']
+        top_products_combined[name] = {
+            'total_quantity': product['total_quantity'],
+            'total_revenue': product['total_revenue'],
+            'source': 'Ventas'
+        }
+    
+    for product in top_products_orders:
+        name = product['product__name']
+        if name in top_products_combined:
+            top_products_combined[name]['total_quantity'] += product['total_quantity']
+            top_products_combined[name]['total_revenue'] += product['total_revenue']
+            top_products_combined[name]['source'] = 'Ambos'
+        else:
+            top_products_combined[name] = {
+                'total_quantity': product['total_quantity'],
+                'total_revenue': product['total_revenue'],
+                'source': 'Órdenes'
+            }
+    
+    # Convertir a lista y ordenar por cantidad
+    top_products = [
+        {
+            'product__name': k,
+            'total_quantity': v['total_quantity'],
+            'total_revenue': v['total_revenue'],
+            'source': v['source']
+        }
+        for k, v in top_products_combined.items()
+    ]
+    top_products = sorted(top_products, key=lambda x: x['total_quantity'], reverse=True)[:10]
+    
+    # Estado de órdenes
+    order_status = (
+        orders.values('status')
+        .annotate(
+            count=Count('id'),
+            total=Sum('total')
+        )
+        .order_by('-count')
+    )
     
     context = {
         'start_date': start_date,
         'end_date': end_date,
-        'sales': sales,  # Pasar las ventas al contexto
+        'sales': sales,
+        'orders': orders,
         'total_sales': filtered_sales_count,
+        'total_orders': filtered_orders_count,
+        'total_transactions': total_transactions,
         'total_revenue': total_revenue,
+        'sales_revenue': sales_revenue,
+        'orders_revenue': orders_revenue,
         'payment_methods': payment_methods,
         'top_products': top_products,
-        'total_sales_count': total_sales_count,  # Total de ventas en la base de datos
-        'filtered_sales_count': filtered_sales_count,  # Ventas filtradas
+        'order_status': order_status,
+        'total_sales_count': total_sales_count,
+        'total_orders_count': total_orders_count,
+        'filtered_sales_count': filtered_sales_count,
+        'filtered_orders_count': filtered_orders_count,
     }
     
     # Agregar mensajes de depuración
     messages.info(request, f"Rango de fechas: {start_date} - {end_date}")
     messages.info(request, f"Total de ventas en la base de datos: {total_sales_count}")
+    messages.info(request, f"Total de órdenes en la base de datos: {total_orders_count}")
     messages.info(request, f"Ventas filtradas: {filtered_sales_count}")
+    messages.info(request, f"Órdenes filtradas: {filtered_orders_count}")
 
     return render(request, 'admin_dashboard/reports/sales.html', context)
 
-
-# ... (omitting the Excel and PDF report functions for brevity)
 @login_required
 @user_passes_test(is_admin)
 def sales_report_excel(request):
@@ -2675,8 +2805,10 @@ def sales_report_excel(request):
     # Crear el archivo Excel en memoria
     output = BytesIO()
     workbook = xlsxwriter.Workbook(output)
-    worksheet = workbook.add_worksheet('Reporte de Ventas')
-
+    
+    # Hoja de ventas
+    worksheet_sales = workbook.add_worksheet('Ventas')
+    
     # Formatos
     title_format = workbook.add_format({
         'bold': True,
@@ -2705,39 +2837,102 @@ def sales_report_excel(request):
         'border': 1
     })
 
-    # Título
-    worksheet.merge_range('A1:F1', 'Reporte de Ventas', title_format)
-    worksheet.merge_range('A2:F2', f'Período: {start_date.strftime("%d/%m/%Y")} - {end_date.strftime("%d/%m/%Y")}', title_format)
+    # Título - Ventas
+    worksheet_sales.merge_range('A1:F1', 'Reporte de Ventas', title_format)
+    worksheet_sales.merge_range('A2:F2', f'Período: {start_date.strftime("%d/%m/%Y")} - {end_date.strftime("%d/%m/%Y")}', title_format)
 
-    # Encabezados
-    headers = ['ID Venta', 'Fecha', 'Cliente', 'Método de Pago', 'Total', 'Estado']
-    for col, header in enumerate(headers):
-        worksheet.write(3, col, header, header_format)
+    # Encabezados - Ventas
+    headers_sales = ['ID Venta', 'Fecha', 'Cliente', 'Método de Pago', 'Total', 'Estado']
+    for col, header in enumerate(headers_sales):
+        worksheet_sales.write(3, col, header, header_format)
 
-    # Datos
+    # Datos - Ventas
     sales = Sale.objects.filter(date__range=[start_date, end_date]).order_by('date')
     row = 4
     for sale in sales:
-        worksheet.write(row, 0, sale.id, cell_format)
-        worksheet.write(row, 1, sale.date, date_format)
-        worksheet.write(row, 2, sale.customer.name if sale.customer else 'N/A', cell_format)
-        worksheet.write(row, 3, sale.get_payment_method_display(), cell_format)
-        worksheet.write(row, 4, float(sale.total), number_format)
-        worksheet.write(row, 5, sale.get_status_display(), cell_format)
+        worksheet_sales.write(row, 0, sale.number, cell_format)
+        worksheet_sales.write(row, 1, sale.date, date_format)
+        worksheet_sales.write(row, 2, sale.customer_name, cell_format)
+        worksheet_sales.write(row, 3, sale.get_payment_method_display(), cell_format)
+        worksheet_sales.write(row, 4, float(sale.total), number_format)
+        worksheet_sales.write(row, 5, 'Completada', cell_format)  # Las ventas siempre están completadas
         row += 1
 
-    # Totales
+    # Totales - Ventas
     total_row = row + 1
-    worksheet.write(total_row, 3, 'Total:', header_format)
-    worksheet.write_formula(total_row, 4, f'=SUM(E5:E{row})', number_format)
+    worksheet_sales.write(total_row, 3, 'Total Ventas:', header_format)
+    worksheet_sales.write_formula(total_row, 4, f'=SUM(E5:E{row})', number_format)
+    
+    # Hoja de órdenes
+    worksheet_orders = workbook.add_worksheet('Órdenes')
+    
+    # Título - Órdenes
+    worksheet_orders.merge_range('A1:G1', 'Reporte de Órdenes', title_format)
+    worksheet_orders.merge_range('A2:G2', f'Período: {start_date.strftime("%d/%m/%Y")} - {end_date.strftime("%d/%m/%Y")}', title_format)
 
+    # Encabezados - Órdenes
+    headers_orders = ['Número', 'Fecha', 'Cliente', 'Método de Pago', 'Total', 'Estado', 'Tracking']
+    for col, header in enumerate(headers_orders):
+        worksheet_orders.write(3, col, header, header_format)
+
+    # Datos - Órdenes
+    orders = Order.objects.filter(date__range=[start_date, end_date]).order_by('date')
+    row = 4
+    for order in orders:
+        worksheet_orders.write(row, 0, order.order_number, cell_format)
+        worksheet_orders.write(row, 1, order.date, date_format)
+        worksheet_orders.write(row, 2, order.fullname, cell_format)
+        worksheet_orders.write(row, 3, order.get_payment_method_display(), cell_format)
+        worksheet_orders.write(row, 4, float(order.total), number_format)
+        worksheet_orders.write(row, 5, order.get_status_display(), cell_format)
+        worksheet_orders.write(row, 6, order.tracking_number or 'N/A', cell_format)
+        row += 1
+
+    # Totales - Órdenes
+    total_row = row + 1
+    worksheet_orders.write(total_row, 3, 'Total Órdenes:', header_format)
+    worksheet_orders.write_formula(total_row, 4, f'=SUM(E5:E{row})', number_format)
+    
+    # Hoja de resumen
+    worksheet_summary = workbook.add_worksheet('Resumen')
+    
+    # Título - Resumen
+    worksheet_summary.merge_range('A1:D1', 'Resumen de Ventas y Órdenes', title_format)
+    worksheet_summary.merge_range('A2:D2', f'Período: {start_date.strftime("%d/%m/%Y")} - {end_date.strftime("%d/%m/%Y")}', title_format)
+    
+    # Datos de resumen
+    sales_count = sales.count()
+    sales_total = sales.aggregate(total=Sum('total'))['total'] or 0
+    orders_count = orders.count()
+    orders_total = orders.aggregate(total=Sum('total'))['total'] or 0
+    
+    # Encabezados - Resumen
+    worksheet_summary.write(4, 0, 'Tipo', header_format)
+    worksheet_summary.write(4, 1, 'Cantidad', header_format)
+    worksheet_summary.write(4, 2, 'Total', header_format)
+    
+    # Datos - Resumen
+    worksheet_summary.write(5, 0, 'Ventas', cell_format)
+    worksheet_summary.write(5, 1, sales_count, cell_format)
+    worksheet_summary.write(5, 2, float(sales_total), number_format)
+    
+    worksheet_summary.write(6, 0, 'Órdenes', cell_format)
+    worksheet_summary.write(6, 1, orders_count, cell_format)
+    worksheet_summary.write(6, 2, float(orders_total), number_format)
+    
+    worksheet_summary.write(7, 0, 'Total', header_format)
+    worksheet_summary.write(7, 1, sales_count + orders_count, header_format)
+    worksheet_summary.write(7, 2, float(sales_total + orders_total), number_format)
+    
     # Ajustar anchos de columna
-    worksheet.set_column('A:A', 10)
-    worksheet.set_column('B:B', 20)
-    worksheet.set_column('C:C', 30)
-    worksheet.set_column('D:D', 20)
-    worksheet.set_column('E:E', 15)
-    worksheet.set_column('F:F', 15)
+    for worksheet in [worksheet_sales, worksheet_orders, worksheet_summary]:
+        worksheet.set_column('A:A', 15)
+        worksheet.set_column('B:B', 20)
+        worksheet.set_column('C:C', 30)
+        worksheet.set_column('D:D', 20)
+        worksheet.set_column('E:E', 15)
+        worksheet.set_column('F:F', 15)
+        worksheet.set_column('G:G', 20)
 
     workbook.close()
     output.seek(0)
@@ -2747,10 +2942,9 @@ def sales_report_excel(request):
         output.read(),
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )
-    response['Content-Disposition'] = f'attachment; filename=reporte_ventas_{timezone.now().strftime("%Y%m%d")}.xlsx'
+    response['Content-Disposition'] = f'attachment; filename=reporte_combinado_{timezone.now().strftime("%Y%m%d")}.xlsx'
     
     return response
-
 
 @login_required
 @user_passes_test(is_admin)
@@ -2786,24 +2980,52 @@ def sales_report_pdf(request):
         ('ALIGN', (-1, 0), (-1, -1), 'RIGHT'),
     ])
 
-    # Datos
+    # Datos de ventas
     sales = Sale.objects.filter(date__range=[start_date, end_date]).order_by('date')
-    data = [['ID', 'Fecha', 'Cliente', 'Método de Pago', 'Total', 'Estado']]
+    sales_data = [['ID', 'Fecha', 'Cliente', 'Método de Pago', 'Total', 'Estado']]
     
     for sale in sales:
-        data.append([
-            str(sale.id),
+        sales_data.append([
+            str(sale.number),
             sale.date.strftime('%d/%m/%Y'),
-            sale.customer.name if sale.customer else 'N/A',
+            sale.customer_name,
             sale.get_payment_method_display(),
             f'${sale.total:,.2f}',
-            sale.get_status_display()
+            'Completada'
         ])
 
-    # Crear tabla
-    table = Table(data)
-    table.setStyle(styles)
-    elements.append(table)
+    # Datos de órdenes
+    orders = Order.objects.filter(date__range=[start_date, end_date]).order_by('date')
+    orders_data = [['Número', 'Fecha', 'Cliente', 'Método de Pago', 'Total', 'Estado']]
+    
+    for order in orders:
+        orders_data.append([
+            str(order.order_number),
+            order.date.strftime('%d/%m/%Y'),
+            order.fullname,
+            order.get_payment_method_display(),
+            f'${order.total:,.2f}',
+            order.get_status_display()
+        ])
+
+    # Crear tablas
+    sales_table = Table(sales_data)
+    sales_table.setStyle(styles)
+    
+    orders_table = Table(orders_data)
+    orders_table.setStyle(styles)
+    
+    # Agregar elementos al PDF
+    elements.append(Paragraph(f"Reporte de Ventas y Órdenes", getSampleStyleSheet()['Title']))
+    elements.append(Paragraph(f"Período: {start_date.strftime('%d/%m/%Y')} - {end_date.strftime('%d/%m/%Y')}", getSampleStyleSheet()['Normal']))
+    elements.append(Spacer(1, 12))
+    
+    elements.append(Paragraph("Ventas", getSampleStyleSheet()['Heading2']))
+    elements.append(sales_table)
+    elements.append(Spacer(1, 12))
+    
+    elements.append(Paragraph("Órdenes", getSampleStyleSheet()['Heading2']))
+    elements.append(orders_table)
 
     # Generar PDF
     doc.build(elements)
@@ -2812,11 +3034,10 @@ def sales_report_pdf(request):
 
     # Generar la respuesta HTTP
     response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename=reporte_ventas_{timezone.now().strftime("%Y%m%d")}.pdf'
+    response['Content-Disposition'] = f'attachment; filename=reporte_combinado_{timezone.now().strftime("%Y%m%d")}.pdf'
     response.write(pdf)
 
     return response
-
 
 @login_required
 def product_delete(request, pk):
