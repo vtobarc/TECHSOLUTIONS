@@ -30,6 +30,15 @@
                 <p class="stat-value">{{ low_stock_products }}</p>
             </div>
         </div>
+        <div class="stat-card info">
+            <div class="stat-icon">
+                <i class="fas fa-shopping-cart"></i>
+            </div>
+            <div class="stat-info">
+                <h3>Pedidos Pendientes</h3>
+                <p class="stat-value">{{ pending_orders_count }}</p>
+            </div>
+        </div>
         <!-- <div class="stat-card success">
             <div class="stat-icon">
                 <i class="fas fa-dollar-sign"></i>
@@ -44,6 +53,58 @@
     </div>
 
     <div class="dashboard-grid">
+        <!-- Pedidos Recientes -->
+        <div class="card">
+            <h2>Pedidos Recientes</h2>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Número</th>
+                            <th>Cliente</th>
+                            <th>Fecha</th>
+                            <th>Estado</th>
+                            <th>Total</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in recent_orders %}
+                        <tr class="{% if order.status == 'pending' %}warning{% elif order.status == 'completed' %}success{% endif %}">
+                            <td>{{ order.order_number }}</td>
+                            <td>{{ order.fullname }}</td>
+                            <td>{{ order.date|date:"d/m/Y H:i" }}</td>
+                            <td>
+                                {% if order.status == 'pending' %}
+                                    <span class="status-badge pending">Pendiente</span>
+                                {% elif order.status == 'processing' %}
+                                    <span class="status-badge processing">Procesando</span>
+                                {% elif order.status == 'shipped' %}
+                                    <span class="status-badge shipped">Enviado</span>
+                                {% elif order.status == 'completed' %}
+                                    <span class="status-badge completed">Completado</span>
+                                {% elif order.status == 'canceled' %}
+                                    <span class="status-badge canceled">Cancelado</span>
+                                {% endif %}
+                            </td>
+                            <td>${{ order.total|floatformat:2 }}</td>
+                            <td>
+                                <a href="{% url 'order_detail' order.id %}" class="btn-small">Ver</a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center">No hay pedidos recientes</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer">
+                <a href="{% url 'orders_list' %}" class="btn">Ver todos los pedidos</a>
+            </div>
+        </div>
+
         <div class="card">
             <h2>Productos Recientes</h2>
             <div class="table-responsive">
@@ -94,5 +155,194 @@
             </div>
         </div>
     </div>
+
+    <!-- Sección de Pedidos por Estado -->
+    <div class="dashboard-grid">
+        <div class="card">
+            <h2>Pedidos por Estado</h2>
+            <div class="order-status-grid">
+                <div class="order-status-card pending">
+                    <div class="status-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="status-info">
+                        <h3>Pendientes</h3>
+                        <p class="status-value">{{ pending_orders_count }}</p>
+                    </div>
+                </div>
+                <div class="order-status-card processing">
+                    <div class="status-icon">
+                        <i class="fas fa-cogs"></i>
+                    </div>
+                    <div class="status-info">
+                        <h3>Procesando</h3>
+                        <p class="status-value">{{ processing_orders_count }}</p>
+                    </div>
+                </div>
+                <div class="order-status-card shipped">
+                    <div class="status-icon">
+                        <i class="fas fa-truck"></i>
+                    </div>
+                    <div class="status-info">
+                        <h3>Enviados</h3>
+                        <p class="status-value">{{ shipped_orders_count }}</p>
+                    </div>
+                </div>
+                <div class="order-status-card completed">
+                    <div class="status-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="status-info">
+                        <h3>Completados</h3>
+                        <p class="status-value">{{ completed_orders_count }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- Estilos adicionales para los pedidos -->
+<style>
+    .order-status-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-top: 15px;
+    }
+    
+    .order-status-card {
+        display: flex;
+        align-items: center;
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    .order-status-card.pending {
+        background-color: #fff3cd;
+        border-left: 4px solid #ffc107;
+    }
+    
+    .order-status-card.processing {
+        background-color: #cfe2ff;
+        border-left: 4px solid #0d6efd;
+    }
+    
+    .order-status-card.shipped {
+        background-color: #d1e7dd;
+        border-left: 4px solid #198754;
+    }
+    
+    .order-status-card.completed {
+        background-color: #d1e7dd;
+        border-left: 4px solid #198754;
+    }
+    
+    .status-icon {
+        font-size: 24px;
+        margin-right: 15px;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background-color: rgba(255, 255, 255, 0.7);
+    }
+    
+    .order-status-card.pending .status-icon {
+        color: #ffc107;
+    }
+    
+    .order-status-card.processing .status-icon {
+        color: #0d6efd;
+    }
+    
+    .order-status-card.shipped .status-icon {
+        color: #198754;
+    }
+    
+    .order-status-card.completed .status-icon {
+        color: #198754;
+    }
+    
+    .status-info h3 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+    }
+    
+    .status-value {
+        font-size: 24px;
+        font-weight: 700;
+        margin: 5px 0 0;
+    }
+    
+    .status-badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+    
+    .status-badge.pending {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+    
+    .status-badge.processing {
+        background-color: #cfe2ff;
+        color: #084298;
+    }
+    
+    .status-badge.shipped {
+        background-color: #d1e7dd;
+        color: #0f5132;
+    }
+    
+    .status-badge.completed {
+        background-color: #d1e7dd;
+        color: #0f5132;
+    }
+    
+    .status-badge.canceled {
+        background-color: #f8d7da;
+        color: #842029;
+    }
+    
+    .btn-small {
+        display: inline-block;
+        padding: 3px 8px;
+        background-color: #1b3027;
+        color: white;
+        border-radius: 4px;
+        font-size: 12px;
+        text-decoration: none;
+    }
+    
+    .btn-small:hover {
+        background-color: #2a4a3e;
+    }
+    
+    .card-footer {
+        margin-top: 15px;
+        text-align: right;
+    }
+    
+    .btn {
+        display: inline-block;
+        padding: 8px 16px;
+        background-color: #1b3027;
+        color: white;
+        border-radius: 4px;
+        text-decoration: none;
+    }
+    
+    .btn:hover {
+        background-color: #2a4a3e;
+    }
+</style>
 {% endblock %}
