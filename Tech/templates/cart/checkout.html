@@ -908,7 +908,6 @@
     });
 </script>
 <script>
-    
     document.addEventListener('DOMContentLoaded', function() {
         // Cargar el resumen del pedido
         loadOrderSummary();
@@ -944,8 +943,31 @@
         shippingOptions.forEach(option => {
             option.addEventListener('change', function() {
                 updateTotals();
+                
+                // Si cambia la opción de envío, actualizar la visualización de los campos de dirección
+                const isPickup = this.value === "0.00";
+                const addressFields = document.querySelectorAll('#address, #city, #postal, #state');
+                
+                if (isPickup) {
+                    // Si es recoger en tienda, hacer los campos de dirección opcionales
+                    addressFields.forEach(field => {
+                        field.removeAttribute('required');
+                        field.parentElement.classList.add('opacity-50');
+                    });
+                } else {
+                    // Si es envío a domicilio, hacer los campos de dirección obligatorios
+                    addressFields.forEach(field => {
+                        field.setAttribute('required', 'required');
+                        field.parentElement.classList.remove('opacity-50');
+                    });
+                }
             });
         });
+        
+        // Establecer "Recoger en tienda" como opción predeterminada
+        document.getElementById('shipping-5').checked = true;
+        // Disparar el evento change para actualizar la UI
+        document.getElementById('shipping-5').dispatchEvent(new Event('change'));
     
         // Botón de realizar pedido
         const placeOrderBtn = document.getElementById('placeOrderBtn');
@@ -1027,135 +1049,152 @@
         
         // Obtener el costo de envío seleccionado
         const selectedShipping = document.querySelector('input[name="shipping"]:checked');
-        const shipping = selectedShipping ? parseFloat(selectedShipping.value) : 4.00;
+        const shippingValue = selectedShipping ? selectedShipping.value : "0.00";
+        
+        // Verificar si es recoger en tienda (valor 0.00)
+        const isPickup = shippingValue === "0.00";
+        const shipping = isPickup ? 0 : parseFloat(shippingValue);
         
         const tax = subtotal * 0.15; // 15% de IVA
         const total = subtotal + shipping + tax;
         
         // Actualizar los totales en el DOM
         document.getElementById('orderSubtotal').textContent = `$${subtotal.toFixed(2)}`;
-        document.getElementById('orderShipping').textContent = `$${shipping.toFixed(2)}`;
+        
+        // Mostrar texto especial para recoger en tienda
+        if (isPickup) {
+            document.getElementById('orderShipping').textContent = `Gratis (Recoger en tienda)`;
+            document.getElementById('orderShipping').classList.add('text-green-600');
+        } else {
+            document.getElementById('orderShipping').textContent = `$${shipping.toFixed(2)}`;
+            document.getElementById('orderShipping').classList.remove('text-green-600');
+        }
+        
         document.getElementById('orderTax').textContent = `$${tax.toFixed(2)}`;
         document.getElementById('tax-note').textContent = `$${tax.toFixed(2)}`;
         document.getElementById('orderTotal').textContent = `$${total.toFixed(2)}`;
     }
     
-    // Función corregida para procesar el pedido
-function placeOrder() {
-    // Validar formulario
-    const requiredFields = ['email', 'phone', 'fullname', 'address', 'city', 'postal', 'state'];
-    let isValid = true;
-
-    requiredFields.forEach(field => {
-        const input = document.getElementById(field);
-        if (!input.value.trim()) {
-            input.classList.add('border-red-500');
-            isValid = false;
-        } else {
-            input.classList.remove('border-red-500');
+    // Función para procesar el pedido
+    function placeOrder() {
+        // Validar formulario
+        const requiredFields = ['email', 'phone', 'fullname'];
+        let isValid = true;
+        
+        // Verificar si se seleccionó recoger en tienda
+        const selectedShipping = document.querySelector('input[name="shipping"]:checked');
+        const isPickup = selectedShipping && selectedShipping.value === "0.00";
+        
+        // Si no es recoger en tienda, validar campos de dirección
+        if (!isPickup) {
+            requiredFields.push('address', 'city', 'postal', 'state');
         }
-    });
 
-    // Verificar si se seleccionó un método de pago
-    const selectedPayment = document.querySelector('.payment-method.border-blue-500');
-    if (!selectedPayment) {
-        alert('Por favor selecciona un método de pago');
-        return;
-    }
-    
-    // Verificar términos y condiciones
-    const termsAccepted = document.getElementById('terms').checked;
-    if (!termsAccepted) {
-        alert('Debes aceptar los términos y condiciones para continuar');
-        return;
-    }
+        requiredFields.forEach(field => {
+            const input = document.getElementById(field);
+            if (!input.value.trim()) {
+                input.classList.add('border-red-500');
+                isValid = false;
+            } else {
+                input.classList.remove('border-red-500');
+            }
+        });
 
-    if (!isValid) {
-        alert('Por favor completa todos los campos requeridos');
-        return;
-    }
+        // Verificar si se seleccionó un método de pago
+        const selectedPayment = document.querySelector('.payment-method.border-blue-500');
+        if (!selectedPayment) {
+            alert('Por favor selecciona un método de pago');
+            return;
+        }
+        
+        // Verificar términos y condiciones
+        const termsAccepted = document.getElementById('terms').checked;
+        if (!termsAccepted) {
+            alert('Debes aceptar los términos y condiciones para continuar');
+            return;
+        }
 
-    // Añadir indicador de carga al botón
-    const placeOrderBtn = document.getElementById('placeOrderBtn');
-    placeOrderBtn.innerHTML = '<span class="spinner"></span> Procesando...';
-    placeOrderBtn.classList.add('loading');
+        if (!isValid) {
+            alert('Por favor completa todos los campos requeridos');
+            return;
+        }
 
-    // Generar número de pedido aleatorio
-    const orderNumber = 'TECH-' + Math.floor(100000 + Math.random() * 900000);
-    
-    // Obtener el costo de envío seleccionado
-    const selectedShipping = document.querySelector('input[name="shipping"]:checked');
-    const shipping = selectedShipping ? parseFloat(selectedShipping.value) : 4.00;
+        // Añadir indicador de carga al botón
+        const placeOrderBtn = document.getElementById('placeOrderBtn');
+        placeOrderBtn.innerHTML = '<span class="spinner"></span> Procesando...';
+        placeOrderBtn.classList.add('loading');
 
-    // Function to get CSRF cookie
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                // Does this cookie string begin with the name we want?
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
+        // Generar número de pedido aleatorio
+        const orderNumber = 'TECH-' + Math.floor(100000 + Math.random() * 900000);
+        
+        // Obtener el costo de envío seleccionado
+        const shipping = isPickup ? 0 : parseFloat(selectedShipping.value);
+
+        // Function to get CSRF cookie
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
                 }
             }
+            return cookieValue;
         }
-        return cookieValue;
-    }
 
-    // Enviar el pedido al servidor
-    fetch('/process_order/', {  // Asegúrate de que esta URL sea correcta
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify({
-            email: document.getElementById('email').value,
-            phone: document.getElementById('phone').value,
-            fullname: document.getElementById('fullname').value,
-            address: document.getElementById('address').value,
-            city: document.getElementById('city').value,
-            postal: document.getElementById('postal').value,
-            state: document.getElementById('state').value,
-            payment_method: selectedPayment.dataset.method,
-            shipping_cost: shipping,
-            order_number: orderNumber
+        // Enviar el pedido al servidor
+        fetch('/process_order/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                fullname: document.getElementById('fullname').value,
+                address: document.getElementById('address').value,
+                city: document.getElementById('city').value,
+                postal: document.getElementById('postal').value,
+                state: document.getElementById('state').value,
+                payment_method: selectedPayment.dataset.method,
+                shipping_method: isPickup ? 'pickup' : 'delivery',
+                shipping_cost: shipping,
+                order_number: orderNumber
+            })
         })
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Error en la respuesta del servidor: ' + response.status);
-        }
-        return response.json();
-    })
-    .then(data => {
-        if (data.success) {
-            // Actualizar el número de pedido en el modal
-            document.getElementById('orderNumber').textContent = orderNumber;
-            
-            // Mostrar el modal de éxito
-            document.getElementById('orderSuccess').classList.remove('hidden');
-            
-            // Limpiar el carrito (opcional, ya que el backend también lo hace)
-            // localStorage.removeItem('cart');
-        } else {
-            // Mostrar mensaje de error
-            alert('Error al procesar el pedido: ' + data.message);
-        }
-    })
-    .catch(error => {
-        console.error('Error al procesar el pedido:', error);
-        alert('Ocurrió un error al procesar el pedido. Por favor, inténtalo de nuevo.');
-    })
-    .finally(() => {
-        // Restaurar el botón
-        placeOrderBtn.innerHTML = 'Realizar Pedido';
-        placeOrderBtn.classList.remove('loading');
-    });
-}
-    
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error en la respuesta del servidor: ' + response.status);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                // Actualizar el número de pedido en el modal
+                document.getElementById('orderNumber').textContent = orderNumber;
+                
+                // Mostrar el modal de éxito
+                document.getElementById('orderSuccess').classList.remove('hidden');
+            } else {
+                // Mostrar mensaje de error
+                alert('Error al procesar el pedido: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error al procesar el pedido:', error);
+            alert('Ocurrió un error al procesar el pedido. Por favor, inténtalo de nuevo.');
+        })
+        .finally(() => {
+            // Restaurar el botón
+            placeOrderBtn.innerHTML = 'Realizar Pedido';
+            placeOrderBtn.classList.remove('loading');
+        });
+    }
 </script>
 {% endblock %}
 
