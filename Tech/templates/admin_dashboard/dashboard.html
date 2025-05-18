@@ -277,5 +277,42 @@
             }
         }
     });
+
+    // Nuevo Gráfico de Ganancias Mensuales (Órdenes Completadas)
+    var ctxEarnings = document.getElementById('monthlyEarningsChart').getContext('2d');
+    var monthlyEarningsChart = new Chart(ctxEarnings, {
+        type: 'bar',
+        data: {
+            labels: [
+                'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
+                'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+            ],
+            datasets: [{
+                label: 'Ganancias ($)',
+                data: [
+                    {% for month in monthly_order_earnings %}
+                        {{ month.total|default:0 }}{% if not forloop.last %},{% endif %}
+                    {% endfor %}
+                ],
+                backgroundColor: 'rgba(40, 167, 69, 0.5)',
+                borderColor: 'rgba(40, 167, 69, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return '$' + value;
+                        }
+                    }
+                }
+            }
+        }
+    });
 </script>
 {% endblock %}
+
