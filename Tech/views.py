@@ -2085,7 +2085,6 @@ def prueba(request):
 
 
 
-
 @login_required
 @user_passes_test(is_admin)
 def admin_dashboard(request):
@@ -2101,6 +2100,15 @@ def admin_dashboard(request):
     total_sales = sales.count()
     total_revenue = sales.aggregate(total=Sum('total'))['total'] or 0
     
+    # Órdenes completadas y ganancias
+    completed_orders = Order.objects.filter(status='completed')
+    total_completed_orders = completed_orders.count()
+    total_earnings = completed_orders.aggregate(total=Sum('total'))['total'] or 0
+    
+    # Órdenes completadas este mes
+    monthly_completed_orders = completed_orders.filter(completion_date__range=[start_date, end_date])
+    monthly_earnings = monthly_completed_orders.aggregate(total=Sum('total'))['total'] or 0
+    
     # Productos con stock bajo
     low_stock_products = Product.objects.filter(
         is_available=True, 
@@ -2109,6 +2117,9 @@ def admin_dashboard(request):
     
     # Ventas recientes
     recent_sales = Sale.objects.order_by('-date')[:5]
+    
+    # Órdenes recientes completadas
+    recent_completed_orders = Order.objects.filter(status='completed').order_by('-completion_date')[:5]
     
     # Datos para gráficos
     monthly_sales = Sale.objects.filter(
@@ -2123,18 +2134,32 @@ def admin_dashboard(request):
         sales_total=Sum('product__saleitem__subtotal')
     )
     
+    # Ganancias mensuales de órdenes completadas
+    monthly_order_earnings = Order.objects.filter(
+        status='completed',
+        completion_date__year=timezone.now().year
+    ).values('completion_date__month').annotate(
+        total=Sum('total')
+    ).order_by('completion_date__month')
+    
     context = {
         'total_users': total_users,
         'total_products': total_products,
         'total_sales': total_sales,
         'total_revenue': total_revenue,
+        'total_completed_orders': total_completed_orders,
+        'total_earnings': total_earnings,
+        'monthly_earnings': monthly_earnings,
         'low_stock_products': low_stock_products,
         'recent_sales': recent_sales,
+        'recent_completed_orders': recent_completed_orders,
         'monthly_sales': list(monthly_sales),
+        'monthly_order_earnings': list(monthly_order_earnings),
         'category_sales': category_sales,
     }
     
     return render(request, 'admin_dashboard/dashboard.html', context)
+
 
 # Gestión de Usuarios
 @login_required
