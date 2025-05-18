@@ -640,7 +640,11 @@ class Order(models.Model):
         ('transfer', 'Transferencia'),
         ('store', 'Tienda'),
     ]
-
+    SHIPPING_CHOICES = [
+        ('delivery', 'Entrega a domicilio'),
+        ('pickup', 'Recoger en tienda'),
+    ]
+    shipping_method = models.CharField(max_length=20, choices=SHIPPING_CHOICES, default='pickup')
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     order_number = models.CharField(max_length=20, unique=True, default=generate_order_number)
     total = models.DecimalField(max_digits=10, decimal_places=2)
