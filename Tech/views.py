@@ -1773,10 +1773,19 @@ def process_order(request):
             if not cart:
                 return JsonResponse({'success': False, 'message': "No hay productos en el carrito para realizar la compra."})
 
+            # Verificar si es recoger en tienda
+            shipping_method = data.get('shipping_method', 'pickup')  # Default to pickup
+            
             # Calcular el total del pedido asegurando que subtotal sea Decimal
             subtotal = sum(Decimal(str(item['subtotal'])) for item in cart.values())  # Convertimos a Decimal
             tax = subtotal * Decimal('0.15')  # 15% IVA
-            shipping_cost = Decimal(str(data.get('shipping_cost', '5.00')))  # Convertir shipping_cost a Decimal
+            
+            # Si es recoger en tienda, el costo de envío es 0
+            if shipping_method == 'pickup':
+                shipping_cost = Decimal('0.00')
+            else:
+                shipping_cost = Decimal(str(data.get('shipping_cost', '5.00')))  # Convertir shipping_cost a Decimal
+                
             total = subtotal + tax + shipping_cost  # Suma sin errores
 
             # Crear un nuevo pedido en la base de datos con datos de entrega
@@ -1789,11 +1798,12 @@ def process_order(request):
                 email=data.get('email'),
                 phone=data.get('phone'),
                 fullname=data.get('fullname'),
-                address=data.get('address'),
-                city=data.get('city'),
-                postal_code=data.get('postal'),
-                state=data.get('state'),
+                address=data.get('address', '') if shipping_method != 'pickup' else '',  # Opcional si es recoger en tienda
+                city=data.get('city', '') if shipping_method != 'pickup' else '',  # Opcional si es recoger en tienda
+                postal_code=data.get('postal', '') if shipping_method != 'pickup' else '',  # Opcional si es recoger en tienda
+                state=data.get('state', '') if shipping_method != 'pickup' else '',  # Opcional si es recoger en tienda
                 payment_method=data.get('payment_method'),
+                shipping_method=shipping_method,  # Guardar el método de envío
                 shipping_cost=shipping_cost
             )
             
@@ -1826,7 +1836,6 @@ def process_order(request):
             return JsonResponse({'success': False, 'message': f'Error al procesar el pedido: {str(e)}'})
 
     return JsonResponse({'success': False, 'message': 'Método no permitido'})
-
 
 
 def order_success(request, order_id=None):
